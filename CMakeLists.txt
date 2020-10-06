@@ -167,6 +167,12 @@ if( VVDEC_ENABLE_LINK_TIME_OPT )
     set( CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON )
 endif()
 
+# disable warning "The file contains a character that cannot be represented in the current code page"
+if( MSVC )
+  # add compile options
+  add_compile_options( "/wd4819" )
+endif()
+
 # use ccache
 find_program( CCACHE_FOUND ccache )
 if( CCACHE_FOUND )
