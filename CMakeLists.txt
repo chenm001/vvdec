@@ -146,6 +146,12 @@ if( MSVC )
   add_compile_options( "/EHsc" )
 endif()
 
+# disable warning "The file contains a character that cannot be represented in the current code page"
+if( MSVC )
+  # add compile options
+  add_compile_options( "/wd4819" )
+endif()
+
 ## set address sanitizer compiler arguments
 #if( USE_ADDRESS_SANITIZER )
 #  # add compile options
