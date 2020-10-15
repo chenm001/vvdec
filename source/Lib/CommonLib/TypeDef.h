@@ -187,7 +187,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 // SIMD optimizations
-#define SIMD_ENABLE                                       1
+#define SIMD_ENABLE                                       0
 #define ENABLE_SIMD_OPT                                 ( SIMD_ENABLE && !RExt__HIGH_BIT_DEPTH_SUPPORT )    ///< SIMD optimizations, no impact on RD performance
 #define ENABLE_SIMD_OPT_MCIF                            ( 1 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for the interpolation filter, no impact on RD performance
 #define ENABLE_SIMD_OPT_BUFFER                          ( 1 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for the buffer operations, no impact on RD performance
@@ -198,12 +198,12 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #if ENABLE_SIMD_OPT_BUFFER
 #define ENABLE_SIMD_OPT_GBI                               1                                                 ///< SIMD optimization for GBi
 #endif
-#define ENABLE_SIMD_OPT_BIO                             ( 1 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for BIO
-#define ENABLE_SIMD_OPT_PICTURE                         ( 1 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for Picture Padding
-#define ENABLE_SIMD_OPT_SAO                             ( 1 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for BIO
-#define ENABLE_SIMD_TCOEFF_OPS                          ( 1 && ENABLE_SIMD_OPT )
-#define ENABLE_SIMD_LOG2                                ( 1 && ENABLE_SIMD_OPT )
-#define ENABLE_SIMD_DBLF                                ( 1 && ENABLE_SIMD_OPT )
+#define ENABLE_SIMD_OPT_BIO                             ( 0 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for BIO
+#define ENABLE_SIMD_OPT_PICTURE                         ( 0 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for Picture Padding
+#define ENABLE_SIMD_OPT_SAO                             ( 0 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for BIO
+#define ENABLE_SIMD_TCOEFF_OPS                          ( 0 && ENABLE_SIMD_OPT )
+#define ENABLE_SIMD_LOG2                                ( 0 && ENABLE_SIMD_OPT )
+#define ENABLE_SIMD_DBLF                                ( 0 && ENABLE_SIMD_OPT )
 
 // End of SIMD optimizations
 

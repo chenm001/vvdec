@@ -191,10 +191,8 @@ const uint32_t g_log2SbbSize[MAX_LOG2_TU_SIZE_PLUS_ONE][MAX_LOG2_TU_SIZE_PLUS_ON
 // initialize ROM variables
 void initROM()
 {
-#if RExt__HIGH_BIT_DEPTH_SUPPORT || !( ENABLE_SIMD_LOG2 && defined( TARGET_SIMD_X86 ) )
   int c;
 
-#endif
 #if RExt__HIGH_BIT_DEPTH_SUPPORT
   {
     c = 64;
@@ -221,7 +219,7 @@ void initROM()
   }
 
 #endif
-#if !( ENABLE_SIMD_LOG2 && defined( TARGET_SIMD_X86 ) )
+
   // g_aucConvertToBit[ x ]: log2(x/4), if x=4 -> 0, x=8 -> 1, x=16 -> 2, ...
   // g_aucLog2[ x ]: log2(x), if x=1 -> 0, x=2 -> 1, x=4 -> 2, x=8 -> 3, x=16 -> 4, ...
   ::memset(g_aucLog2, 0, sizeof(g_aucLog2));
@@ -240,7 +238,6 @@ void initROM()
     g_aucLog2    [i] = c;
   }
 
-#endif
   const SizeIndexInfoLog2 &sizeInfo = g_sizeIdxInfo;
 
   {

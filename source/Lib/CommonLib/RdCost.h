@@ -104,12 +104,6 @@ public:
   RdCost();
   ~RdCost();
 
-#ifdef TARGET_SIMD_X86
-  void initRdCostX86();
-  template <X86_VEXT vext>
-  void _initRdCostX86();
-#endif
-
   static void setDistParam( DistParam &rcDP, const Pel* pOrg, const Pel* piRefY, ptrdiff_t iOrgStride, ptrdiff_t iRefStride, int bitDepth, int width, int height, int subShiftMode = 0 );
 
 private:
@@ -122,12 +116,6 @@ private:
   static Distortion xGetSAD64         ( const DistParam& pcDtParam );
   static Distortion xGetSAD16N        ( const DistParam& pcDtParam );
 
-#ifdef TARGET_SIMD_X86
-  template< X86_VEXT vext >
-  static Distortion xGetSAD_16xN_SIMD ( const DistParam& pcDtParam );
-  template< int iWidth, X86_VEXT vext >
-  static Distortion xGetSAD_NxN_SIMD  ( const DistParam& pcDtParam );
-#endif
 };// END CLASS DEFINITION RdCost
 
 //! \}

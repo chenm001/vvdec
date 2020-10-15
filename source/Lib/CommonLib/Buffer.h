@@ -69,14 +69,6 @@ struct PelBufferOps
 {
   PelBufferOps();
 
-#if ENABLE_SIMD_OPT_BUFFER
-#ifdef TARGET_SIMD_X86
-  void initPelBufOpsX86();
-  template<X86_VEXT vext>
-  void _initPelBufOpsX86();
-
-#endif
-#endif
   void ( *addAvg4 )       ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset,      const ClpRng& clpRng );
   void ( *addAvg8 )       ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset,      const ClpRng& clpRng );
   void ( *addAvg16 )      ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset,      const ClpRng& clpRng );
@@ -367,7 +359,7 @@ void AreaBuf<T>::memset( const int val )
   GCC_WARNING_RESET
 }
 
-#if ENABLE_SIMD_OPT_BUFFER && defined( TARGET_SIMD_X86 )
+#if ENABLE_SIMD_OPT_BUFFER && 0
 template<typename T>
 void AreaBuf<T>::copyFrom( const AreaBuf<const T> &other ) const
 {
@@ -575,7 +567,7 @@ void AreaBuf<T>::extendBorderPel(unsigned margin, bool left, bool right, bool to
   }
 }
 
-#if ENABLE_SIMD_OPT_BUFFER && defined(TARGET_SIMD_X86)
+#if ENABLE_SIMD_OPT_BUFFER && 0
 template<> void AreaBuf<Pel>::transposedFrom( const AreaBuf<const Pel> &other );
 #endif
 

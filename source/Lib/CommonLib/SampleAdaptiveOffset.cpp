@@ -352,7 +352,6 @@ void SampleAdaptiveOffset::create( int picWidth, int picHeight, ChromaFormat for
 {
   offsetBlock = offsetBlock_core;
 #if ENABLE_SIMD_OPT_SAO
-  initSampleAdaptiveOffsetX86();
 #endif
 
   //temporary picture buffer

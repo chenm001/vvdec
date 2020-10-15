@@ -504,24 +504,13 @@ T* aligned_malloc(size_t len, size_t alignement) {
 #if ENABLE_SIMD_OPT
 
 #if defined(__i386__) || defined(i386) || defined(__x86_64__) || defined(_M_X64) || defined (_WIN32) || defined (_MSC_VER)
-#define TARGET_SIMD_X86
 typedef enum{
   SCALAR = 0,
-  SSE41,
-  SSE42,
-  AVX,
-  AVX2,
-  AVX512
 } X86_VEXT;
 #elif defined (__ARM_NEON__)
 #define TARGET_SIMD_ARM 1
 #else
 #error no simd target
-#endif
-
-#ifdef TARGET_SIMD_X86
-X86_VEXT read_x86_extension_flags(const std::string &extStrId = std::string());
-const char* read_x86_extension(const std::string &extStrId);
 #endif
 
 #endif //ENABLE_SIMD_OPT
@@ -531,26 +520,6 @@ template <typename ValueType> inline ValueType rightShift      (const ValueType 
 template <typename ValueType> inline ValueType leftShift_round (const ValueType value, const int shift) { return (shift >= 0) ? ( value                                  << shift) : ((value + (ValueType(1) << (-shift - 1))) >> -shift); }
 template <typename ValueType> inline ValueType rightShift_round(const ValueType value, const int shift) { return (shift >= 0) ? ((value + (ValueType(1) << (shift - 1))) >> shift) : ( value                                   << -shift); }
 
-#ifdef TARGET_SIMD_X86
-#ifdef _WIN32
-# include <intrin.h>
-static inline unsigned long _bit_scan_reverse( long a )
-{
-  unsigned long idx = 0;
-  _BitScanReverse( &idx, a );
-  return idx;
-}
-#else
-# include <x86intrin.h>
-#endif
-
-#endif
-#if ENABLE_SIMD_LOG2 && defined( TARGET_SIMD_X86 )
-static inline int getLog2( long val )
-{
-  return _bit_scan_reverse( val );
-}
-#else
 #include <cmath>
 extern int8_t g_aucLog2[MAX_CU_SIZE + 1];
 static inline int getLog2( long val )
@@ -562,7 +531,6 @@ static inline int getLog2( long val )
   }
   return std::log2(val);
 }
-#endif
 
 //CASE-BREAK for breakpoints
 #if defined ( _MSC_VER ) && defined ( _DEBUG )
