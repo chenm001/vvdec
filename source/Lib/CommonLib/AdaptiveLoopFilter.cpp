@@ -69,9 +69,6 @@ AdaptiveLoopFilter::AdaptiveLoopFilter()
   m_filter7x7Blk            = filterBlk<ALF_FILTER_7>;
 
 #if ENABLE_SIMD_OPT_ALF
-# ifdef TARGET_SIMD_X86
-  initAdaptiveLoopFilterX86();
-# endif
 #endif
 
   for( int filterSetIndex = 0; filterSetIndex < NUM_FIXED_FILTER_SETS; filterSetIndex++ )

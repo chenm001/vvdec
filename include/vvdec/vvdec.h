@@ -108,11 +108,6 @@ enum SIMD_Extension
 {
   SIMD_DEFAULT  = 0,
   SIMD_SCALAR   = 1,
-  SIMD_SSE41    = 2,
-  SIMD_SSE42    = 3,
-  SIMD_AVX      = 4,
-  SIMD_AVX2     = 5,
-  SIMD_AVX512   = 6
 };
 
 

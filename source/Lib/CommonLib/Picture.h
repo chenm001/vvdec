@@ -304,9 +304,6 @@ public:
   }
 
 #if  ENABLE_SIMD_OPT_PICTURE
-  void initPictureX86();
-  template <X86_VEXT vext>
-  void _initPictureX86();
 #endif
 };
 

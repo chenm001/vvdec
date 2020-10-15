@@ -191,10 +191,6 @@ public:
 #endif
   void xPredInterBlkRPR( const std::pair<int, int>& scalingRatio, const PPS& pps, const ComponentID& compID, const ChromaFormat chFmt, const Picture* refPic, const Mv& mv, const Position blkPos, const int dstWidth, const int dstHeight, Pel* dst, const ptrdiff_t dstStride, const bool bi, const bool wrapRef, const ClpRng& clpRng, const int filterIndex, const bool useAltHpelIf = false );
 #if ENABLE_SIMD_OPT_BIO
-
-  void initInterPredictionX86();
-  template <X86_VEXT vext>
-  void _initInterPredictionX86();
 #endif
 };
 

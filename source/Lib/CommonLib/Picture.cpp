@@ -244,7 +244,6 @@ void Picture::finalInit( const SPS *sps, const PPS *pps, PicHeader* picHeader, A
   paddPicBorderLeftRight = paddPicBorderLeftRightCore;
 
 #if ENABLE_SIMD_OPT_PICTURE
-  initPictureX86();
 #endif
 }
 

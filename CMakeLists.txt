@@ -133,7 +133,7 @@ find_package( Threads REQUIRED )
 
 # enable sse4.1 build for all source files for gcc and clang
 if( UNIX OR MINGW )
-  add_compile_options( "-msse4.1" )
+#  add_compile_options( "-msse4.1" )
 endif()
 
 # set _WIN32_WINNT
