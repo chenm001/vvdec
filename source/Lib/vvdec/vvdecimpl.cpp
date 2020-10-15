@@ -95,11 +95,6 @@ int VVDecImpl::init( const VVDecParameter& rcVVDecParameter )
   switch( rcVVDecParameter.m_eSIMD_Extension )
   {
   case SIMD_SCALAR: read_x86_extension( "SCALAR" ); break;
-  case SIMD_SSE41 : read_x86_extension( "SSE41"  ); break;
-  case SIMD_SSE42 : read_x86_extension( "SSE42"  ); break;
-  case SIMD_AVX   : read_x86_extension( "AVX"    ); break;
-  case SIMD_AVX2  : read_x86_extension( "AVX2"   ); break;
-  case SIMD_AVX512: read_x86_extension( "AVX512" ); break;
 
   case SIMD_DEFAULT:
   default: break;

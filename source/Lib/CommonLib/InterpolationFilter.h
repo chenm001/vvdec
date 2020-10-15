@@ -116,11 +116,6 @@ public:
   void( *m_filter16x16[3][2] ) ( const ClpRng& clpRng, const Pel* src, const ptrdiff_t srcStride, Pel* dst, const ptrdiff_t dstStride, int width, int height, TFilterCoeff const *coeffH, TFilterCoeff const *coeffV );
   void( *m_weightedGeoBlk )(const PredictionUnit &pu, const uint32_t width, const uint32_t height, const ComponentID compIdx, const uint8_t splitDir, PelUnitBuf& predDst, PelUnitBuf& predSrc0, PelUnitBuf& predSrc1, const ClpRng& clpRng);
   void initInterpolationFilter( bool enable );
-#ifdef TARGET_SIMD_X86
-  void initInterpolationFilterX86();
-  template <X86_VEXT vext>
-  void _initInterpolationFilterX86();
-#endif
 
   void filterN2_2D(const ComponentID compID, const Pel* src, const ptrdiff_t srcStride, Pel* dst, const ptrdiff_t dstStride, int width, int height, int fracX, int fracY, const ChromaFormat fmt, const ClpRng& clpRng);
   void filter4x4  (const ComponentID compID, const Pel* src, const ptrdiff_t srcStride, Pel* dst, const ptrdiff_t dstStride, int width, int height, int fracX, int fracY, bool isLast, const ChromaFormat fmt, const ClpRng& clpRng, int nFilterIdx = 0);

@@ -1328,12 +1328,9 @@ void InterpolationFilter::xWeightedGeoBlk(const PredictionUnit &pu, const uint32
 void InterpolationFilter::initInterpolationFilter( bool enable )
 {
 #if ENABLE_SIMD_OPT_MCIF
-#ifdef TARGET_SIMD_X86
   if ( enable )
   {
-    initInterpolationFilterX86();
   }
-#endif
 #endif
 }
 

@@ -143,10 +143,6 @@ private:
 
 
 #if ENABLE_SIMD_OPT_QUANT
-  void initQuantX86();
-  template <X86_VEXT vext>
-  void _initQuantX86();
-
 #endif
 
 };// END CLASS DEFINITION Quant

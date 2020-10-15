@@ -164,14 +164,6 @@ protected:
   Reshape* m_pcReshape;
 
 
-#ifdef TARGET_SIMD_X86
-  void initSampleAdaptiveOffsetX86();
-  template <X86_VEXT vext>
-  void _initSampleAdaptiveOffsetX86();
-#endif
-
-
-
 protected:
   std::array<uint32_t, MAX_NUM_COMPONENT> m_offsetStepLog2;   // offset step
   PelStorage                              m_tempBuf;

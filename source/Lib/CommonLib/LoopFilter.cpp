@@ -56,10 +56,6 @@ vvc@hhi.fraunhofer.de
 
 #include "Quant.h"
 
-#ifdef TARGET_SIMD_X86
-#include "CommonDefX86.h"
-#endif
-
 //! \ingroup CommonLib
 //! \{
 
@@ -358,8 +354,7 @@ LoopFilter::LoopFilter()
   xPelFilterLuma  = xPelFilterLumaCore;
   xFilteringPandQ = xFilteringPandQCore;
 
-#if defined( TARGET_SIMD_X86 ) && ENABLE_SIMD_DBLF
-  initLoopFilterX86();
+#if ENABLE_SIMD_DBLF
 #endif
 }
 
@@ -1226,75 +1221,36 @@ void LoopFilter::xGetBoundaryStrengthSingle( LoopFilterParam& lfp, const CodingU
     //th can be optimized
     if( ( piRefP0 == piRefQ0 && piRefP1 == piRefQ1 ) || ( piRefP0 == piRefQ1 && piRefP1 == piRefQ0 ) )
     {
-#if defined( TARGET_SIMD_X86 ) && ENABLE_SIMD_DBLF
-      const __m128i xmvP = _mm_unpacklo_epi64( 0 <= miP.refIdx[0] ? _mm_loadl_epi64( ( const __m128i* ) &miP.mv[0] ) : _mm_setzero_si128(), 0 <= miP.refIdx[1] ? _mm_loadl_epi64( ( const __m128i* ) &miP.mv[1] ) : _mm_setzero_si128() );
-      const __m128i xmvQ = _mm_unpacklo_epi64( 0 <= miQ.refIdx[0] ? _mm_loadl_epi64( ( const __m128i* ) &miQ.mv[0] ) : _mm_setzero_si128(), 0 <= miQ.refIdx[1] ? _mm_loadl_epi64( ( const __m128i* ) &miQ.mv[1] ) : _mm_setzero_si128() );
-      const __m128i xth  = _mm_set1_epi32( nThreshold - 1 );
-#else
       Mv mvP[2] = { { 0, 0 }, { 0, 0 } }, mvQ[2] = { { 0, 0 }, { 0, 0 } };
 
       if( 0 <= miP.refIdx[0] ) { mvP[0] = miP.mv[0]; }
       if( 0 <= miP.refIdx[1] ) { mvP[1] = miP.mv[1]; }
       if( 0 <= miQ.refIdx[0] ) { mvQ[0] = miQ.mv[0]; }
       if( 0 <= miQ.refIdx[1] ) { mvQ[1] = miQ.mv[1]; }
-#endif
+
       if( piRefP0 != piRefP1 )   // Different L0 & L1
       {
         if( piRefP0 == piRefQ0 )
         {
-#if defined( TARGET_SIMD_X86 ) && ENABLE_SIMD_DBLF
-          __m128i
-          xdiff = _mm_sub_epi32  ( xmvQ, xmvP );
-          xdiff = _mm_abs_epi32  ( xdiff );
-          xdiff = _mm_cmpgt_epi32( xdiff, xth );
-          uiBs  = _mm_testz_si128( xdiff, xdiff ) ? 0 : 1;
-#else
           uiBs = ( ( abs( mvQ[0].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
                    ( abs( mvQ[1].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[1].getVer() ) >= nThreshold ) )
                  ? 1 : 0;
-#endif
         }
         else
         {
-#if defined( TARGET_SIMD_X86 ) && ENABLE_SIMD_DBLF
-          __m128i
-          xmvQ1 = _mm_shuffle_epi32( xmvQ, ( 2 << 0 ) + ( 3 <<  2 ) + ( 0 << 4 ) + ( 1 << 6 ) );
-          __m128i
-          xdiff = _mm_sub_epi32  ( xmvQ1, xmvP );
-          xdiff = _mm_abs_epi32  ( xdiff );
-          xdiff = _mm_cmpgt_epi32( xdiff, xth );
-          uiBs  = _mm_testz_si128( xdiff, xdiff ) ? 0 : 1;
-#else
           uiBs = ( ( abs( mvQ[1].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
                    ( abs( mvQ[0].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[1].getVer() ) >= nThreshold ) )
                  ? 1 : 0;
-#endif
         }
       }
       else    // Same L0 & L1
       {
-
-#if defined( TARGET_SIMD_X86 ) && ENABLE_SIMD_DBLF
-        __m128i
-        xmvQ1 = _mm_shuffle_epi32( xmvQ, ( 2 << 0 ) + ( 3 << 2 ) + ( 0 << 4 ) + ( 1 << 6 ) );
-        __m128i
-        xdiff = _mm_sub_epi32( xmvQ1, xmvP );
-        xdiff = _mm_abs_epi32( xdiff );
-        xdiff = _mm_cmpgt_epi32( xdiff, xth );
-        uiBs  = _mm_testz_si128( xdiff, xdiff ) ? 0 : 1;
-
-        xdiff = _mm_sub_epi32( xmvQ, xmvP );
-        xdiff = _mm_abs_epi32( xdiff );
-        xdiff = _mm_cmpgt_epi32( xdiff, xth );
-        uiBs &= _mm_testz_si128( xdiff, xdiff ) ? 0 : 1;
-#else
         uiBs = ( ( abs( mvQ[0].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
                  ( abs( mvQ[1].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[1].getVer() ) >= nThreshold ) )
                &&
                ( ( abs( mvQ[1].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
                  ( abs( mvQ[0].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[1].getVer() ) >= nThreshold ) )
                ? 1 : 0;
-#endif
       }
     }
     else // for all different Ref_Idx

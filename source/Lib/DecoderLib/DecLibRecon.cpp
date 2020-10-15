@@ -117,10 +117,8 @@ void CommonTaskParam::reset( CodingStructure& cs, TaskType ctuStartState, int ta
 DecLibRecon::DecLibRecon()
 {
 #if ENABLE_SIMD_OPT_BUFFER
-  g_pelBufOP.initPelBufOpsX86();
 #endif
 #if ENABLE_SIMD_TCOEFF_OPS
-  g_tCoeffOps.initTCoeffOps();
 #endif
 
 }

@@ -51,8 +51,6 @@ vvc@hhi.fraunhofer.de
 #include "Buffer.h"
 #include "InterpolationFilter.h"
 
-#include "CommonDefX86.h"
-
 template< typename T >
 void addAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t dstStride, int width, int height, int rshift, int offset, const ClpRng& clpRng )
 {
@@ -159,11 +157,6 @@ void addWeightedAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptr
 
 void copyBufferCore( const char *src, ptrdiff_t srcStride, char *dst, ptrdiff_t dstStride, int width, int height )
 {
-  _mm_prefetch( (const char *) ( src ),             _MM_HINT_T0 );
-  _mm_prefetch( (const char *) ( src + srcStride ), _MM_HINT_T0 );
-  _mm_prefetch( (const char *) ( dst ),             _MM_HINT_T0 );
-  _mm_prefetch( (const char *) ( dst + dstStride ), _MM_HINT_T0 );
-
   if( width == srcStride && width == dstStride )
   {
     memcpy( dst, src, width * height );
@@ -171,9 +164,6 @@ void copyBufferCore( const char *src, ptrdiff_t srcStride, char *dst, ptrdiff_t 
 
   for( int i = 0; i < height; i++ )
   {
-    _mm_prefetch( (const char *) ( src + srcStride ), _MM_HINT_T0 );
-    _mm_prefetch( (const char *) ( dst + dstStride ), _MM_HINT_T0 );
-
     memcpy( dst, src, width );
 
     src += srcStride;
@@ -453,7 +443,7 @@ void AreaBuf<Pel>::linearTransform( const int scale, const int shift, const int 
   }
 }
 
-#if ENABLE_SIMD_OPT_BUFFER && defined(TARGET_SIMD_X86)
+#if ENABLE_SIMD_OPT_BUFFER && 0
 template<>
 void AreaBuf<Pel>::transposedFrom( const AreaBuf<const Pel> &other )
 {

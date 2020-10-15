@@ -234,7 +234,6 @@ Quant::Quant()
   DeQuant= DeQuantCore;
   DeQuantPCM = DeQuantPCMCore;
 #if   ENABLE_SIMD_OPT_QUANT
-  initQuantX86();
 #endif
 
 }
