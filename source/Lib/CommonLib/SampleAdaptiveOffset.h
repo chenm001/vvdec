@@ -100,8 +100,7 @@ protected:
                                              bool&            isBelowLeftAvail,
                                              bool&            isBelowRightAvail ) const;
 
-  static void offsetBlock_core( const ClpRng&        clpRng,
-                                int                  typeIdx,
+  static void offsetBlock_core( int                  typeIdx,
                                 int*                 offset,
                                 int                  startIdx,
                                 const Pel*           srcBlk,
@@ -126,8 +125,7 @@ protected:
                                 int                  numHorVirBndry,
                                 int                  numVerVirBndry );
 
-  void ( *offsetBlock )( const ClpRng&        clpRng,
-                         int                  typeIdx,
+  void ( *offsetBlock )( int                  typeIdx,
                          int*                 offset,
                          int                  startIdx,
                          const Pel*           srcBlk,

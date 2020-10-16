@@ -61,8 +61,7 @@ vvc@hhi.fraunhofer.de
 //! \ingroup CommonLib
 //! \{
 
-void SampleAdaptiveOffset::offsetBlock_core( const ClpRng&        clpRng,
-                                             int                  typeIdx,
+void SampleAdaptiveOffset::offsetBlock_core( int                  typeIdx,
                                              int*                 offset,
                                              int                  startIdx,
                                              const Pel*           srcBlk,
@@ -694,8 +693,7 @@ void SampleAdaptiveOffset::offsetCTU( const UnitArea& area, const CPelUnitBuf& s
         verVirBndryPosComp[i] = (verVirBndryPos[i] >> ::getComponentScaleX(compID, area.chromaFormat)) - compArea.x;
       }
 
-      offsetBlock( cs.getCtuData(cs.ctuRsAddr(area.Y().pos(), CH_L)).cuPtr[0][0]->slice->clpRng(compID),
-                   ctbOffset.typeIdc, ctbOffset.offset,ctbOffset.typeAuxInfo
+      offsetBlock( ctbOffset.typeIdc, ctbOffset.offset,ctbOffset.typeAuxInfo
                   , srcBlk, resBlk, srcStride, resStride, compArea.width, compArea.height
                   , isLeftAvail, isRightAvail
                   , isAboveAvail, isBelowAvail

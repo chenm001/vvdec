@@ -52,7 +52,7 @@ vvc@hhi.fraunhofer.de
 #include "InterpolationFilter.h"
 
 template< typename T >
-void addAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t dstStride, int width, int height, int rshift, int offset, const ClpRng& clpRng )
+void addAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t dstStride, int width, int height, int rshift, int offset )
 {
 #define ADD_AVG_CORE_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src1[ADDR] + src2[ADDR] + offset ), rshift ) )
 #define ADD_AVG_CORE_INC    \
@@ -67,7 +67,7 @@ void addAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t s
 }
 
 template<typename T>
-void reconstructCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t dstStride, int width, int height, const ClpRng& clpRng )
+void reconstructCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t dstStride, int width, int height )
 {
 #define RECO_CORE_OP( ADDR ) dest[ADDR] = ClipPel( src1[ADDR] + src2[ADDR] )
 #define RECO_CORE_INC     \
@@ -83,7 +83,7 @@ void reconstructCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdif
 
 
 template<typename T>
-void linTfCore( const T* src, ptrdiff_t srcStride, Pel *dst, ptrdiff_t dstStride, int width, int height, int scale, int shift, int offset, const ClpRng& clpRng, bool bClip )
+void linTfCore( const T* src, ptrdiff_t srcStride, Pel *dst, ptrdiff_t dstStride, int width, int height, int scale, int shift, int offset, bool bClip )
 {
 #define LINTF_CORE_OP( ADDR ) dst[ADDR] = ( Pel ) bClip ? ClipPel( rightShift( scale * src[ADDR], shift ) + offset ) : ( rightShift( scale * src[ADDR], shift ) + offset )
 #define LINTF_CORE_INC  \
@@ -127,9 +127,9 @@ void transpose8x8Core( const Pel* src, ptrdiff_t srcStride, Pel* dst, ptrdiff_t 
 }
 
 template<typename T>
-void copyClipCore( const T* src, ptrdiff_t srcStride, Pel *dst, ptrdiff_t dstStride, int width, int height, const ClpRng& clpRng )
+void copyClipCore( const T* src, ptrdiff_t srcStride, Pel *dst, ptrdiff_t dstStride, int width, int height )
 {
-#define RECO_OP( ADDR ) dst[ADDR] = ClipPel( src[ADDR], clpRng )
+#define RECO_OP( ADDR ) dst[ADDR] = ClipPel( src[ADDR] )
 #define RECO_INC      \
     src += srcStride; \
     dst += dstStride; \
@@ -141,7 +141,7 @@ void copyClipCore( const T* src, ptrdiff_t srcStride, Pel *dst, ptrdiff_t dstStr
 }
 
 template<typename T>
-void addWeightedAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t destStride, int width, int height, int rshift, int offset, int w0, int w1, const ClpRng& clpRng )
+void addWeightedAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t destStride, int width, int height, int rshift, int offset, int w0, int w1 )
 {
 #define ADD_WGHT_AVG_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src1[ADDR]*w0 + src2[ADDR]*w1 + offset ), rshift ) )
 #define ADD_WGHT_AVG_INC     \
@@ -262,7 +262,7 @@ PelBufferOps::PelBufferOps()
 PelBufferOps g_pelBufOP = PelBufferOps();
 
 template<>
-void AreaBuf<Pel>::addWeightedAvg(const AreaBuf<const Pel> &other1, const AreaBuf<const Pel> &other2, const ClpRng& clpRng, const int8_t bcwIdx)
+void AreaBuf<Pel>::addWeightedAvg(const AreaBuf<const Pel> &other1, const AreaBuf<const Pel> &other2, const int8_t bcwIdx)
 {
   const int8_t w0 = getBcwWeight(bcwIdx, REF_PIC_LIST_0);
   const int8_t w1 = getBcwWeight(bcwIdx, REF_PIC_LIST_1);
@@ -279,11 +279,11 @@ void AreaBuf<Pel>::addWeightedAvg(const AreaBuf<const Pel> &other1, const AreaBu
 
   if( ( width & 7 ) == 0 )
   {
-    g_pelBufOP.wghtAvg8( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset, w0, w1, clpRng );
+    g_pelBufOP.wghtAvg8( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset, w0, w1 );
   }
   else if( ( width & 3 ) == 0 )
   {
-    g_pelBufOP.wghtAvg4( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset, w0, w1, clpRng );
+    g_pelBufOP.wghtAvg4( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset, w0, w1 );
   }
   else
   {
@@ -307,7 +307,7 @@ void AreaBuf<Pel>::rspSignal( const Pel* lut )
 }
 
 template<>
-void AreaBuf<Pel>::scaleSignal(const int scale, const ClpRng& clpRng)
+void AreaBuf<Pel>::scaleSignal(const int scale)
 {
   Pel* dst = buf;
   Pel* src = buf;
@@ -336,7 +336,7 @@ void AreaBuf<Pel>::scaleSignal(const int scale, const ClpRng& clpRng)
 }
 
 template<>
-void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const Pel> &other2, const ClpRng& clpRng)
+void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const Pel> &other2)
 {
   const Pel* src0 = other1.buf;
   const Pel* src2 = other2.buf;
@@ -350,15 +350,15 @@ void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const
 
   if( ( width & 15 ) == 0 )
   {
-    g_pelBufOP.addAvg16( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset, clpRng );
+    g_pelBufOP.addAvg16( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset );
   }
   else if( ( width & 7 ) == 0 )
   {
-    g_pelBufOP.addAvg8( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset, clpRng );
+    g_pelBufOP.addAvg8( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset );
   }
   else if( ( width & 3 ) == 0 )
   {
-    g_pelBufOP.addAvg4( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset, clpRng );
+    g_pelBufOP.addAvg4( src0, src1Stride, src2, src2Stride, dest, destStride, width, height, shiftNum, offset );
   }
   else
   {
@@ -376,7 +376,7 @@ void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const
 }
 
 template<>
-void AreaBuf<Pel>::reconstruct( const AreaBuf<const Pel> &pred, const AreaBuf<const Pel> &resi, const ClpRng& clpRng )
+void AreaBuf<Pel>::reconstruct( const AreaBuf<const Pel> &pred, const AreaBuf<const Pel> &resi )
 {
   const Pel* src1 = pred.buf;
   const Pel* src2 = resi.buf;
@@ -388,11 +388,11 @@ void AreaBuf<Pel>::reconstruct( const AreaBuf<const Pel> &pred, const AreaBuf<co
 
   if( ( width & 7 ) == 0 )
   {
-    g_pelBufOP.reco8( src1, src1Stride, src2, src2Stride, dest, destStride, width, height, clpRng );
+    g_pelBufOP.reco8( src1, src1Stride, src2, src2Stride, dest, destStride, width, height );
   }
   else if( ( width & 3 ) == 0 )
   {
-    g_pelBufOP.reco4( src1, src1Stride, src2, src2Stride, dest, destStride, width, height, clpRng );
+    g_pelBufOP.reco4( src1, src1Stride, src2, src2Stride, dest, destStride, width, height );
   }
   else
   {
@@ -410,7 +410,7 @@ void AreaBuf<Pel>::reconstruct( const AreaBuf<const Pel> &pred, const AreaBuf<co
 }
 
 template<>
-void AreaBuf<Pel>::linearTransform( const int scale, const int shift, const int offset, bool bClip, const ClpRng& clpRng )
+void AreaBuf<Pel>::linearTransform( const int scale, const int shift, const int offset, bool bClip )
 {
   const Pel* src = buf;
         Pel* dst = buf;
@@ -421,11 +421,11 @@ void AreaBuf<Pel>::linearTransform( const int scale, const int shift, const int 
   }
   else if( ( width & 7 ) == 0 )
   {
-    g_pelBufOP.linTf8( src, stride, dst, stride, width, height, scale, shift, offset, clpRng, bClip );
+    g_pelBufOP.linTf8( src, stride, dst, stride, width, height, scale, shift, offset, bClip );
   }
   else if( ( width & 3 ) == 0 )
   {
-    g_pelBufOP.linTf4( src, stride, dst, stride, width, height, scale, shift, offset, clpRng, bClip );
+    g_pelBufOP.linTf4( src, stride, dst, stride, width, height, scale, shift, offset, bClip );
   }
   else
   {
@@ -666,7 +666,7 @@ const CPelUnitBuf PelStorage::getBuf( const UnitArea &unit ) const
 }
 
 template<>
-void UnitBuf<Pel>::colorSpaceConvert( const UnitBuf<Pel> &other, const ClpRng& clpRng )
+void UnitBuf<Pel>::colorSpaceConvert( const UnitBuf<Pel> &other )
 {
   const Pel* pOrg0 = bufs[COMPONENT_Y ].buf;
   const Pel* pOrg1 = bufs[COMPONENT_Cb].buf;

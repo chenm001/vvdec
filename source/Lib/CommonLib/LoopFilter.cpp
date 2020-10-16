@@ -226,7 +226,7 @@ void xFilteringPandQCore( Pel* src, ptrdiff_t step, const ptrdiff_t offset, int 
 \param bFilterSecondQ  decision weak filter/no filter for partQ
 \param bitDepthLuma    luma bit depth
 */
-void xPelFilterLumaCorePel( Pel* piSrc, const ptrdiff_t iOffset, const int tc, const bool sw, const int iThrCut, const bool bFilterSecondP, const bool bFilterSecondQ, const ClpRng& clpRng )
+void xPelFilterLumaCorePel( Pel* piSrc, const ptrdiff_t iOffset, const int tc, const bool sw, const int iThrCut, const bool bFilterSecondP, const bool bFilterSecondQ )
 {
   const Pel m0  = piSrc[-4 * iOffset];
   const Pel m1  = piSrc[-3 * iOffset];
@@ -275,11 +275,11 @@ void xPelFilterLumaCorePel( Pel* piSrc, const ptrdiff_t iOffset, const int tc, c
   }
 }
 
-inline void xPelFilterLumaCore( Pel* piSrc, const ptrdiff_t step, const ptrdiff_t offset, const int tc, const bool sw, const int iThrCut, const bool bFilterSecondP, const bool bFilterSecondQ, const ClpRng& clpRng )
+inline void xPelFilterLumaCore( Pel* piSrc, const ptrdiff_t step, const ptrdiff_t offset, const int tc, const bool sw, const int iThrCut, const bool bFilterSecondP, const bool bFilterSecondQ )
 {
   for( int i = 0; i < DEBLOCK_SMALLEST_BLOCK / 2; i++ )
   {
-    xPelFilterLumaCorePel( piSrc + step * i, offset, tc, sw, iThrCut, bFilterSecondP, bFilterSecondQ, clpRng );
+    xPelFilterLumaCorePel( piSrc + step * i, offset, tc, sw, iThrCut, bFilterSecondP, bFilterSecondQ );
   }
 }
 
@@ -293,7 +293,7 @@ inline void xPelFilterLumaCore( Pel* piSrc, const ptrdiff_t step, const ptrdiff_
 \param bPartQNoFilter  indicator to disable filtering on partQ
 \param bitDepthChroma  chroma bit depth
 */
-static inline void xPelFilterChroma( Pel* piSrc, const ptrdiff_t iOffset, const int tc, const bool sw, const ClpRng& clpRng, const bool largeBoundary, const bool isChromaHorCTBBoundary )
+static inline void xPelFilterChroma( Pel* piSrc, const ptrdiff_t iOffset, const int tc, const bool sw, const bool largeBoundary, const bool isChromaHorCTBBoundary )
 {
   int delta;
 
@@ -1393,7 +1393,6 @@ void LoopFilter::xEdgeFilterLuma( CodingStructure& cs, const Position& pos, cons
   const SPS &     sps          = *cs.sps;
   const Slice &   slice        = *cs.m_ctuData[cs.ctuRsAddr( pos, CH_L )].cuPtr[0][0]->slice;
   constexpr int   bitDepthLuma = 8/*sps.getBitDepth( CHANNEL_TYPE_LUMA )*/;
-  const ClpRng &  clpRng       = slice.clpRng( COMPONENT_Y );
 
   const int  betaOffsetDiv2    = slice.getDeblockingFilterBetaOffsetDiv2();
   const int  tcOffsetDiv2      = slice.getDeblockingFilterTcOffsetDiv2();
@@ -1535,7 +1534,7 @@ void LoopFilter::xEdgeFilterLuma( CodingStructure& cs, const Position& pos, cons
             && xUseStrongFiltering( piSrc3, offset, 2 * d3, iBeta, iTc );
         }
 
-        xPelFilterLuma( piSrc, srcStep, offset, iTc, sw, iThrCut, bFilterP, bFilterQ, clpRng );
+        xPelFilterLuma( piSrc, srcStep, offset, iTc, sw, iThrCut, bFilterP, bFilterQ );
       }
     }
   }
@@ -1605,8 +1604,6 @@ void LoopFilter::xEdgeFilterChroma( CodingStructure &cs, const Position &pos, co
   {
     if( bS[chromaIdx] == 2 || ( largeBoundary && bS[chromaIdx] == 1 ) )
     {
-      const ClpRng& clpRng( cs.picture->slices[0]->clpRng( ComponentID( chromaIdx + 1 ) ) );
-
       int iQP = lfp.qp[chromaIdx + 1];
 
       const int iIndexTC = Clip3<int>( 0, MAX_QP + DEFAULT_INTRA_TC_OFFSET, iQP + DEFAULT_INTRA_TC_OFFSET * ( bS[chromaIdx] - 1 ) + ( tcOffsetDiv2[chromaIdx] << 1 ) );
@@ -1639,7 +1636,7 @@ void LoopFilter::xEdgeFilterChroma( CodingStructure &cs, const Position &pos, co
 
           for( unsigned uiStep = 0; uiStep < uiLoopLength; uiStep++ )
           {
-            xPelFilterChroma( piSrcChroma + srcStep * uiStep, offset, iTc, sw, clpRng, largeBoundary, isChromaHorCTBBoundary );
+            xPelFilterChroma( piSrcChroma + srcStep * uiStep, offset, iTc, sw, largeBoundary, isChromaHorCTBBoundary );
           }
 
           continue;
@@ -1648,7 +1645,7 @@ void LoopFilter::xEdgeFilterChroma( CodingStructure &cs, const Position &pos, co
 
       for( unsigned uiStep = 0; uiStep < uiLoopLength; uiStep++ )
       {
-        xPelFilterChroma( piSrcChroma + srcStep * uiStep, offset, iTc, false, clpRng, largeBoundary, isChromaHorCTBBoundary );
+        xPelFilterChroma( piSrcChroma + srcStep * uiStep, offset, iTc, false, largeBoundary, isChromaHorCTBBoundary );
       }
     }
   }

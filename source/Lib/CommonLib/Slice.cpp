@@ -1042,7 +1042,6 @@ void Slice::copySliceInfo(Slice *pSrc, bool cpyAlmostAll)
 //  m_sliceCurEndCtuTsAddr          = pSrc->m_sliceCurEndCtuTsAddr;
   m_independentSliceIdx           = pSrc->m_independentSliceIdx;
   m_nextSlice                     = pSrc->m_nextSlice;
-  m_clpRngs                       = pSrc->m_clpRngs;
   m_pendingRasInit                = pSrc->m_pendingRasInit;
 
   for ( uint32_t e=0 ; e<NUM_REF_PIC_LIST_01 ; e++ )

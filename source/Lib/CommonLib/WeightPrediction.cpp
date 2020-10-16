@@ -152,14 +152,13 @@ void  WeightPrediction::getWpScaling(const Slice                *pcSlice,
   }
 }
 
-static inline Pel weightBidir( int w0, Pel P0, int w1, Pel P1, int round, int shift, int offset, const ClpRng& clpRng )
+static inline Pel weightBidir( int w0, Pel P0, int w1, Pel P1, int round, int shift, int offset )
 {
   return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + w1 * ( P1 + IF_INTERNAL_OFFS ) + round + ( offset << ( shift - 1 ) ) ) >> shift ) );
 }
 
 void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
                                    const PelUnitBuf           &pcYuvSrc1,
-                                   const ClpRngs              &clpRngs,
                                    const WPScalingParam *const wp0,
                                    const WPScalingParam *const wp1,
                                          PelUnitBuf           &rpcYuvDst,
@@ -182,7 +181,6 @@ void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
     const ptrdiff_t iSrc1Stride = pcYuvSrc1.bufs[compID].stride;
     const ptrdiff_t iDstStride  = rpcYuvDst.bufs[compID].stride;
 
-    const ClpRng& clpRng = clpRngs;
     const int  w0       = wp0[compID].w;
     const int  offset   = wp0[compID].offset;
     const int  shiftNum = std::max<int>(2, (IF_INTERNAL_PREC - 8/*clpRng.bd*/));
@@ -196,18 +194,18 @@ void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
 
     if( ( iWidth & 7 ) == 0 )
     {
-      g_pelBufOP.wghtAvg8( pSrc0, iSrc0Stride, pSrc1, iSrc1Stride, pDst, iDstStride, iWidth, iHeight, shift, applyOffset, w0, w1, clpRngs );
+      g_pelBufOP.wghtAvg8( pSrc0, iSrc0Stride, pSrc1, iSrc1Stride, pDst, iDstStride, iWidth, iHeight, shift, applyOffset, w0, w1 );
     }
     else if( ( iWidth & 3 ) == 0 )
-      g_pelBufOP.wghtAvg4( pSrc0, iSrc0Stride, pSrc1, iSrc1Stride, pDst, iDstStride, iWidth, iHeight, shift, applyOffset, w0, w1, clpRngs );
+      g_pelBufOP.wghtAvg4( pSrc0, iSrc0Stride, pSrc1, iSrc1Stride, pDst, iDstStride, iWidth, iHeight, shift, applyOffset, w0, w1 );
     else
     {
       CHECK( iWidth != 2, "Should only happen for width '2'" );
 
       for (int y = iHeight - 1; y >= 0; y--)
       {
-        pDst[0] = weightBidir(w0, pSrc0[0], w1, pSrc1[0], round, shift, offset, clpRng );;
-        pDst[1] = weightBidir(w0, pSrc0[1], w1, pSrc1[1], round, shift, offset, clpRng );;
+        pDst[0] = weightBidir(w0, pSrc0[0], w1, pSrc1[0], round, shift, offset );
+        pDst[1] = weightBidir(w0, pSrc0[1], w1, pSrc1[1], round, shift, offset );
 
         pSrc0 += iSrc0Stride;
         pSrc1 += iSrc1Stride;
@@ -218,23 +216,22 @@ void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
 }
 
 
-static inline Pel weightUnidir( int w0, Pel P0, int round, int shift, int offset, const ClpRng& clpRng )
+static inline Pel weightUnidir( int w0, Pel P0, int round, int shift, int offset )
 {
   return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset );
 }
 
-static inline Pel noWeightUnidir( Pel P0, int round, int shift, int offset, const ClpRng& clpRng )
+static inline Pel noWeightUnidir( Pel P0, int round, int shift, int offset )
 {
   return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset );
 }
 
-static inline Pel noWeightOffsetUnidir( Pel P0, int round, int shift, const ClpRng& clpRng )
+static inline Pel noWeightOffsetUnidir( Pel P0, int round, int shift )
 {
   return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) );
 }
 
 void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
-                                     const ClpRngs              &clpRngs,
                                      const WPScalingParam *const wp0,
                                            PelUnitBuf           &rpcYuvDst
                                     )
@@ -249,7 +246,6 @@ void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
           Pel* pDst  = rpcYuvDst.bufs[compID].buf;
 
     // Luma : --------------------------------------------
-    const ClpRng& clpRng    = clpRngs;
     const int  w0           = wp0[compID].w;
     const int  offset       = wp0[compID].offset;
     const int  shiftNum     = std::max<int>(2, (IF_INTERNAL_PREC - 8/*clpRng.bd*/));
@@ -267,14 +263,14 @@ void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
         int x = iWidth - 1;
         for (; x >= 3; )
         {
-          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset, clpRng); x--;
-          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset, clpRng); x--;
-          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset, clpRng); x--;
-          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset, clpRng); x--;
+          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset); x--;
+          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset); x--;
+          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset); x--;
+          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset); x--;
         }
         for (; x >= 0; x--)
         {
-          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset, clpRng);
+          pDst[x] = weightUnidir(w0, pSrc0[x], round, shift, offset);
         }
         pSrc0 += iSrc0Stride;
         pDst += iDstStride;
@@ -290,14 +286,14 @@ void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
           int x = iWidth - 1;
           for (; x >= 3; )
           {
-            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum, clpRng); x--;
-            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum, clpRng); x--;
-            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum, clpRng); x--;
-            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum, clpRng); x--;
+            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum); x--;
+            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum); x--;
+            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum); x--;
+            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum); x--;
           }
           for (; x >= 0; x--)
           {
-            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum, clpRng);
+            pDst[x] = noWeightOffsetUnidir(pSrc0[x], round, shiftNum);
           }
           pSrc0 += iSrc0Stride;
           pDst += iDstStride;
@@ -310,14 +306,14 @@ void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
           int x = iWidth - 1;
           for (; x >= 3; )
           {
-            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset, clpRng); x--;
-            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset, clpRng); x--;
-            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset, clpRng); x--;
-            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset, clpRng); x--;
+            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset); x--;
+            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset); x--;
+            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset); x--;
+            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset); x--;
           }
           for (; x >= 0; x--)
           {
-            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset, clpRng);
+            pDst[x] = noWeightUnidir(pSrc0[x], round, shiftNum, offset);
           }
           pSrc0 += iSrc0Stride;
           pDst += iDstStride;
@@ -352,7 +348,7 @@ void  WeightPrediction::xWeightedPredictionUni(const PredictionUnit       &pu,
   {
     getWpScaling(pu.slice, -1, iRefIdx, pwpTmp, pwp);
   }
-  addWeightUni(pcYuvSrc, pu.slice->clpRngs(), pwp, pcYuvPred);
+  addWeightUni(pcYuvSrc, pwp, pcYuvPred);
 }
 
 void  WeightPrediction::xWeightedPredictionBi(const PredictionUnit       &pu,
@@ -372,15 +368,15 @@ void  WeightPrediction::xWeightedPredictionBi(const PredictionUnit       &pu,
 
   if (iRefIdx0 >= 0 && iRefIdx1 >= 0)
   {
-    addWeightBi(pcYuvSrc0, pcYuvSrc1, pu.slice->clpRngs(), pwp0, pwp1, rpcYuvDst, true);
+    addWeightBi(pcYuvSrc0, pcYuvSrc1, pwp0, pwp1, rpcYuvDst, true);
   }
   else if (iRefIdx0 >= 0 && iRefIdx1 < 0)
   {
-    addWeightUni(pcYuvSrc0, pu.slice->clpRngs(), pwp0, rpcYuvDst);
+    addWeightUni(pcYuvSrc0, pwp0, rpcYuvDst);
   }
   else if (iRefIdx0 < 0 && iRefIdx1 >= 0)
   {
-    addWeightUni(pcYuvSrc1, pu.slice->clpRngs(), pwp1, rpcYuvDst);
+    addWeightUni(pcYuvSrc1, pwp1, rpcYuvDst);
   }
   else
   {

@@ -2907,7 +2907,6 @@ private:
   bool                       m_bTestWeightBiPred             = false;
   WPScalingParam             m_weightPredTable[NUM_REF_PIC_LIST_01][MAX_NUM_REF][MAX_NUM_COMPONENT];   // [REF_PIC_LIST_0 or REF_PIC_LIST_1][refIdx][0:Y, 1:U, 2:V]
   WPACDCParam                m_weightACDCParam[MAX_NUM_COMPONENT];
-  ClpRngs                    m_clpRngs;
   std::vector<uint32_t>      m_substreamSizes;
   uint32_t                   m_numEntryPoints                = 0;
   bool                       m_cabacInitFlag                 = false;
@@ -3163,9 +3162,6 @@ public:
   void                        setSliceQpBase( int i )                                { m_iSliceQpBase = i;                                           }
   int                         getSliceQpBase()                                 const { return m_iSliceQpBase;                                        }
 
-  const ClpRngs&              clpRngs()                                         const { return m_clpRngs; }
-  const ClpRng&               clpRng( ComponentID id)                           const { return m_clpRngs; }
-  ClpRngs&                    getClpRngs()                                            { return m_clpRngs; }
   unsigned                    getMinPictureDistance()                           const ;
 
   void                        resetTileGroupAlfEnabledFlag()                          { memset(m_tileGroupAlfEnabledFlag, 0, sizeof(m_tileGroupAlfEnabledFlag)); }

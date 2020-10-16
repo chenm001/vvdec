@@ -65,15 +65,15 @@ struct PelBufferOps
 {
   PelBufferOps();
 
-  void ( *addAvg4 )       ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset,      const ClpRng& clpRng );
-  void ( *addAvg8 )       ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset,      const ClpRng& clpRng );
-  void ( *addAvg16 )      ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset,      const ClpRng& clpRng );
-  void ( *reco4 )         ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,                                        const ClpRng& clpRng );
-  void ( *reco8 )         ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,                                        const ClpRng& clpRng );
-  void ( *linTf4 )        ( const Pel* src0, ptrdiff_t src0Stride,                                        Pel *dst, ptrdiff_t dstStride, int width, int height, int scale, int shift, int offset,      const ClpRng& clpRng, bool bClip );
-  void ( *linTf8 )        ( const Pel* src0, ptrdiff_t src0Stride,                                        Pel *dst, ptrdiff_t dstStride, int width, int height, int scale, int shift, int offset,      const ClpRng& clpRng, bool bClip );
-  void ( *wghtAvg4 )      ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height, int shift, int offset, int w0, int w1, const ClpRng& clpRng );
-  void ( *wghtAvg8 )      ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height, int shift, int offset, int w0, int w1, const ClpRng& clpRng );
+  void ( *addAvg4 )       ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset      );
+  void ( *addAvg8 )       ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset      );
+  void ( *addAvg16 )      ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height,            int shift, int offset      );
+  void ( *reco4 )         ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height                                        );
+  void ( *reco8 )         ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height                                        );
+  void ( *linTf4 )        ( const Pel* src0, ptrdiff_t src0Stride,                                        Pel *dst, ptrdiff_t dstStride, int width, int height, int scale, int shift, int offset, bool bClip );
+  void ( *linTf8 )        ( const Pel* src0, ptrdiff_t src0Stride,                                        Pel *dst, ptrdiff_t dstStride, int width, int height, int scale, int shift, int offset, bool bClip );
+  void ( *wghtAvg4 )      ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height, int shift, int offset, int w0, int w1 );
+  void ( *wghtAvg8 )      ( const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_t src1Stride, Pel *dst, ptrdiff_t dstStride, int width, int height, int shift, int offset, int w0, int w1 );
   void ( *copyBuffer )    ( const char*src,  ptrdiff_t srcStride,        char* dst, ptrdiff_t  dstStride,                                int width, int height );
   void ( *padding1 )      (       Pel *dst,  ptrdiff_t stride,                                                                           int width, int height );
   void ( *padding2 )      (       Pel *dst,  ptrdiff_t stride,                                                                           int width, int height );
@@ -112,20 +112,20 @@ struct AreaBuf : public Size
 
   void copyFrom             ( const AreaBuf<const T> &other ) const;
   
-  void reconstruct          ( const AreaBuf<const T> &pred, const AreaBuf<const T> &resi, const ClpRng& clpRng);
+  void reconstruct          ( const AreaBuf<const T> &pred, const AreaBuf<const T> &resi);
   
   void subtract             ( const AreaBuf<const T> &other );
   void extendBorderPel      ( unsigned margin );
   void extendBorderPel      ( unsigned margin, bool left, bool right, bool top, bool bottom );
-  void addWeightedAvg       ( const AreaBuf<const T> &other1, const AreaBuf<const T> &other2, const ClpRng& clpRng, const int8_t bcwIdx);
-  void addAvg               ( const AreaBuf<const T> &other1, const AreaBuf<const T> &other2, const ClpRng& clpRng );
+  void addWeightedAvg       ( const AreaBuf<const T> &other1, const AreaBuf<const T> &other2, const int8_t bcwIdx);
+  void addAvg               ( const AreaBuf<const T> &other1, const AreaBuf<const T> &other2 );
 
-  void linearTransform      ( const int scale, const int shift, const int offset, bool bClip, const ClpRng& clpRng );
+  void linearTransform      ( const int scale, const int shift, const int offset, bool bClip );
 
   void transposedFrom       ( const AreaBuf<const T> &other );
 
   void rspSignal            ( const Pel *lut );
-  void scaleSignal          ( const int scale, const ClpRng& clpRng);
+  void scaleSignal          ( const int scale);
 
         T& at( const int &x, const int &y )          { return buf[y * stride + x]; }
   const T& at( const int &x, const int &y ) const    { return buf[y * stride + x]; }
@@ -425,32 +425,32 @@ void AreaBuf<T>::subtract( const AreaBuf<const T> &other )
 }
 
 template<typename T>
-void AreaBuf<T>::reconstruct( const AreaBuf<const T> &pred, const AreaBuf<const T> &resi, const ClpRng& clpRng )
+void AreaBuf<T>::reconstruct( const AreaBuf<const T> &pred, const AreaBuf<const T> &resi )
 {
   THROW( "Type not supported" );
 }
 
 template<>
-void AreaBuf<Pel>::reconstruct( const AreaBuf<const Pel> &pred, const AreaBuf<const Pel> &resi, const ClpRng& clpRng );
+void AreaBuf<Pel>::reconstruct( const AreaBuf<const Pel> &pred, const AreaBuf<const Pel> &resi );
 
 
 template<typename T>
-void AreaBuf<T>::addAvg( const AreaBuf<const T> &other1, const AreaBuf<const T> &other2, const ClpRng& clpRng )
+void AreaBuf<T>::addAvg( const AreaBuf<const T> &other1, const AreaBuf<const T> &other2 )
 {
   THROW( "Type not supported" );
 }
 
 template<>
-void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const Pel> &other2, const ClpRng& clpRng );
+void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const Pel> &other2 );
 
 template<typename T>
-void AreaBuf<T>::linearTransform( const int scale, const int shift, const int offset, bool bClip, const ClpRng& clpRng )
+void AreaBuf<T>::linearTransform( const int scale, const int shift, const int offset, bool bClip )
 {
   THROW( "Type not supported" );
 }
 
 template<>
-void AreaBuf<Pel>::linearTransform( const int scale, const int shift, const int offset, bool bClip, const ClpRng& clpRng );
+void AreaBuf<Pel>::linearTransform( const int scale, const int shift, const int offset, bool bClip );
 
 template<typename T>
 void AreaBuf<T>::extendBorderPel( unsigned margin )
@@ -634,10 +634,10 @@ struct UnitBuf
 
   void fill                 ( const T &val );
   void copyFrom             ( const UnitBuf<const T> &other ) const;
-  void reconstruct          ( const UnitBuf<const T> &pred, const UnitBuf<const T> &resi, const ClpRngs& clpRngs );
+  void reconstruct          ( const UnitBuf<const T> &pred, const UnitBuf<const T> &resi );
   void subtract             ( const UnitBuf<const T> &other );
-  void addWeightedAvg       ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRngs& clpRngs, const uint8_t bcwIdx = BCW_DEFAULT, const bool chromaOnly = false, const bool lumaOnly = false);
-  void addAvg               ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRngs& clpRngs, const bool chromaOnly = false, const bool lumaOnly = false);
+  void addWeightedAvg       ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const uint8_t bcwIdx = BCW_DEFAULT, const bool chromaOnly = false, const bool lumaOnly = false);
+  void addAvg               ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const bool chromaOnly = false, const bool lumaOnly = false);
   void extendBorderPel      ( unsigned margin );
   void extendBorderPel      ( unsigned margin, bool left, bool right, bool top, bool bottom );
 
@@ -645,7 +645,7 @@ struct UnitBuf
   const UnitBuf<const T> subBuf (const Area& subArea) const;
         UnitBuf<      T> subBuf (const UnitArea& subArea);
   const UnitBuf<const T> subBuf (const UnitArea& subArea) const;
-  void colorSpaceConvert    ( const UnitBuf<T> &other, const ClpRng& clpRng );
+  void colorSpaceConvert    ( const UnitBuf<T> &other );
 };
 
 typedef UnitBuf<      Pel>  PelUnitBuf;
@@ -688,19 +688,19 @@ void UnitBuf<T>::subtract( const UnitBuf<const T> &other )
 }
 
 template<typename T>
-void UnitBuf<T>::reconstruct(const UnitBuf<const T> &pred, const UnitBuf<const T> &resi, const ClpRngs& clpRngs)
+void UnitBuf<T>::reconstruct(const UnitBuf<const T> &pred, const UnitBuf<const T> &resi)
 {
   CHECK( chromaFormat != pred.chromaFormat, "Incompatible formats" );
   CHECK( chromaFormat != resi.chromaFormat, "Incompatible formats" );
 
   for( unsigned i = 0; i < bufs.size(); i++ )
   {
-    bufs[i].reconstruct( pred.bufs[i], resi.bufs[i], clpRngs );
+    bufs[i].reconstruct( pred.bufs[i], resi.bufs[i] );
   }
 }
 
 template<typename T>
-void UnitBuf<T>::addWeightedAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const ClpRngs& clpRngs, const uint8_t bcwIdx /* = BCW_DEFAULT */, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
+void UnitBuf<T>::addWeightedAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const uint8_t bcwIdx /* = BCW_DEFAULT */, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
 {
   const size_t istart = chromaOnly ? 1 : 0;
   const size_t iend   = lumaOnly   ? 1 : bufs.size();
@@ -709,12 +709,12 @@ void UnitBuf<T>::addWeightedAvg(const UnitBuf<T> &other1, const UnitBuf<T> &othe
 
   for(size_t i = istart; i < iend; i++)
   {
-    bufs[i].addWeightedAvg(other1.bufs[i], other2.bufs[i], clpRngs, bcwIdx);
+    bufs[i].addWeightedAvg(other1.bufs[i], other2.bufs[i], bcwIdx);
   }
 }
 
 template<typename T>
-void UnitBuf<T>::addAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const ClpRngs& clpRngs, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
+void UnitBuf<T>::addAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
 {
   const size_t istart = chromaOnly ? 1 : 0;
   const size_t iend   = lumaOnly   ? 1 : bufs.size();
@@ -723,18 +723,18 @@ void UnitBuf<T>::addAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, cons
 
   for( size_t i = istart; i < iend; i++)
   {
-    bufs[i].addAvg( other1.bufs[i], other2.bufs[i], clpRngs );
+    bufs[i].addAvg( other1.bufs[i], other2.bufs[i] );
   }
 }
 
 template<typename T>
-void UnitBuf<T>::colorSpaceConvert( const UnitBuf<T> &other, const ClpRng& clpRng )
+void UnitBuf<T>::colorSpaceConvert( const UnitBuf<T> &other )
 {
   THROW( "Type not supported" );
 }
 
 template<>
-void UnitBuf<Pel>::colorSpaceConvert( const UnitBuf<Pel> &other, const ClpRng& clpRng );
+void UnitBuf<Pel>::colorSpaceConvert( const UnitBuf<Pel> &other );
 
 template<typename T>
 void UnitBuf<T>::extendBorderPel( unsigned margin )

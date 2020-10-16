@@ -130,7 +130,6 @@ protected:
                                   Mv                    mv,
                                   PelBuf&               dstPic,
                                   bool                  bi,
-                                  const ClpRng&         clpRng,
                                   bool                  bioApplied,
                                   bool                  isIBC,
                                   bool                  wrapRef,
@@ -140,20 +139,20 @@ protected:
                                   Pel*                  srcPadBuf    = NULL,
                                   ptrdiff_t             srcPadStride = 0 );
 
-  void (*BiOptFlow)             ( const Pel* srcY0,const Pel* srcY1,const Pel* gradX0,const Pel* gradX1,const Pel* gradY0,const Pel* gradY1,const int width,const int height,Pel* dstY,const ptrdiff_t dstStride,const int shiftNum,const int  offset,const int  limit, const ClpRng& clpRng, const int bitDepth ) = nullptr;
+  void (*BiOptFlow)             ( const Pel* srcY0,const Pel* srcY1,const Pel* gradX0,const Pel* gradX1,const Pel* gradY0,const Pel* gradY1,const int width,const int height,Pel* dstY,const ptrdiff_t dstStride,const int shiftNum,const int  offset,const int  limit, const int bitDepth ) = nullptr;
   void (*BioGradFilter)         (       Pel* pSrc, ptrdiff_t srcStride,  int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY ) = nullptr;
 
   void( *PaddBIO )              ( const Pel* refPel, Pel* dstPel, unsigned width, const int shift );
 
-  void xWeightedAverage         ( const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const ClpRngs& clpRngs, const bool& bioApplied );
+  void xWeightedAverage         ( const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const bool& bioApplied );
   void( *profGradFilter )       ( Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY );
-  void( *applyPROF[2] )         ( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gradX, const Pel* gradY, const int* dMvX, const int* dMvY, int shiftNum, Pel offset, const ClpRng& clpRng );
+  void( *applyPROF[2] )         ( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gradX, const Pel* gradY, const int* dMvX, const int* dMvY, int shiftNum, Pel offset );
   void( *roundIntVector )       ( int* v, int size, unsigned int nShift, const int dmvLimit );
 #if JVET_R0058
   void( *clipMv )               ( Mv& rcMv, const Position& pos, const struct Size& size, const SPS& sps, const PPS& pps );
 #endif
 
-  void xPredAffineBlk           ( const ComponentID& compID, const PredictionUnit& pu, const Picture* refPic, const RefPicList refPicList, PelUnitBuf& dstPic, bool bi, const ClpRng& clpRng, const std::pair<int, int> scalingRatio = SCALE_1X );
+  void xPredAffineBlk           ( const ComponentID& compID, const PredictionUnit& pu, const Picture* refPic, const RefPicList refPicList, PelUnitBuf& dstPic, bool bi, const std::pair<int, int> scalingRatio = SCALE_1X );
   static bool xCheckIdenticalMotion
                                 ( const PredictionUnit& pu );
 
@@ -176,8 +175,8 @@ public:
   void    xPad                       ( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicList refId, bool forLuma );
   void    xFinalPaddedMCForDMVR      ( PredictionUnit& pu, PelUnitBuf &pcYuvSrc0, PelUnitBuf &pcYuvSrc1, PelUnitBuf &pcPad0, PelUnitBuf &pcPad1, const bool bioApplied, const Mv startMV[NUM_REF_PIC_LIST_01] );
   void xBIPMVRefine(DistParam &cDistParam, const Pel *pRefL0, const Pel *pRefL1, uint64_t& minCost, int16_t *deltaMV, uint64_t *pSADsArray);
-  void xinitMC(PredictionUnit& pu, const ClpRngs &clpRngs);
-  void xProcessDMVR(PredictionUnit& pu, PelUnitBuf &pcYuvDst, const ClpRngs &clpRngs, const bool bioApplied );
+  void xinitMC(PredictionUnit& pu);
+  void xProcessDMVR(PredictionUnit& pu, PelUnitBuf &pcYuvDst, const bool bioApplied );
   static bool isSubblockVectorSpreadOverLimit( int a, int b, int c, int d, int predType );
   void xFillIBCBuffer(CodingUnit &cu);
 #if JVET_O1170_CHECK_BV_AT_DECODER
@@ -185,7 +184,7 @@ public:
   void resetVPDUforIBC(const ChromaFormat chromaFormatIDC, const int ctuSize, const int vSize, const int xPos, const int yPos);
   bool isLumaBvValid(const int ctuSize, const int xCb, const int yCb, const int width, const int height, const int xBv, const int yBv);
 #endif
-  void xPredInterBlkRPR( const std::pair<int, int>& scalingRatio, const PPS& pps, const ComponentID& compID, const ChromaFormat chFmt, const Picture* refPic, const Mv& mv, const Position blkPos, const int dstWidth, const int dstHeight, Pel* dst, const ptrdiff_t dstStride, const bool bi, const bool wrapRef, const ClpRng& clpRng, const int filterIndex, const bool useAltHpelIf = false );
+  void xPredInterBlkRPR( const std::pair<int, int>& scalingRatio, const PPS& pps, const ComponentID& compID, const ChromaFormat chFmt, const Picture* refPic, const Mv& mv, const Position blkPos, const int dstWidth, const int dstHeight, Pel* dst, const ptrdiff_t dstStride, const bool bi, const bool wrapRef, const int filterIndex, const bool useAltHpelIf = false );
 #if ENABLE_SIMD_OPT_BIO
 #endif
 };

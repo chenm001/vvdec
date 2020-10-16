@@ -412,7 +412,7 @@ void AdaptiveLoopFilter::processCTU( CodingStructure & cs, unsigned col, unsigne
   const uint8_t ctuAlternativeData[2] = { cs.picture->getAlfCtuAlternativeData( 0 )[ctuIdx],
                                           cs.picture->getAlfCtuAlternativeData( 1 )[ctuIdx] };
 
-  filterCTU( recYuv.subBuf( ctuArea ), cs.m_alfBuf.subBuf( ctuArea ), ctuEnableFlag, ctuAlternativeData, cs.picture->slices[0]->getClpRngs(), chType, cs, ctuIdx, ctuArea.lumaPos(), tid );
+  filterCTU( recYuv.subBuf( ctuArea ), cs.m_alfBuf.subBuf( ctuArea ), ctuEnableFlag, ctuAlternativeData, chType, cs, ctuIdx, ctuArea.lumaPos(), tid );
 }
 
 void AdaptiveLoopFilter::swapBufs(CodingStructure & cs)
@@ -456,7 +456,7 @@ bool AdaptiveLoopFilter::getAlfSkipPic( const CodingStructure & cs )
 
   return false;
 }
-void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf & dstBuf, const uint8_t ctuEnableFlag[3], const uint8_t ctuAlternativeData[2], const ClpRngs & clpRngs, const ChannelType chType, CodingStructure & cs, int ctuIdx, Position ctuPos, int tid )
+void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf & dstBuf, const uint8_t ctuEnableFlag[3], const uint8_t ctuAlternativeData[2], const ChannelType chType, CodingStructure & cs, int ctuIdx, Position ctuPos, int tid )
 {
   Slice* slice = cs.getCtuData(ctuIdx).cuPtr[0][0]->slice;
   APS** aps = slice->getAlfAPSs();
@@ -560,7 +560,7 @@ void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf
             m_filter7x7Blk( classifier, dstBuf, m_tempBuf[tid], blk, COMPONENT_Y
                            , coeff
                            , clip
-                           , clpRngs, cs
+                           , cs
                            , m_alfVBLumaCTUHeight
                            , m_alfVBLumaPos
                            );
@@ -583,7 +583,7 @@ void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf
 
               m_filter5x5Blk( classifier, dstBuf, m_tempBuf[tid], blk, compID, alfSliceParam.chromaCoeff + altIdx * MAX_NUM_ALF_CHROMA_COEFF
                              , alfSliceParam.chrmClippFinal + altIdx * MAX_NUM_ALF_CHROMA_COEFF
-                             , clpRngs, cs
+                             , cs
                              , m_alfVBChmaCTUHeight
                              , m_alfVBChmaPos
                              );
@@ -604,7 +604,7 @@ void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf
 
                 Area blkSrc( 0, 0, width, height );
 
-                m_filterCcAlf( dstBuf.get(compID), srcBuf, blk, blkSrc, compID, filterCoeff, clpRngs, cs,
+                m_filterCcAlf( dstBuf.get(compID), srcBuf, blk, blkSrc, compID, filterCoeff, cs,
                                m_alfVBLumaCTUHeight, m_alfVBLumaPos );
               }
             }
@@ -647,7 +647,6 @@ void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf
                         COMPONENT_Y,
                         coeff,
                         clip,
-                        clpRngs,
                         cs,
                         m_alfVBLumaCTUHeight,
                         m_alfVBLumaPos
@@ -671,7 +670,6 @@ void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf
                           compID,
                           alfSliceParam.chromaCoeff + altIdx * MAX_NUM_ALF_CHROMA_COEFF,
                           alfSliceParam.chrmClippFinal + altIdx * MAX_NUM_ALF_CHROMA_COEFF,
-                          clpRngs,
                           cs,
                           m_alfVBChmaCTUHeight,
                           m_alfVBChmaPos
@@ -693,7 +691,7 @@ void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf
 
             Area blkSrc( 0, 0, width, height );
 
-            m_filterCcAlf( dstBuf.get(compID), srcBuf, blk, blkSrc, compID, filterCoeff, clpRngs, cs,
+            m_filterCcAlf( dstBuf.get(compID), srcBuf, blk, blkSrc, compID, filterCoeff, cs,
                            m_alfVBLumaCTUHeight, m_alfVBLumaPos );
           }
         }
@@ -1054,7 +1052,6 @@ void AdaptiveLoopFilter::filterBlk( const AlfClassifier*   classifier,
                                     const ComponentID      compId,
                                     const short*           filterSet,
                                     const short*           fClipSet,
-                                    const ClpRng&          clpRng,
                                     const CodingStructure& cs,
                                     int                    vbCTUHeight,
                                     int                    vbPos )
@@ -1218,7 +1215,7 @@ void AdaptiveLoopFilter::filterBlk( const AlfClassifier*   classifier,
 template<AlfFilterType filtTypeCcAlf>
 void AdaptiveLoopFilter::filterBlkCcAlf(const PelBuf &dstBuf, const CPelUnitBuf &recSrc, const Area &blkDst,
                                         const Area &blkSrc, const ComponentID compId, const int16_t *filterCoeff,
-                                        const ClpRngs &clpRngs, CodingStructure &cs, int vbCTUHeight, int vbPos)
+                                        CodingStructure &cs, int vbCTUHeight, int vbPos)
 {
   CHECK( 1 << getLog2(vbCTUHeight) != vbCTUHeight, "Not a power of 2");
 

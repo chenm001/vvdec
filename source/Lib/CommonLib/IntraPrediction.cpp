@@ -209,7 +209,7 @@ void xPredIntraPlanarCore( const CPelBuf &pSrc, PelBuf &pDst, const SPS& sps )
   GCC_WARNING_RESET
 }
 
-void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &piPred,const uint32_t uiDirMode,const ClpRng& clpRng)
+void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &piPred,const uint32_t uiDirMode)
 {
   const CPelBuf srcBuf  ( ptrSrc, ( SizeType ) srcStride, ( SizeType ) srcStride );
   const int     iWidth  = piPred.width;
@@ -250,7 +250,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
         {
           const Pel top = srcBuf.at(x + 1, 0);
           int wL = 32 >> std::min(31, ((x << 1) >> scale));
-          dstBuf.at(x, y) = ClipPel((wL * left + wT * top + (64 - wL - wT) * dstBuf.at(x, y) + 32) >> 6, clpRng);
+          dstBuf.at(x, y) = ClipPel((wL * left + wT * top + (64 - wL - wT) * dstBuf.at(x, y) + 32) >> 6);
 
         }
       }
@@ -259,7 +259,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
         for (int x = 0; x < lev[scale]; x++)   // bis wL 0 ist, das ist bei x lev[scale]
         {
           int wL = 32 >> std::min(31, ((x << 1) >> scale));
-          dstBuf.at(x, y) = ClipPel((wL * left + (64 - wL) * dstBuf.at(x, y) + 32) >> 6, clpRng);
+          dstBuf.at(x, y) = ClipPel((wL * left + (64 - wL) * dstBuf.at(x, y) + 32) >> 6);
         }
       }
     }
@@ -279,7 +279,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
           const Pel top = srcBuf.at(x + 1, 0);
           int wL = 32 >> std::min(31, ((x << 1) >> scale));
           int wTL = (wL >> 4) + (wT >> 4);
-          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6, clpRng);
+          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6);
           }
       }
       else
@@ -289,7 +289,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
           const Pel top = srcBuf.at(x + 1, 0);
           int wL = 32 >> std::min(31, ((x << 1) >> scale));
           int wTL = (wL >> 4) + (wT >> 4);
-          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6, clpRng);
+          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6);
         }
 
       }
@@ -299,7 +299,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
 }
 
 template<typename T>
-void IntraPredAngleCore(T* pDstBuf,const ptrdiff_t dstStride,T* refMain,int width,int height,int deltaPos,int intraPredAngle,const TFilterCoeff *ff,const bool useCubicFilter,const ClpRng& clpRng)
+void IntraPredAngleCore(T* pDstBuf,const ptrdiff_t dstStride,T* refMain,int width,int height,int deltaPos,int intraPredAngle,const TFilterCoeff *ff,const bool useCubicFilter)
 {
     for (int y = 0; y<height; y++ )
     {
@@ -568,7 +568,6 @@ void IntraPrediction::predIntraAng( const ComponentID compId, PelBuf &piPred, co
   const bool useISP      = pu.ispMode() && isLuma( compID );
   const int srcStride    = m_topRefLength  + 1 + multiRefIdx;
   const int srcHStride   = m_leftRefLength + 1 + multiRefIdx;
-  const ClpRng& clpRng   ( pu.slice->clpRng( compID ) );
         bool doPDPC      = ( iWidth >= MIN_TB_SIZEY && iHeight >= MIN_TB_SIZEY ) && multiRefIdx == 0;
 
   const PelBuf& srcBuf = pu.ispMode() && isLuma(compID) ? getISPBuffer( useFilteredPredSamples ) : PelBuf(getPredictorPtr(compID, useFilteredPredSamples), srcStride, srcHStride);
@@ -577,24 +576,24 @@ void IntraPrediction::predIntraAng( const ComponentID compId, PelBuf &piPred, co
   {
     case(PLANAR_IDX): xPredIntraPlanar(srcBuf, piPred, *pu.cs->sps); break;
     case(DC_IDX):     xPredIntraDc    (srcBuf, piPred, channelType, false, multiRefIdx); break;
-    case(BDPCM_IDX):  xPredIntraBDPCM(srcBuf, piPred, isLuma(compID) ? pu.bdpcmMode() : pu.bdpcmModeChroma(), clpRng); break;
+    case(BDPCM_IDX):  xPredIntraBDPCM(srcBuf, piPred, isLuma(compID) ? pu.bdpcmMode() : pu.bdpcmModeChroma()); break;
     case(2):
     case(DIA_IDX):
     case(VDIA_IDX):
       if (getWideAngle(useISP ? cuSize.width : iWidth, useISP ? cuSize.height : iHeight, uiDirMode) == static_cast<int>(uiDirMode)) // check if uiDirMode is not wide-angle
       {
-        xPredIntraAng(srcBuf, piPred, channelType, uiDirMode, clpRng, *pu.cs->sps, multiRefIdx, useFilteredPredSamples, doPDPC, useISP, cuSize );
+        xPredIntraAng(srcBuf, piPred, channelType, uiDirMode, *pu.cs->sps, multiRefIdx, useFilteredPredSamples, doPDPC, useISP, cuSize );
         break;
       }
-    default:          xPredIntraAng(srcBuf, piPred, channelType, uiDirMode, clpRng, *pu.cs->sps, multiRefIdx, useFilteredPredSamples, doPDPC, useISP, cuSize); break;
+    default:          xPredIntraAng(srcBuf, piPred, channelType, uiDirMode, *pu.cs->sps, multiRefIdx, useFilteredPredSamples, doPDPC, useISP, cuSize); break;
   }
 
   if( doPDPC && (uiDirMode == PLANAR_IDX || uiDirMode == DC_IDX ) )
   {
     if (iWidth>8)
-      IntraPredSampleFilter16(srcBuf.buf,srcBuf.stride,piPred,uiDirMode,clpRng);
+      IntraPredSampleFilter16(srcBuf.buf,srcBuf.stride,piPred,uiDirMode);
     else
-      IntraPredSampleFilter8(srcBuf.buf,srcBuf.stride,piPred,uiDirMode,clpRng);
+      IntraPredSampleFilter8(srcBuf.buf,srcBuf.stride,piPred,uiDirMode);
   }
 }
 void IntraPrediction::predIntraChromaLM(const ComponentID compID, PelBuf &piPred, const PredictionUnit &pu, const CompArea& chromaArea, int intraDir)
@@ -616,7 +615,7 @@ void IntraPrediction::predIntraChromaLM(const ComponentID compID, PelBuf &piPred
 
   ////// final prediction
   piPred.copyFrom(Temp);
-  piPred.linearTransform(a, iShift, b, true, pu.slice->clpRng(compID));
+  piPred.linearTransform(a, iShift, b, true);
 }
 
 void IntraPrediction::xFilterGroup(Pel* pMulDst[], int i, Pel const * const piSrc, int iRecStride, bool bAboveAvaillable, bool bLeftAvaillable)
@@ -640,7 +639,7 @@ void IntraPrediction::xPredIntraDc( const CPelBuf &pSrc, PelBuf &pDst, const Cha
 }
 
 // Function for deriving the angular Intra predictions
-void IntraPredAngleCore(Pel *pDstBuf,const int dstStride,Pel* refMain,int width,int height,int deltaPos,int intraPredAngle,const TFilterCoeff *ff,const bool useCubicFilter,const ClpRng& clpRng)
+void IntraPredAngleCore(Pel *pDstBuf,const int dstStride,Pel* refMain,int width,int height,int deltaPos,int intraPredAngle,const TFilterCoeff *ff,const bool useCubicFilter)
 {
   for (int y = 0; y<height; y++ )
   {
@@ -684,7 +683,7 @@ void IntraPredAngleCore(Pel *pDstBuf,const int dstStride,Pel* refMain,int width,
  */
 //NOTE: Bit-Limit - 25-bit source
 
-void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const uint32_t dirMode, const ClpRng& clpRng, const SPS& sps,
+void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const uint32_t dirMode, const SPS& sps,
                                            int      multiRefIdx,
                                      const bool     useFilteredPredSamples ,
                                            bool     &doPDPC,
@@ -833,12 +832,12 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
         const TFilterCoeff *f              = (useCubicFilter) ? InterpolationFilter::getChromaFilterTable(0) : g_intraGaussFilter[0];
         if( ( width & 7 ) == 0 )
         {
-          IntraPredAngleCore8(pDstBuf,dstStride,refMain,width,height,deltaPos,intraPredAngle,f,useCubicFilter,clpRng);
+          IntraPredAngleCore8(pDstBuf,dstStride,refMain,width,height,deltaPos,intraPredAngle,f,useCubicFilter);
 
         }
         else if( ( width & 3 ) == 0 )
         {
-          IntraPredAngleCore4(pDstBuf,dstStride,refMain,width,height,deltaPos,intraPredAngle,f,useCubicFilter,clpRng);
+          IntraPredAngleCore4(pDstBuf,dstStride,refMain,width,height,deltaPos,intraPredAngle,f,useCubicFilter);
         }
         else
         {
@@ -942,7 +941,7 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
   }
 }
 
-void IntraPrediction::xPredIntraBDPCM(const CPelBuf &pSrc, PelBuf &pDst, const uint32_t dirMode, const ClpRng& clpRng )
+void IntraPrediction::xPredIntraBDPCM(const CPelBuf &pSrc, PelBuf &pDst, const uint32_t dirMode )
 {
   const int wdt = pDst.width;
   const int hgt = pDst.height;
