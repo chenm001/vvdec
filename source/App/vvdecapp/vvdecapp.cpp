@@ -77,7 +77,7 @@ int main( int argc, char* argv[] )
     }
   }
 
-  std::cout << "Fraunhofer VVC Decoder " << cAppname  << " version: " << VVDEC_VERSION << std::endl;
+  std::cout << "Fraunhofer VVC Decoder " << cAppname  << " version: " << VVDEC_VERSION << "-[CHEN]" << std::endl;
 
   std::string cBitstreamFile  = "";
   std::string cOutputFile = "";
