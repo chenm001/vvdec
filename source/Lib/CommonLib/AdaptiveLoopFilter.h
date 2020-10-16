@@ -141,7 +141,6 @@ protected:
   short                   m_clipDefault                                  [MAX_NUM_ALF_TRANSPOSE_ID * MAX_NUM_ALF_CLASSES * MAX_NUM_ALF_LUMA_COEFF];
   static const Pel        m_alfClippVls[3][MaxAlfNumClippingValues];
   std::vector<PelStorage> m_tempBuf;
-  int           m_inputBitDepth = 0;
   int           m_picWidth;
   int           m_picHeight;
   int           m_alfVBLumaPos;

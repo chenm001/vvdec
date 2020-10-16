@@ -67,6 +67,14 @@ AdaptiveLoopFilter::AdaptiveLoopFilter()
 #if ENABLE_SIMD_OPT_ALF
 #endif
 
+  {
+    const int clippVl = 256/*m_alfClippVls[inputBitDepth - 8][0]*/;
+    for( unsigned i = 0; i < sizeof( m_clipDefault ) / sizeof( m_clipDefault[0] ); i++ )
+    {
+      m_clipDefault[i] = clippVl;
+    }
+  }
+
   for( int filterSetIndex = 0; filterSetIndex < NUM_FIXED_FILTER_SETS; filterSetIndex++ )
   {
     for( int classIdx = 0; classIdx < MAX_NUM_ALF_CLASSES; classIdx++ )
@@ -330,16 +338,6 @@ const Pel AdaptiveLoopFilter::m_alfClippVls[][MaxAlfNumClippingValues] = // chen
 
 void AdaptiveLoopFilter::create( const PicHeader* picHeader, const SPS* sps, const PPS* pps, int numThreads )
 {
-  const int inputBitDepth = 8;
-  if( m_inputBitDepth != inputBitDepth )
-  {
-    const auto clippVl = 256/*m_alfClippVls[inputBitDepth - 8][0]*/;
-    for( unsigned i = 0; i < sizeof( m_clipDefault ) / sizeof( m_clipDefault[0] ); i++ )
-    {
-      m_clipDefault[i] = clippVl;
-    }
-  }
-  m_inputBitDepth = inputBitDepth;
   m_picWidth  = pps->getPicWidthInLumaSamples();
   m_picHeight = pps->getPicHeightInLumaSamples();
   const int  maxCUWidth  = sps->getMaxCUWidth();
@@ -352,7 +350,7 @@ void AdaptiveLoopFilter::create( const PicHeader* picHeader, const SPS* sps, con
   m_alfVBLumaPos = m_alfVBLumaCTUHeight - ALF_VB_POS_ABOVE_CTUROW_LUMA;
   m_alfVBChmaPos = m_alfVBChmaCTUHeight - ALF_VB_POS_ABOVE_CTUROW_CHMA;
 
-  CHECK( m_inputBitDepth > 10, "m_alfClippingValues or m_alfClippVls needs to be enabled/adjusted" );
+  //CHECK( m_inputBitDepth > 10, "m_alfClippingValues or m_alfClippVls needs to be enabled/adjusted" );
 
   if( picHeader->getVirtualBoundariesPresentFlag() )
   {
