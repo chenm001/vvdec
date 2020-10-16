@@ -145,7 +145,7 @@ endif()
 # enable parallel build for Visual Studio
 if( MSVC )
   # add compile options
-  add_compile_options( "/MP" )
+  # add_compile_options( "/MP" )
   add_compile_options( "/EHsc" )
 endif()
 
