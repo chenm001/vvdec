@@ -136,7 +136,7 @@ uint32_t compCRC(int bitdepth, const Pel* plane, uint32_t width, uint32_t height
   return 2;
 }
 
-uint32_t calcCRC(const CPelUnitBuf& pic, PictureHash &digest, const BitDepths &bitDepths)
+uint32_t calcCRC(const CPelUnitBuf& pic, PictureHash &digest)
 {
   uint32_t digestLen=0;
   digest.hash.clear();
@@ -144,12 +144,12 @@ uint32_t calcCRC(const CPelUnitBuf& pic, PictureHash &digest, const BitDepths &b
   {
     const ComponentID compID = ComponentID(chan);
     const CPelBuf area = pic.get(compID);
-    digestLen = compCRC(bitDepths.recon[toChannelType(compID)], area.bufAt(0, 0), area.width, area.height, area.stride, digest );
+    digestLen = compCRC(8/*bitDepths.recon[toChannelType(compID)]*/, area.bufAt(0, 0), area.width, area.height, area.stride, digest );
   }
   return digestLen;
 }
 
-uint32_t compChecksum(int bitdepth, const Pel* plane, uint32_t width, uint32_t height, ptrdiff_t stride, PictureHash &digest, const BitDepths &/*bitDepths*/)
+uint32_t compChecksum(const Pel* plane, uint32_t width, uint32_t height, ptrdiff_t stride, PictureHash &digest)
 {
   uint32_t checksum = 0;
   uint8_t xor_mask;
@@ -160,11 +160,6 @@ uint32_t compChecksum(int bitdepth, const Pel* plane, uint32_t width, uint32_t h
     {
       xor_mask = (x & 0xff) ^ (y & 0xff) ^ (x >> 8) ^ (y >> 8);
       checksum = (checksum + ((plane[y*stride+x] & 0xff) ^ xor_mask)) & 0xffffffff;
-
-      if(bitdepth > 8)
-      {
-        checksum = (checksum + ((plane[y*stride+x]>>8) ^ xor_mask)) & 0xffffffff;
-      }
     }
   }
 
@@ -175,7 +170,7 @@ uint32_t compChecksum(int bitdepth, const Pel* plane, uint32_t width, uint32_t h
   return 4;
 }
 
-uint32_t calcChecksum(const CPelUnitBuf& pic, PictureHash &digest, const BitDepths &bitDepths)
+uint32_t calcChecksum(const CPelUnitBuf& pic, PictureHash &digest)
 {
   uint32_t digestLen=0;
   digest.hash.clear();
@@ -183,7 +178,7 @@ uint32_t calcChecksum(const CPelUnitBuf& pic, PictureHash &digest, const BitDept
   {
     const ComponentID compID=ComponentID(chan);
     const CPelBuf area = pic.get(compID);
-    digestLen=compChecksum(bitDepths.recon[toChannelType(compID)], area.bufAt(0,0), area.width, area.height, area.stride, digest, bitDepths);
+    digestLen=compChecksum(area.bufAt(0,0), area.width, area.height, area.stride, digest);
   }
   return digestLen;
 }
@@ -194,7 +189,7 @@ uint32_t calcChecksum(const CPelUnitBuf& pic, PictureHash &digest, const BitDept
  * using sufficient bytes to represent the picture bitdepth.  Eg, 10bit data
  * uses little-endian two byte words; 8bit data uses single byte words.
  */
-uint32_t calcMD5(const CPelUnitBuf& pic, PictureHash &digest, const BitDepths &bitDepths)
+uint32_t calcMD5(const CPelUnitBuf& pic, PictureHash &digest)
 {
   /* choose an md5_plane packing function based on the system bitdepth */
   typedef void (*MD5PlaneFunc)(libmd5::MD5&, const Pel*, uint32_t, uint32_t, ptrdiff_t );
@@ -208,7 +203,7 @@ uint32_t calcMD5(const CPelUnitBuf& pic, PictureHash &digest, const BitDepths &b
   {
     const ComponentID compID=ComponentID(chan);
     const CPelBuf area = pic.get(compID);
-    md5_plane_func = bitDepths.recon[toChannelType(compID)] <= 8 ? (MD5PlaneFunc)md5_plane<1> : (MD5PlaneFunc)md5_plane<2>;
+    md5_plane_func = /*bitDepths.recon[toChannelType(compID)] <= 8 ?*/ (MD5PlaneFunc)md5_plane<1> /*: (MD5PlaneFunc)md5_plane<2>*/;
     uint8_t tmp_digest[MD5_DIGEST_STRING_LENGTH];
     md5_plane_func(md5[compID], area.bufAt(0, 0), area.width, area.height, area.stride );
     md5[compID].finalize(tmp_digest);
@@ -240,7 +235,7 @@ std::string hashToString(const PictureHash &digest, int numChar)
   return result;
 }
 
-int calcAndPrintHashStatus(const CPelUnitBuf& pic, const SEIDecodedPictureHash* pictureHashSEI, const BitDepths &bitDepths, const MsgLevel msgl)
+int calcAndPrintHashStatus(const CPelUnitBuf& pic, const SEIDecodedPictureHash* pictureHashSEI, const MsgLevel msgl)
 {
   /* calculate MD5sum for entire reconstructed picture */
   PictureHash recon_digest;
@@ -254,19 +249,19 @@ int calcAndPrintHashStatus(const CPelUnitBuf& pic, const SEIDecodedPictureHash* 
       case HASHTYPE_MD5:
         {
           hashType = "MD5";
-          numChar = calcMD5(pic, recon_digest, bitDepths);
+          numChar = calcMD5(pic, recon_digest);
           break;
         }
       case HASHTYPE_CRC:
         {
           hashType = "CRC";
-          numChar = calcCRC(pic, recon_digest, bitDepths);
+          numChar = calcCRC(pic, recon_digest);
           break;
         }
       case HASHTYPE_CHECKSUM:
         {
           hashType = "Checksum";
-          numChar = calcChecksum(pic, recon_digest, bitDepths);
+          numChar = calcChecksum(pic, recon_digest);
           break;
         }
       default:

@@ -415,13 +415,6 @@ void  Slice::setNumEntryPoints( const SPS *sps, const PPS *pps )
   }
 }
 
-void Slice::setDefaultClpRng( const SPS& sps )
-{
-  CHECK( sps.getBitDepth( CH_L ) != sps.getBitDepth( CH_C ), "Luma and chroma bit depths are different!" );
-  m_clpRngs.bd  = sps.getBitDepth(CHANNEL_TYPE_LUMA);
-}
-
-
 bool Slice::getRapPicFlag() const
 {
   return getNalUnitType() == NAL_UNIT_CODED_SLICE_IDR_W_RADL
@@ -1362,7 +1355,7 @@ void  Slice::initWpScaling(const SPS *sps)
           pwp->iOffset = 0;
         }
 
-        const int offsetScalingFactor = bUseHighPrecisionPredictionWeighting ? 1 : (1 << (sps->getBitDepth(toChannelType(ComponentID(yuv)))-8));
+        constexpr int offsetScalingFactor = 1/*bUseHighPrecisionPredictionWeighting ? 1 : (1 << (sps->getBitDepth(toChannelType(ComponentID(yuv)))-8))*/;
 
         pwp->w      = pwp->iWeight;
         pwp->o      = pwp->iOffset * offsetScalingFactor; //NOTE: This value of the ".o" variable is never used - .o is set immediately before it gets used
@@ -1428,9 +1421,8 @@ void  SPS::createRPLList1( int numRPL )
 const int SPS::m_winUnitX[] = { 1,2,2,1 };
 const int SPS::m_winUnitY[] = { 1,2,1,1 };
 
-void ChromaQpMappingTable::setParams(const ChromaQpMappingTableParams &params, const int qpBdOffset)
+void ChromaQpMappingTable::setParams(const ChromaQpMappingTableParams &params)
 {
-  m_qpBdOffset = qpBdOffset;
   m_sameCQPTableForAllChromaFlag = params.m_sameCQPTableForAllChromaFlag;
   m_numQpTables = params.m_numQpTables;
 
@@ -1440,14 +1432,14 @@ void ChromaQpMappingTable::setParams(const ChromaQpMappingTableParams &params, c
     m_deltaQpInValMinus1[i] = params.m_deltaQpInValMinus1[i];
     m_qpTableStartMinus26[i] = params.m_qpTableStartMinus26[i];
     m_deltaQpOutVal[i] = params.m_deltaQpOutVal[i];
-    m_chromaQpMappingTables[i].resize( MAX_QP + qpBdOffset + 1 );
+    m_chromaQpMappingTables[i].resize( MAX_QP + 0/*qpBdOffset*/ + 1 );
   }
 }
 void ChromaQpMappingTable::derivedChromaQPMappingTables()
 {
   for (int i = 0; i < getNumQpTables(); i++)
   {
-    const int qpBdOffsetC = m_qpBdOffset;
+    constexpr int qpBdOffsetC = 0/*m_qpBdOffset*/;
     const int numPtsInCQPTableMinus1 = getNumPtsInCQPTableMinus1(i);
     std::vector<int> qpInVal(numPtsInCQPTableMinus1 + 2), qpOutVal(numPtsInCQPTableMinus1 + 2);
 
@@ -2266,7 +2258,7 @@ void Slice::scaleRefPicList( PicHeader *picHeader, APS** apss, APS* lmcsAps, APS
 
           // rescale the reference picture
           const bool downsampling = m_apcRefPicList[refList][rIdx]->getRecoBuf().Y().width >= scaledRefPic[j]->getRecoBuf().Y().width && m_apcRefPicList[refList][rIdx]->getRecoBuf().Y().height >= scaledRefPic[j]->getRecoBuf().Y().height;
-          Picture::rescalePicture( m_apcRefPicList[refList][rIdx]->getRecoBuf(), m_apcRefPicList[refList][rIdx]->slices[0]->getPPS()->getConformanceWindow(), scaledRefPic[j]->getRecoBuf(), pps->getConformanceWindow(), sps->getChromaFormatIdc(), sps->getBitDepths(), true, downsampling );
+          Picture::rescalePicture( m_apcRefPicList[refList][rIdx]->getRecoBuf(), m_apcRefPicList[refList][rIdx]->slices[0]->getPPS()->getConformanceWindow(), scaledRefPic[j]->getRecoBuf(), pps->getConformanceWindow(), sps->getChromaFormatIdc(), true, downsampling );
 #if JVET_Q0764_WRAP_AROUND_WITH_RPR
           scaledRefPic[j]->unscaledPic = m_apcRefPicList[refList][rIdx];
 #endif

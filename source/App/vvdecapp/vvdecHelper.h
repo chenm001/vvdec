@@ -58,70 +58,20 @@ vvc@hhi.fraunhofer.de
 
 #define MAX_CODED_PICTURE_SIZE  800000
 
-static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp, uint32_t uiBytesPerSample, int8_t iScale = 0 )
+static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp )
 {
   uint32_t uiWidth  = comp->m_uiWidth;
   uint32_t uiHeight = comp->m_uiHeight;
 
   assert( f != NULL );
 
-  if( comp->m_uiBytesPerSample == 2 )
-  {
-     unsigned short* p  = reinterpret_cast<unsigned short*>( comp->m_pucBuffer );
-     if( uiBytesPerSample == 1 )  // cut to 8bit output
-     {
-       // 8bit > 16bit conversion
-       std::vector<unsigned char> tmp;
-       tmp.resize(uiWidth);
-
-       for( uint32_t y = 0; y < uiHeight; y++ )
-       {
-         for( uint32_t x = 0; x < uiWidth; x++ )
-         {
-           tmp[x] = (unsigned char)(p[x]>>2);
-         }
-         f->write( (char*)&tmp[0], sizeof(std::vector<unsigned char>::value_type)*tmp.size());
-         p += comp->m_iStride;
-       }
-     }
-     else
-     {
-       unsigned char *p = comp->m_pucBuffer;
-       for( uint32_t y = 0; y < uiHeight; y++ )
-       {
-         f->write( (char*)p, uiWidth*uiBytesPerSample );
-         p += comp->m_iStride;
-       }
-     }
-  }
-  else
   {
    uint8_t *p = comp->m_pucBuffer;
-   if( uiBytesPerSample == 2 )
-   {
-     // 8bit > 16bit conversion
-     std::vector<short> tmp;
-     tmp.resize(uiWidth);
-
      for( uint32_t y = 0; y < uiHeight; y++ )
      {
-       for( uint32_t x = 0; x < uiWidth; x++ )
-       {
-         tmp[x] = p[x] << iScale;
-       }
-
-       f->write( (char*)&tmp[0], sizeof(std::vector<short>::value_type)*tmp.size());
+       f->write( (char*)p, uiWidth );
        p += comp->m_iStride;
      }
-   }
-   else
-   {
-     for( uint32_t y = 0; y < uiHeight; y++ )
-     {
-       f->write( (char*)p, uiBytesPerSample*uiWidth );
-       p += comp->m_iStride;
-     }
-   }
   }
   return 0;
 }
@@ -306,21 +256,12 @@ static int writeYUVToFile( std::ostream *f, vvdec::Frame *frame )
   int ret;
   uint32_t c = 0;
 
-  uint32_t uiBytesPerSample = 1;
-  uint32_t uiBitDepth       = frame->m_uiBitDepth;
-
   assert( f != NULL );
 
   for( c = 0; c < frame->m_uiNumComponents; c++ )
   {
-    uiBytesPerSample = std::max( (uint32_t)frame->m_cComponent[c].m_uiBytesPerSample, uiBytesPerSample );
-  }
 
-  for( c = 0; c < frame->m_uiNumComponents; c++ )
-  {
-    uint32_t iScale = uiBitDepth - frame->m_cComponent[c].m_uiBitDepth;
-
-    if( ( ret = _writeComponentToFile( f, &frame->m_cComponent[c], uiBytesPerSample, iScale ) ) != 0 )
+    if( ( ret = _writeComponentToFile( f, &frame->m_cComponent[c] ) ) != 0 )
     {
       return ret;
     }

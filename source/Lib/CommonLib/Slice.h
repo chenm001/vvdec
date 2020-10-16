@@ -795,7 +795,6 @@ struct ChromaQpAdj
 };
 
 struct ChromaQpMappingTableParams {
-  int               m_qpBdOffset;
   bool              m_sameCQPTableForAllChromaFlag;
   int               m_numQpTables;
   int               m_qpTableStartMinus26[MAX_NUM_CQP_MAPPING_TABLES];
@@ -805,7 +804,6 @@ struct ChromaQpMappingTableParams {
 
   ChromaQpMappingTableParams()
   {
-    m_qpBdOffset = 12;
     m_sameCQPTableForAllChromaFlag = true;
     m_numQpTables = 1;
     m_numPtsInCQPTableMinus1[0] = 0;
@@ -833,9 +831,9 @@ struct ChromaQpMappingTable : ChromaQpMappingTableParams
 {
   std::vector<int> m_chromaQpMappingTables[MAX_NUM_CQP_MAPPING_TABLES];
 
-  int       getMappedChromaQpValue(ComponentID compID, const int qpVal)  const { return m_chromaQpMappingTables[m_sameCQPTableForAllChromaFlag ? 0 : (int)compID - 1].at(qpVal + m_qpBdOffset); }
+  int       getMappedChromaQpValue(ComponentID compID, const int qpVal)  const { return m_chromaQpMappingTables[m_sameCQPTableForAllChromaFlag ? 0 : (int)compID - 1].at(qpVal/* + m_qpBdOffset*/); }
   void      derivedChromaQPMappingTables();
-  void      setParams(const ChromaQpMappingTableParams &params, const int qpBdOffset);
+  void      setParams(const ChromaQpMappingTableParams &params);
 };
 
 class SliceMap
@@ -1497,14 +1495,12 @@ private:
   bool              m_BDPCMEnabledFlag                   = false;
   bool              m_JointCbCrEnabledFlag               = false;
   // Parameter
-  BitDepths         m_bitDepths;
   bool              m_entropyCodingSyncEnabledFlag       = false;              //!< Flag for enabling WPP
 #if JVET_R0165_OPTIONAL_ENTRY_POINT
   bool              m_entryPointPresentFlag              = false;              //!< Flag for indicating the presence of entry points
 #else
   bool              m_entropyCodingSyncEntryPointPresentFlag = false;          //!< Flag for indicating the presence of WPP entry points
 #endif
-  int               m_qpBDOffset  [MAX_NUM_CHANNEL_TYPE] = { 0, 0 };
   int               m_internalMinusInputBitDepth[MAX_NUM_CHANNEL_TYPE] = {0, 0 }; //  max(0, internal bitdepth - input bitdepth);                                          }
   bool              m_sbtmvpEnabledFlag                  = false;
   bool              m_disFracMmvdEnabledFlag             = false;
@@ -1794,10 +1790,6 @@ public:
   void                    setLog2MaxTbSize( uint32_t u )                                                  { m_log2MaxTbSize = u;                                                 }
   uint32_t                getLog2MaxTbSize() const                                                        { return  m_log2MaxTbSize;                                             }
   uint32_t                getMaxTbSize() const                                                            { return  1 << m_log2MaxTbSize;                                        }
-  // Bit-depth
-  int                     getBitDepth(ChannelType type) const                                             { return m_bitDepths.recon[type];                                      }
-  void                    setBitDepth(ChannelType type, int u )                                           { m_bitDepths.recon[type] = u;                                         }
-  const BitDepths&        getBitDepths() const                                                            { return m_bitDepths;                                                  }
   
   bool                    getEntropyCodingSyncEnabledFlag() const                                         { return m_entropyCodingSyncEnabledFlag;                               }
   void                    setEntropyCodingSyncEnabledFlag(bool val)                                       { m_entropyCodingSyncEnabledFlag = val;                                }
@@ -1809,11 +1801,8 @@ public:
   void                    setEntropyCodingSyncEntryPointsPresentFlag(bool val)                            { m_entropyCodingSyncEntryPointPresentFlag = val;                      }
 #endif
   
-  int                     getMaxLog2TrDynamicRange(ChannelType channelType) const                         { return getSpsRangeExtension().getExtendedPrecisionProcessingFlag() ? std::max<int>(15, int(m_bitDepths.recon[channelType] + 6)) : 15; }
+  int                     getMaxLog2TrDynamicRange(ChannelType channelType) const                         { return getSpsRangeExtension().getExtendedPrecisionProcessingFlag() ? std::max<int>(15, 8 + 6) : 15; }
 
-  int                     getDifferentialLumaChromaBitDepth() const                                       { return int(m_bitDepths.recon[CHANNEL_TYPE_LUMA]) - int(m_bitDepths.recon[CHANNEL_TYPE_CHROMA]); }
-  int                     getQpBDOffset(ChannelType type) const                                           { return m_qpBDOffset[type];                                           }
-  void                    setQpBDOffset(ChannelType type, int i)                                          { m_qpBDOffset[type] = i;                                              }
   int                     getInternalMinusInputBitDepth(ChannelType type) const                           { return m_internalMinusInputBitDepth[type];                                           }
   void                    setInternalMinusInputBitDepth(ChannelType type, int i)                          { m_internalMinusInputBitDepth[type] = i;                                              }
   void                    setUseSAO(bool bVal)                                                            { m_bUseSAO = bVal;                                                    }
@@ -1992,7 +1981,7 @@ public:
   bool      getUseWPBiPred        ()                                      const     { return m_useWeightedBiPred; }
   void      setUseWP              ( bool b )                                        { m_useWeightPred = b; }
   void      setUseWPBiPred        ( bool b )                                        { m_useWeightedBiPred = b; }
-  void      setChromaQpMappingTableFromParams(const ChromaQpMappingTableParams &params, const int qpBdOffset)   { m_chromaQpMappingTable.setParams(params, qpBdOffset); }
+  void      setChromaQpMappingTableFromParams(const ChromaQpMappingTableParams &params)   { m_chromaQpMappingTable.setParams(params); }
   void      derivedChromaQPMappingTables()                                          { m_chromaQpMappingTable.derivedChromaQPMappingTables(); }
   const ChromaQpMappingTable& getChromaQpMappingTable()                   const     { return m_chromaQpMappingTable;}
   int       getMappedChromaQpValue(ComponentID compID, int qpVal)         const     { return m_chromaQpMappingTable.getMappedChromaQpValue(compID, qpVal); }
@@ -3174,7 +3163,6 @@ public:
   void                        setSliceQpBase( int i )                                { m_iSliceQpBase = i;                                           }
   int                         getSliceQpBase()                                 const { return m_iSliceQpBase;                                        }
 
-  void                        setDefaultClpRng( const SPS& sps );
   const ClpRngs&              clpRngs()                                         const { return m_clpRngs; }
   const ClpRng&               clpRng( ComponentID id)                           const { return m_clpRngs; }
   ClpRngs&                    getClpRngs()                                            { return m_clpRngs; }

@@ -258,18 +258,18 @@ void xPelFilterLumaCorePel( Pel* piSrc, const ptrdiff_t iOffset, const int tc, c
       delta = Clip3( -tc, tc, delta );
       const int tc2 = tc >> 1;
 
-      piSrc[-iOffset * 1] = ClipPel( m3 + delta, clpRng);
+      piSrc[-iOffset * 1] = ClipPel( m3 + delta );
       if( bFilterSecondP )
       {
         const int delta1 = Clip3( -tc2, tc2, ( ( ( ( m1 + m3 + 1 ) >> 1 ) - m2 + delta ) >> 1 ) );
-        piSrc[-iOffset * 2] = ClipPel( m2 + delta1, clpRng);
+        piSrc[-iOffset * 2] = ClipPel( m2 + delta1 );
       }
 
-      piSrc[0]        = ClipPel( m4 - delta, clpRng);
+      piSrc[0]        = ClipPel( m4 - delta );
       if( bFilterSecondQ )
       {
         const int delta2 = Clip3( -tc2, tc2, ( ( ( ( m6 + m4 + 1 ) >> 1 ) - m5 - delta ) >> 1 ) );
-        piSrc[iOffset] = ClipPel( m5 + delta2, clpRng);
+        piSrc[iOffset] = ClipPel( m5 + delta2 );
       }
     }
   }
@@ -341,8 +341,8 @@ static inline void xPelFilterChroma( Pel* piSrc, const ptrdiff_t iOffset, const 
   {
     delta           = Clip3( -tc, tc, ( ( ( ( m4 - m3 ) << 2 ) + m2 - m5 + 4 ) >> 3 ) );
 
-    piSrc[-iOffset] = ClipPel( m3 + delta, clpRng );
-    piSrc[       0] = ClipPel( m4 - delta, clpRng );
+    piSrc[-iOffset] = ClipPel( m3 + delta );
+    piSrc[       0] = ClipPel( m4 - delta );
   }
 }
 // ====================================================================================================================
@@ -1092,7 +1092,7 @@ void LoopFilter::xGetBoundaryStrengthSingle( LoopFilterParam& lfp, const CodingU
 
   if( hasChroma )
   {
-    const int qpBdOffset2     = cuQ.cs->sps->getQpBDOffset( CH_C ) << 1;
+    constexpr int qpBdOffset2 = 0/*cuQ.cs->sps->getQpBDOffset( CH_C ) << 1*/;
     const bool isPQDiffCh     = !chType && cuP.treeType() != TREE_D;
     const TransformUnit &tuQc = cuQ.ispMode() ? *cuQ.lastTU : tuQ;
     const Position      posPc = isPQDiffCh ? recalcPosition( cuQ.chromaFormat, chType, CH_C, posP ) : Position();
@@ -1392,7 +1392,7 @@ void LoopFilter::xEdgeFilterLuma( CodingStructure& cs, const Position& pos, cons
   const ptrdiff_t iStride      = picYuvRec.stride;
   const SPS &     sps          = *cs.sps;
   const Slice &   slice        = *cs.m_ctuData[cs.ctuRsAddr( pos, CH_L )].cuPtr[0][0]->slice;
-  const int       bitDepthLuma = sps.getBitDepth( CHANNEL_TYPE_LUMA );
+  constexpr int   bitDepthLuma = 8/*sps.getBitDepth( CHANNEL_TYPE_LUMA )*/;
   const ClpRng &  clpRng       = slice.clpRng( COMPONENT_Y );
 
   const int  betaOffsetDiv2    = slice.getDeblockingFilterBetaOffsetDiv2();
@@ -1463,7 +1463,7 @@ void LoopFilter::xEdgeFilterLuma( CodingStructure& cs, const Position& pos, cons
   const int iIndexTC  = Clip3( 0, MAX_QP + DEFAULT_INTRA_TC_OFFSET, int( iQP + DEFAULT_INTRA_TC_OFFSET * ( uiBs - 1 ) + ( tcOffsetDiv2 << 1 ) ) );
   const int iIndexB   = Clip3( 0, MAX_QP, iQP + ( betaOffsetDiv2 << 1 ) );
 
-  const int iTc = bitDepthLuma < 10 ? ((sm_tcTable[iIndexTC] + (1 << (9 - bitDepthLuma))) >> (10 - bitDepthLuma)) : ((sm_tcTable[iIndexTC]) << (bitDepthLuma - 10));
+  const int iTc = /*bitDepthLuma < 10 ?*/ ((sm_tcTable[iIndexTC] + (1 << (9 - bitDepthLuma))) >> (10 - bitDepthLuma)) /*: ((sm_tcTable[iIndexTC]) << (bitDepthLuma - 10))*/;
   const int iBeta     = sm_betaTable[iIndexB ] << ( bitDepthLuma - 8 );
   const int iSideThreshold = ( iBeta + ( iBeta >> 1 ) ) >> 3;
   const int iThrCut   = iTc * 10;
@@ -1556,9 +1556,8 @@ void LoopFilter::xEdgeFilterChroma( CodingStructure &cs, const Position &pos, co
   Pel *              piSrcCb             = picYuvRecCb.bufAt( pos );
   Pel *              piSrcCr             = picYuvRecCr.bufAt( pos );
   const ptrdiff_t    iStride             = picYuvRecCb.stride;
-  const SPS &        sps                 = *cs.sps;
   const Slice &      slice               = *cs.m_ctuData[cs.ctuRsAddr( pos, CH_C )].cuPtr[1][0]->slice;
-  const int          bitDepthChroma      = sps.getBitDepth( CHANNEL_TYPE_CHROMA );
+  constexpr int      bitDepthChroma      = 8/*sps.getBitDepth( CHANNEL_TYPE_CHROMA )*/;
 
   const int tcOffsetDiv2[2]              = { slice.getDeblockingFilterCbTcOffsetDiv2(),   slice.getDeblockingFilterCrTcOffsetDiv2() };
   const int betaOffsetDiv2[2]            = { slice.getDeblockingFilterCbBetaOffsetDiv2(), slice.getDeblockingFilterCrBetaOffsetDiv2() };
@@ -1611,12 +1610,12 @@ void LoopFilter::xEdgeFilterChroma( CodingStructure &cs, const Position &pos, co
       int iQP = lfp.qp[chromaIdx + 1];
 
       const int iIndexTC = Clip3<int>( 0, MAX_QP + DEFAULT_INTRA_TC_OFFSET, iQP + DEFAULT_INTRA_TC_OFFSET * ( bS[chromaIdx] - 1 ) + ( tcOffsetDiv2[chromaIdx] << 1 ) );
-      const int iTc = bitDepthChroma < 10 ? ((sm_tcTable[iIndexTC] + (1 << (9 - bitDepthChroma))) >> (10 - bitDepthChroma)) : ((sm_tcTable[iIndexTC]) << (bitDepthChroma - 10));
+      const int iTc = /*bitDepthChroma < 10 ?*/ ((sm_tcTable[iIndexTC] + (1 << (9 - bitDepthChroma))) >> (10 - bitDepthChroma)) /*: ((sm_tcTable[iIndexTC]) << (bitDepthChroma - 10))*/;
       Pel* piSrcChroma   = chromaIdx == 0 ? piSrcCb : piSrcCr;
 
       if( largeBoundary )
       {
-        const int iBitdepthScale = 1 << ( sps.getBitDepth( CHANNEL_TYPE_CHROMA ) - 8 );
+        constexpr int iBitdepthScale = 1/* << ( sps.getBitDepth( CHANNEL_TYPE_CHROMA ) - 8 )*/;
 
         const int indexB = Clip3<int>( 0, MAX_QP, iQP + ( betaOffsetDiv2[chromaIdx] << 1 ) );
         const int beta   = sm_betaTable[indexB] * iBitdepthScale;

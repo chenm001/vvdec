@@ -71,10 +71,9 @@ Reshape::~Reshape()
   destroy();
 }
 
-void  Reshape::createDec(int bitDepth)
+void  Reshape::createDec()
 {
-  m_lumaBD = bitDepth;
-  m_reshapeLUTSize = 1 << m_lumaBD;
+  m_reshapeLUTSize = 1 << 8/*m_lumaBD*/;
   m_initCW = m_reshapeLUTSize / PIC_CODE_CW_BINS;
   if( !m_fwdLUT )
   {
@@ -286,7 +285,7 @@ int  Reshape::calculateChromaAdjVpduNei(TransformUnit &tu, const Position pos)
     Pel* recSrc0 = piRecoY.bufAt(0, 0);
     const uint32_t picH = tu.cu->cs->picture->lheight();
     const uint32_t picW = tu.cu->cs->picture->lwidth();
-    const Pel   valueDC = 1 << (tu.cu->cs->sps->getBitDepth(CHANNEL_TYPE_LUMA) - 1);
+    const Pel   valueDC = 1 << (8/*tu.cu->cs->sps->getBitDepth(CHANNEL_TYPE_LUMA)*/ - 1);
     int32_t recLuma = 0;
     int pelnum = 0;
     if (cuLeft != nullptr)
@@ -398,11 +397,11 @@ void Reshape::constructReshaper()
   {
     int idxY = lumaSample / m_initCW;
     int tempVal = m_reshapePivot[idxY] + ((m_fwdScaleCoef[idxY] * (lumaSample - m_inputPivot[idxY]) + (1 << (FP_PREC - 1))) >> FP_PREC);
-    m_fwdLUT[lumaSample] = Clip3((Pel)0, (Pel)((1 << m_lumaBD) - 1), (Pel)(tempVal));
+    m_fwdLUT[lumaSample] = ClipPel((Pel)(tempVal));
 
     int idxYInv = getPWLIdxInv(lumaSample);
     int invSample = m_inputPivot[idxYInv] + ((m_invScaleCoef[idxYInv] * (lumaSample - m_reshapePivot[idxYInv]) + (1 << (FP_PREC - 1))) >> FP_PREC);
-    m_invLUT[lumaSample] = Clip3((Pel)0, (Pel)((1 << m_lumaBD) - 1), (Pel)(invSample));
+    m_invLUT[lumaSample] = ClipPel((Pel)(invSample));
   }
 }
 

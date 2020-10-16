@@ -63,7 +63,7 @@ namespace Mip
   {
   }
 
-  void PredictorMIP::deriveBoundaryData(const CPelBuf& src, const Area& block, const int bitDepth)
+  void PredictorMIP::deriveBoundaryData(const CPelBuf& src, const Area& block)
   {
     // Step 1: Save block size and calculate dependent values
     initPredBlockParams(block);
@@ -112,8 +112,8 @@ namespace Mip
     m_inputOffsetTransp = m_reducedBoundaryTransposed[0];
   
     const bool hasFirstCol = (m_sizeId < 2);
-    m_reducedBoundary          [0] = hasFirstCol ? ((1 << (bitDepth - 1)) - m_inputOffset      ) : 0; // first column of matrix not needed for large blocks
-    m_reducedBoundaryTransposed[0] = hasFirstCol ? ((1 << (bitDepth - 1)) - m_inputOffsetTransp) : 0;
+    m_reducedBoundary          [0] = hasFirstCol ? ((1 << (8/*bitDepth*/ - 1)) - m_inputOffset      ) : 0; // first column of matrix not needed for large blocks
+    m_reducedBoundaryTransposed[0] = hasFirstCol ? ((1 << (8/*bitDepth*/ - 1)) - m_inputOffsetTransp) : 0;
     for (int i = 1; i < inputSize; i++)
     {
       m_reducedBoundary          [i] -= m_inputOffset;
@@ -121,7 +121,7 @@ namespace Mip
     }
   }
 
-  void PredictorMIP::getPrediction(int* const result, const int modeIdx, const bool transpose, const int bitDepth)
+  void PredictorMIP::getPrediction(int* const result, const int modeIdx, const bool transpose)
   {
     const bool needUpsampling = ( m_upsmpFactorHor > 1 ) || ( m_upsmpFactorVer > 1 );
 
@@ -130,7 +130,7 @@ namespace Mip
     int bufReducedPred[MIP_MAX_REDUCED_OUTPUT_SAMPLES];
     int* const       reducedPred     = needUpsampling ? bufReducedPred : result;
     const int* const reducedBoundary = transpose ? m_reducedBoundaryTransposed : m_reducedBoundary;
-    computeReducedPred( reducedPred, reducedBoundary, matrix, transpose, bitDepth );
+    computeReducedPred( reducedPred, reducedBoundary, matrix, transpose );
     if( needUpsampling )
     {
       predictionUpsampling( result, reducedPred );
@@ -283,7 +283,7 @@ const uint8_t* PredictorMIP::getMatrixData(const int modeIdx) const
 
   void PredictorMIP::computeReducedPred( int*const result, const int* const input,
                                           const uint8_t* matrix,
-                                          const bool transpose, const int bitDepth )
+                                          const bool transpose )
   {
     const int inputSize = 2 * m_reducedBdrySize;
 
@@ -317,7 +317,7 @@ const uint8_t* PredictorMIP::getMatrixData(const int modeIdx) const
           tmp2 += input[i + 2] * weight[i + 2];
           tmp3 += input[i + 3] * weight[i + 3];
         }
-        resPtr[posRes++] = ClipBD<int>(((tmp0 + tmp1 + tmp2 + tmp3 + offset) >> MIP_SHIFT_MATRIX) + inputOffset, bitDepth);
+        resPtr[posRes++] = ClipBD<int>(((tmp0 + tmp1 + tmp2 + tmp3 + offset) >> MIP_SHIFT_MATRIX) + inputOffset, 8/*bitDepth*/);
 
         weight += inputSize;
       }
@@ -341,22 +341,22 @@ MatrixIntraPrediction::MatrixIntraPrediction()
 }
 
 #if JVET_R0350_MIP_CHROMA_444_SINGLETREE
-void MatrixIntraPrediction::prepareInputForPred(const CPelBuf &src, const Area& puArea, const int bitDepth, const ComponentID compId)
+void MatrixIntraPrediction::prepareInputForPred(const CPelBuf &src, const Area& puArea, const ComponentID compId)
 #else
-void MatrixIntraPrediction::prepareInputForPred(const CPelBuf &src, const Area& puArea, const int bitDepth)
+void MatrixIntraPrediction::prepareInputForPred(const CPelBuf &src, const Area& puArea)
 #endif
 {
 #if JVET_R0350_MIP_CHROMA_444_SINGLETREE
   m_component = compId;
 #endif
 
-  m_predictorMip.deriveBoundaryData(src, puArea, bitDepth);
+  m_predictorMip.deriveBoundaryData(src, puArea);
 }
 
 #if JVET_R0350_MIP_CHROMA_444_SINGLETREE
-void MatrixIntraPrediction::predBlock( const Size &puSize, const int intraMode, PelBuf& dst, const bool transpose, const int bitDepth, const ComponentID compId )
+void MatrixIntraPrediction::predBlock( const Size &puSize, const int intraMode, PelBuf& dst, const bool transpose, const ComponentID compId )
 #else
-void MatrixIntraPrediction::predBlock( const Size &puSize, const int intraMode, PelBuf& dst, const bool transpose, const int bitDepth )
+void MatrixIntraPrediction::predBlock( const Size &puSize, const int intraMode, PelBuf& dst, const bool transpose )
 #endif
 {
 #if JVET_R0350_MIP_CHROMA_444_SINGLETREE
@@ -364,7 +364,7 @@ void MatrixIntraPrediction::predBlock( const Size &puSize, const int intraMode, 
 #endif
   int* const resultMip = m_mipResult;
 
-  m_predictorMip.getPrediction( resultMip, intraMode, transpose, bitDepth );
+  m_predictorMip.getPrediction( resultMip, intraMode, transpose );
 
   for( int y = 0; y < puSize.height; y++ )
   {

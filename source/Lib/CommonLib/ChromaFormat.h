@@ -123,9 +123,9 @@ static inline bool filterIntraReferenceSamples (const ChannelType chType, const 
 
 //------------------------------------------------
 
-static inline int getTransformShift(const int channelBitDepth, const Size size, const int maxLog2TrDynamicRange)
+static inline int getTransformShift(const Size size, const int maxLog2TrDynamicRange)
 {
-  return maxLog2TrDynamicRange - channelBitDepth - ( ( getLog2(size.width) + getLog2(size.height) ) >> 1 );
+  return maxLog2TrDynamicRange - 8/*channelBitDepth*/ - ( ( getLog2(size.width) + getLog2(size.height) ) >> 1 );
 }
 
 

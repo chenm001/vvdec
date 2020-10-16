@@ -475,7 +475,6 @@ void TrQuant::xIT( const TransformUnit &tu, const ComponentID &compID, const CCo
   const int      width                  = pCoeff.width;
   const int      height                 = pCoeff.height;
   const unsigned maxLog2TrDynamicRange  = tu.cu->cs->sps->getMaxLog2TrDynamicRange( toChannelType( compID ) );
-  const unsigned bitDepth               = tu.cu->cs->sps->getBitDepth(              toChannelType( compID ) );
   const int      TRANSFORM_MATRIX_SHIFT = g_transformMatrixShift;
   const TCoeff   clipMinimum            = -( 1 << maxLog2TrDynamicRange );
   const TCoeff   clipMaximum            =  ( 1 << maxLog2TrDynamicRange ) - 1;
@@ -495,7 +494,7 @@ void TrQuant::xIT( const TransformUnit &tu, const ComponentID &compID, const CCo
   if( width > 1 && height > 1 ) //2-D transform
   {
     const int      shift_1st              =   TRANSFORM_MATRIX_SHIFT + 1 + COM16_C806_TRANS_PREC; // 1 has been added to shift_1st at the expense of shift_2nd
-    const int      shift_2nd              = ( TRANSFORM_MATRIX_SHIFT + maxLog2TrDynamicRange - 1 ) - bitDepth + COM16_C806_TRANS_PREC;
+    const int      shift_2nd              = ( TRANSFORM_MATRIX_SHIFT + maxLog2TrDynamicRange - 1 ) - 8/*bitDepth*/ + COM16_C806_TRANS_PREC;
     CHECK( shift_1st < 0, "Negative shift" );
     CHECK( shift_2nd < 0, "Negative shift" );
     TCoeff *tmp   = m_tmp;
@@ -504,14 +503,14 @@ void TrQuant::xIT( const TransformUnit &tu, const ComponentID &compID, const CCo
   }
   else if( width == 1 ) //1-D vertical transform
   {
-    int shift = ( TRANSFORM_MATRIX_SHIFT + maxLog2TrDynamicRange - 1 ) - bitDepth + COM16_C806_TRANS_PREC;
+    int shift = ( TRANSFORM_MATRIX_SHIFT + maxLog2TrDynamicRange - 1 ) - 8/*bitDepth*/ + COM16_C806_TRANS_PREC;
     CHECK( shift < 0, "Negative shift" );
     CHECK( ( transformHeightIndex < 0 ), "There is a problem with the height." );
     fastInvTrans[trTypeVer][transformHeightIndex]( pCoeff.buf, block, shift + 1, 1, 0, skipHeight, clipMinimum, clipMaximum );
   }
   else //if(iHeight == 1) //1-D horizontal transform
   {
-    const int      shift              = ( TRANSFORM_MATRIX_SHIFT + maxLog2TrDynamicRange - 1 ) - bitDepth + COM16_C806_TRANS_PREC;
+    const int      shift              = ( TRANSFORM_MATRIX_SHIFT + maxLog2TrDynamicRange - 1 ) - 8/*bitDepth*/ + COM16_C806_TRANS_PREC;
     CHECK( shift < 0, "Negative shift" );
     CHECK( ( transformWidthIndex < 0 ), "There is a problem with the width." );
     fastInvTrans[trTypeHor][transformWidthIndex]( pCoeff.buf, block, shift + 1, 1, 0, skipWidth, clipMinimum, clipMaximum );

@@ -61,8 +61,7 @@ vvc@hhi.fraunhofer.de
 //! \ingroup CommonLib
 //! \{
 
-void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDepth,
-                                             const ClpRng&        clpRng,
+void SampleAdaptiveOffset::offsetBlock_core( const ClpRng&        clpRng,
                                              int                  typeIdx,
                                              int*                 offset,
                                              int                  startIdx,
@@ -117,7 +116,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         edgeType =  signRight + signLeft;
         signLeft  = -signRight;
 
-        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType] );
       }
 
       srcLine  += srcStride;
@@ -161,7 +160,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         edgeType = signDown + signUpLine[x];
         signUpLine[x]= -signDown;
 
-        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType] );
       }
       srcLine += srcStride;
       resLine += resStride;
@@ -198,7 +197,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
       }
       edgeType  =  sgn(srcLine[x] - srcLineAbove[x- 1]) - signUpLine[x+1];
 
-      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType] );
     }
     srcLine  += srcStride;
     resLine  += resStride;
@@ -218,7 +217,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
           continue;
         }
         edgeType =  signDown + signUpLine[x];
-        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType] );
 
         signDownLine[x+1] = -signDown;
       }
@@ -243,7 +242,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         continue;
       }
       edgeType =  sgn(srcLine[x] - srcLineBelow[x+ 1]) + signUpLine[x];
-      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType] );
     }
   }
   break;
@@ -274,7 +273,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         continue;
       }
       edgeType = sgn(srcLine[x] - srcLineAbove[x+1]) -signUpLine[x-1];
-      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType] );
     }
     srcLine += srcStride;
     resLine += resStride;
@@ -293,7 +292,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
           continue;
         }
         edgeType =  signDown + signUpLine[x];
-        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType] );
         signUpLine[x-1] = -signDown;
       }
       signUpLine[endX-1] = (int8_t)sgn(srcLineBelow[endX-1] - srcLine[endX]);
@@ -312,20 +311,20 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         continue;
       }
       edgeType = sgn(srcLine[x] - srcLineBelow[x-1]) + signUpLine[x];
-      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType] );
 
     }
   }
   break;
   case SAO_TYPE_BO:
   {
-    const int shiftBits = channelBitDepth - NUM_SAO_BO_CLASSES_LOG2;
+    constexpr int shiftBits = 8/*channelBitDepth*/ - NUM_SAO_BO_CLASSES_LOG2;
 
     for (y=0; y< height; y++)
     {
       for (x=0; x< width; x++)
       {
-        resLine[x] = ClipPel<int>(srcLine[x] + offset[srcLine[x] >> shiftBits], clpRng );
+        resLine[x] = ClipPel<int>(srcLine[x] + offset[srcLine[x] >> shiftBits] );
       }
       srcLine += srcStride;
       resLine += resStride;
@@ -344,7 +343,7 @@ SampleAdaptiveOffset::~SampleAdaptiveOffset()
   destroy();
 }
 
-void SampleAdaptiveOffset::create( int picWidth, int picHeight, ChromaFormat format, uint32_t maxCUWidth, uint32_t maxCUHeight, uint32_t maxCUDepth, uint32_t lumaBitShift, uint32_t chromaBitShift )
+void SampleAdaptiveOffset::create( int picWidth, int picHeight, ChromaFormat format, uint32_t maxCUWidth, uint32_t maxCUHeight, uint32_t maxCUDepth/*, uint32_t lumaBitShift, uint32_t chromaBitShift*/ )
 {
   offsetBlock = offsetBlock_core;
 #if ENABLE_SIMD_OPT_SAO
@@ -362,11 +361,6 @@ void SampleAdaptiveOffset::create( int picWidth, int picHeight, ChromaFormat for
     m_tempBuf.create( picArea );
   }
 
-  //bit-depth related
-  for( int compIdx = 0; compIdx < MAX_NUM_COMPONENT; compIdx++ )
-  {
-    m_offsetStepLog2[compIdx] = isLuma(ComponentID(compIdx)) ? lumaBitShift : chromaBitShift;
-  }
   m_numberOfComponents = getNumberValidComponents(format);
 }
 
@@ -532,14 +526,14 @@ void SampleAdaptiveOffset::invertQuantOffsets(ComponentID compIdx, int typeIdc, 
   {
     for(int i=0; i< 4; i++)
     {
-      dstOffsets[(typeAuxInfo+ i)%NUM_SAO_BO_CLASSES] = codedOffset[(typeAuxInfo+ i)%NUM_SAO_BO_CLASSES]*(1<<m_offsetStepLog2[compIdx]);
+      dstOffsets[(typeAuxInfo+ i)%NUM_SAO_BO_CLASSES] = codedOffset[(typeAuxInfo+ i)%NUM_SAO_BO_CLASSES];
     }
   }
   else //EO
   {
     for(int i=0; i< NUM_SAO_EO_CLASSES; i++)
     {
-      dstOffsets[i] = codedOffset[i] *(1<<m_offsetStepLog2[compIdx]);
+      dstOffsets[i] = codedOffset[i];
     }
     CHECK(dstOffsets[SAO_CLASS_EO_PLAIN] != 0, "EO offset is not '0'"); //keep EO plain offset as zero
   }
@@ -700,8 +694,7 @@ void SampleAdaptiveOffset::offsetCTU( const UnitArea& area, const CPelUnitBuf& s
         verVirBndryPosComp[i] = (verVirBndryPos[i] >> ::getComponentScaleX(compID, area.chromaFormat)) - compArea.x;
       }
 
-      offsetBlock( cs.sps->getBitDepth(toChannelType(compID)),
-                   cs.getCtuData(cs.ctuRsAddr(area.Y().pos(), CH_L)).cuPtr[0][0]->slice->clpRng(compID),
+      offsetBlock( cs.getCtuData(cs.ctuRsAddr(area.Y().pos(), CH_L)).cuPtr[0][0]->slice->clpRng(compID),
                    ctbOffset.typeIdc, ctbOffset.offset,ctbOffset.typeAuxInfo
                   , srcBlk, resBlk, srcStride, resStride, compArea.width, compArea.height
                   , isLeftAvail, isRightAvail

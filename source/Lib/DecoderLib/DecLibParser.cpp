@@ -1066,7 +1066,7 @@ Picture * DecLibParser::xActivateParameterSets( const int layerId )
     xParsePrefixSEImessages();
 
 #if RExt__HIGH_BIT_DEPTH_SUPPORT == 0
-    if( sps->getSpsRangeExtension().getExtendedPrecisionProcessingFlag() || sps->getBitDepth( CHANNEL_TYPE_LUMA ) > 12 || sps->getBitDepth( CHANNEL_TYPE_CHROMA ) > 12 )
+    if( sps->getSpsRangeExtension().getExtendedPrecisionProcessingFlag() /*|| sps->getBitDepth( CHANNEL_TYPE_LUMA ) > 12 || sps->getBitDepth( CHANNEL_TYPE_CHROMA ) > 12*/ )
     {
       THROW( "High bit depth support must be enabled at compile-time in order to decode this bitstream\n" );
     }
@@ -1237,25 +1237,20 @@ Picture * DecLibParser::xActivateParameterSets( const int layerId )
 
   // TODO: fix MT static maps
   static std::unordered_map<int, int> m_layerChromaFormat;
-  static std::unordered_map<int, int> m_layerBitDepth;
 
   if( vps != nullptr && vps->getMaxLayers() > 1 )
   {
     int curLayerIdx          = vps->getGeneralLayerIdx(layerId);
     int curLayerChromaFormat = sps->getChromaFormatIdc();
-    int curLayerBitDepth     = sps->getBitDepth(CHANNEL_TYPE_LUMA);
 
     if( pSlice->isClvssPu() && m_bFirstSliceInPicture )
     {
       m_layerChromaFormat[curLayerIdx] = curLayerChromaFormat;
-      m_layerBitDepth    [curLayerIdx] = curLayerBitDepth;
     }
     else
     {
       CHECK( m_layerChromaFormat[curLayerIdx] != curLayerChromaFormat,
              "Different chroma format in the same layer." );
-      CHECK( m_layerBitDepth    [curLayerIdx] != curLayerBitDepth,
-             "Different bit-depth in the same layer." );
     }
 
     for( int i = 0; i < curLayerIdx; i++ )
@@ -1265,9 +1260,6 @@ Picture * DecLibParser::xActivateParameterSets( const int layerId )
         int refLayerChromaFormat = m_layerChromaFormat[i];
         CHECK( curLayerChromaFormat != refLayerChromaFormat,
                "The chroma formats of the current layer and the reference layer are different" );
-        int refLayerBitDepth = m_layerBitDepth[i];
-        CHECK( curLayerBitDepth != refLayerBitDepth,
-               "The bit-depth of the current layer and the reference layer are different" );
       }
     }
   }
@@ -1311,7 +1303,7 @@ Picture * DecLibParser::xActivateParameterSets( const int layerId )
          "Num tile columns signaled in PPS exceed level limits" );
   CHECK( ltFeature && pps->getNumTiles() > ltFeature->maxTilesPerAu,
          "Num tiles signaled in PPS exceed level limits" );
-  CHECK( pFeature && sps->getBitDepth( CHANNEL_TYPE_LUMA ) > pFeature->maxBitDepth,
+  CHECK( pFeature && 8/*sps->getBitDepth( CHANNEL_TYPE_LUMA )*/ > pFeature->maxBitDepth,
          "Bit depth exceed profile limit" );
   CHECK( pFeature && sps->getChromaFormatIdc() > pFeature->maxChromaFormat,
          "Chroma format exceed profile limit" );
@@ -1407,8 +1399,8 @@ Picture* DecLibParser::prepareUnavailablePicture( int iUnavailablePoc, const int
 
   cFillPic->slices[0]->initSlice();
 
-  uint32_t yFill = 1 << (m_parameterSetManager.getFirstSPS()->getBitDepth(CHANNEL_TYPE_LUMA) - 1);
-  uint32_t cFill = 1 << (m_parameterSetManager.getFirstSPS()->getBitDepth(CHANNEL_TYPE_CHROMA) - 1);
+  constexpr uint32_t yFill = 1 << (8/*m_parameterSetManager.getFirstSPS()->getBitDepth(CHANNEL_TYPE_LUMA)*/ - 1);
+  constexpr uint32_t cFill = 1 << (8/*m_parameterSetManager.getFirstSPS()->getBitDepth(CHANNEL_TYPE_CHROMA)*/ - 1);
   cFillPic->getRecoBuf().Y().fill(yFill);
   cFillPic->getRecoBuf().Cb().fill(cFill);
   cFillPic->getRecoBuf().Cr().fill(cFill);

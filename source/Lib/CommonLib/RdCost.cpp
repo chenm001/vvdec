@@ -73,10 +73,8 @@ RdCost::~RdCost()
 {
 }
 
-void RdCost::setDistParam( DistParam &rcDP, const Pel* pOrg, const Pel* piRefY, ptrdiff_t iOrgStride, ptrdiff_t iRefStride, int bitDepth, int width, int height, int subShiftMode )
+void RdCost::setDistParam( DistParam &rcDP, const Pel* pOrg, const Pel* piRefY, ptrdiff_t iOrgStride, ptrdiff_t iRefStride, int width, int height, int subShiftMode )
 {
-  rcDP.bitDepth   = bitDepth;
-
   rcDP.org.buf    = pOrg;
   rcDP.org.stride = iOrgStride;
   rcDP.org.width  = width;

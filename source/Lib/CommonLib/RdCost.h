@@ -56,7 +56,7 @@ vvc@hhi.fraunhofer.de
 //! \ingroup CommonLib
 //! \{
 
-class DistParam;
+struct DistParam;
 class EncCfg;
 
 // ====================================================================================================================
@@ -71,19 +71,18 @@ typedef Distortion (*FpDistFunc) (const DistParam&);
 // ====================================================================================================================
 
 /// distortion parameter class
-class DistParam
+struct DistParam
 {
 public:
   CPelBuf               org;
   CPelBuf               cur;
   FpDistFunc            distFunc;
-  int                   bitDepth;
 
   // (vertical) subsampling shift (for reducing complexity)
   // - 0 = no subsampling, 1 = even rows, 2 = every 4th, etc.
   int                   subShift;
   DistParam() :
-  org(), cur(), bitDepth( 0 ), subShift( 0 )
+  org(), cur(), subShift( 0 )
   { }
 };
 
@@ -100,7 +99,7 @@ public:
   RdCost();
   ~RdCost();
 
-  static void setDistParam( DistParam &rcDP, const Pel* pOrg, const Pel* piRefY, ptrdiff_t iOrgStride, ptrdiff_t iRefStride, int bitDepth, int width, int height, int subShiftMode = 0 );
+  static void setDistParam( DistParam &rcDP, const Pel* pOrg, const Pel* piRefY, ptrdiff_t iOrgStride, ptrdiff_t iRefStride, int width, int height, int subShiftMode = 0 );
 
 private:
 

@@ -253,11 +253,11 @@ void DecLibRecon::decompressPicture( Picture* pcPic )
   {
     if( sps->getUseReshaper() )
     {
-      m_cReshaper[i].createDec( sps->getBitDepth( CHANNEL_TYPE_LUMA ) );
+      m_cReshaper[i].createDec( );
       m_cReshaper[i].initSlice( pcPic->slices[0] );
     }
 
-    m_cIntraPred[i].init( sps->getChromaFormatIdc(), sps->getBitDepth( CHANNEL_TYPE_LUMA ) );
+    m_cIntraPred[i].init( sps->getChromaFormatIdc() );
     m_cInterPred[i].init( &m_cRdCost, sps->getChromaFormatIdc(), sps->getMaxCUHeight() );
 
     // Recursive structure
@@ -265,17 +265,17 @@ void DecLibRecon::decompressPicture( Picture* pcPic )
     m_cCuDecoder[i].init( &m_cIntraPred[i], &m_cInterPred[i], &m_cReshaper[i], &m_cTrQuant[i] );
   }
 
-  const uint32_t  log2SaoOffsetScaleLuma   = (uint32_t) std::max(0, sps->getBitDepth(CHANNEL_TYPE_LUMA  ) - MAX_SAO_TRUNCATED_BITDEPTH);
-  const uint32_t  log2SaoOffsetScaleChroma = (uint32_t) std::max(0, sps->getBitDepth(CHANNEL_TYPE_CHROMA) - MAX_SAO_TRUNCATED_BITDEPTH);
+  //const uint32_t  log2SaoOffsetScaleLuma   = (uint32_t) std::max(0, sps->getBitDepth(CHANNEL_TYPE_LUMA  ) - MAX_SAO_TRUNCATED_BITDEPTH);
+  //const uint32_t  log2SaoOffsetScaleChroma = (uint32_t) std::max(0, sps->getBitDepth(CHANNEL_TYPE_CHROMA) - MAX_SAO_TRUNCATED_BITDEPTH);
   const int maxDepth = getLog2(sps->getMaxCUWidth()) - pps->pcv->minCUWidthLog2;
   m_cSAO.create( pps->getPicWidthInLumaSamples(),
                  pps->getPicHeightInLumaSamples(),
                  sps->getChromaFormatIdc(),
                  sps->getMaxCUWidth(),
                  sps->getMaxCUHeight(),
-                 maxDepth,
+                 maxDepth/*,
                  log2SaoOffsetScaleLuma,
-                 log2SaoOffsetScaleChroma
+                 log2SaoOffsetScaleChroma*/
                );
                 
   if( sps->getUseALF() )

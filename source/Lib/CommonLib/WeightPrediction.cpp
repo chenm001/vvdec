@@ -118,8 +118,7 @@ void  WeightPrediction::getWpScaling(const Slice                *pcSlice,
     // Bi-predictive case
     for (int yuv = 0; yuv < numValidComponent; yuv++)
     {
-      const int bitDepth = pcSlice->getSPS()->getBitDepth(toChannelType(ComponentID(yuv)));
-      const int offsetScalingFactor = bUseHighPrecisionPredictionWeighting ? 1 : (1 << (bitDepth - 8));
+      constexpr int offsetScalingFactor = 1/*bUseHighPrecisionPredictionWeighting ? 1 : (1 << (bitDepth - 8))*/;
 
       wp0[yuv] = wp0org[yuv];
       wp1[yuv] = wp1org[yuv];
@@ -141,8 +140,7 @@ void  WeightPrediction::getWpScaling(const Slice                *pcSlice,
 
     for (int yuv = 0; yuv < numValidComponent; yuv++)
     {
-      const int bitDepth            = pcSlice->getSPS()->getBitDepth(toChannelType(ComponentID(yuv)));
-      const int offsetScalingFactor = bUseHighPrecisionPredictionWeighting ? 1 : (1 << (bitDepth - 8));
+      constexpr int offsetScalingFactor = 1/*bUseHighPrecisionPredictionWeighting ? 1 : (1 << (bitDepth - 8))*/;
       
       pwp[yuv]        = pwporg[yuv];
 
@@ -156,7 +154,7 @@ void  WeightPrediction::getWpScaling(const Slice                *pcSlice,
 
 static inline Pel weightBidir( int w0, Pel P0, int w1, Pel P1, int round, int shift, int offset, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + w1 * ( P1 + IF_INTERNAL_OFFS ) + round + ( offset << ( shift - 1 ) ) ) >> shift ), clpRng );
+  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + w1 * ( P1 + IF_INTERNAL_OFFS ) + round + ( offset << ( shift - 1 ) ) ) >> shift ) );
 }
 
 void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
@@ -187,8 +185,7 @@ void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
     const ClpRng& clpRng = clpRngs;
     const int  w0       = wp0[compID].w;
     const int  offset   = wp0[compID].offset;
-    const int  clipBD   = clpRng.bd;
-    const int  shiftNum = std::max<int>(2, (IF_INTERNAL_PREC - clipBD));
+    const int  shiftNum = std::max<int>(2, (IF_INTERNAL_PREC - 8/*clpRng.bd*/));
     const int  shift    = wp0[compID].shift + shiftNum;
     const int  round    = (enableRounding[compID] && (shift > 0)) ? (1 << (shift - 1)) : 0;
     const int  w1       = wp1[compID].w;
@@ -223,17 +220,17 @@ void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
 
 static inline Pel weightUnidir( int w0, Pel P0, int round, int shift, int offset, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset, clpRng );
+  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset );
 }
 
 static inline Pel noWeightUnidir( Pel P0, int round, int shift, int offset, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset, clpRng );
+  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset );
 }
 
 static inline Pel noWeightOffsetUnidir( Pel P0, int round, int shift, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ), clpRng );
+  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) );
 }
 
 void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
@@ -255,8 +252,7 @@ void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
     const ClpRng& clpRng    = clpRngs;
     const int  w0           = wp0[compID].w;
     const int  offset       = wp0[compID].offset;
-    const int  clipBD       = clpRng.bd;
-    const int  shiftNum     = std::max<int>(2, (IF_INTERNAL_PREC - clipBD));
+    const int  shiftNum     = std::max<int>(2, (IF_INTERNAL_PREC - 8/*clpRng.bd*/));
     const int  shift        = wp0[compID].shift + shiftNum;
     const ptrdiff_t iSrc0Stride  = pcYuvSrc0.bufs[compID].stride;
     const ptrdiff_t iDstStride   = rpcYuvDst.bufs[compID].stride;

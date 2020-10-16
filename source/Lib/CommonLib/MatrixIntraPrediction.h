@@ -60,8 +60,8 @@ namespace Mip
   {
   public:
     PredictorMIP();
-    void             deriveBoundaryData(const CPelBuf& src, const Area& block, const int bitDepth);
-    void             getPrediction     (int* const result, const int modeIdx, const bool transpose, const int bitDepth);
+    void             deriveBoundaryData(const CPelBuf& src, const Area& block);
+    void             getPrediction     (int* const result, const int modeIdx, const bool transpose);
   private:
     int m_reducedBoundary          [MIP_MAX_INPUT_SIZE]; // downsampled             boundary of a block
     int m_reducedBoundaryTransposed[MIP_MAX_INPUT_SIZE]; // downsampled, transposed boundary of a block
@@ -94,7 +94,7 @@ namespace Mip
 
     void computeReducedPred( int*const result, const int* const input, 
                              const uint8_t* matrix,
-                             const bool transpose, const int bitDepth );
+                             const bool transpose );
   };
 }
 
@@ -105,11 +105,11 @@ public:
 
   Mip::PredictorMIP m_predictorMip;
 #if JVET_R0350_MIP_CHROMA_444_SINGLETREE
-  void prepareInputForPred( const CPelBuf &src, const Area& puArea, const int bitDepth, const ComponentID compId );
-  void predBlock( const Size &puSize, const int modeIdx, PelBuf &dst, const bool transpose, const int bitDepth, const ComponentID compId );
+  void prepareInputForPred( const CPelBuf &src, const Area& puArea, const ComponentID compId );
+  void predBlock( const Size &puSize, const int modeIdx, PelBuf &dst, const bool transpose, const ComponentID compId );
 #else
-  void prepareInputForPred(const CPelBuf &src, const Area& puArea, const int bitDepth);
-  void predBlock( const Size &puSize, const int modeIdx, PelBuf &dst, const bool transpose, const int bitDepth );
+  void prepareInputForPred(const CPelBuf &src, const Area& puArea);
+  void predBlock( const Size &puSize, const int modeIdx, PelBuf &dst, const bool transpose );
 #endif
 private:
 #if JVET_R0350_MIP_CHROMA_444_SINGLETREE

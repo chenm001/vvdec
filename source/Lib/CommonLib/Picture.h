@@ -118,9 +118,9 @@ struct Picture : public UnitArea
   void          setSpliceIdx(uint32_t idx, int poc) { m_spliceIdx[idx] = poc; }
   void          createSpliceIdx(int nums);
   bool          getSpliceFull();
-  static void   sampleRateConv( const Pel* orgSrc, SizeType orgWidth, SizeType orgHeight, ptrdiff_t orgStride, Pel* scaledSrc, SizeType scaledWidth, SizeType scaledHeight, SizeType paddedWidth, SizeType paddedHeight, ptrdiff_t scaledStride, const int bitDepth, const bool useLumaFilter, const bool downsampling = false );
+  static void   sampleRateConv( const Pel* orgSrc, SizeType orgWidth, SizeType orgHeight, ptrdiff_t orgStride, Pel* scaledSrc, SizeType scaledWidth, SizeType scaledHeight, SizeType paddedWidth, SizeType paddedHeight, ptrdiff_t scaledStride, const bool useLumaFilter, const bool downsampling = false );
 
-  static void   rescalePicture(const CPelUnitBuf& beforeScaling, const Window& confBefore, const PelUnitBuf& afterScaling, const Window& confAfter, const ChromaFormat chromaFormatIDC, const BitDepths& bitDepths, const bool useLumaFilter, const bool downsampling = false);
+  static void   rescalePicture(const CPelUnitBuf& beforeScaling, const Window& confBefore, const PelUnitBuf& afterScaling, const Window& confAfter, const ChromaFormat chromaFormatIDC, const bool useLumaFilter, const bool downsampling = false);
 
 public:
 #if JVET_O1143_MV_ACROSS_SUBPIC_BOUNDARY  
@@ -305,7 +305,7 @@ public:
 #endif
 };
 
-int calcAndPrintHashStatus(const CPelUnitBuf& pic, const class SEIDecodedPictureHash* pictureHashSEI, const BitDepths &bitDepths, const MsgLevel msgl);
+int calcAndPrintHashStatus(const CPelUnitBuf& pic, const class SEIDecodedPictureHash* pictureHashSEI, const MsgLevel msgl);
 
 
 #endif

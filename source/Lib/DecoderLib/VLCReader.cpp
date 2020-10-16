@@ -1486,10 +1486,11 @@ void HLSyntaxReader::parseSPS( SPS* pcSPS, ParameterSetManager *parameterSetMana
   
   READ_UVLC( uiCode, "sps_bit_depth_minus8" );
   CHECK( uiCode > 8, "Invalid bit depth signalled" );
-  pcSPS->setBitDepth( CHANNEL_TYPE_LUMA, 8 + uiCode );
-  pcSPS->setBitDepth( CHANNEL_TYPE_CHROMA, 8 + uiCode);
-  pcSPS->setQpBDOffset( CHANNEL_TYPE_LUMA, (int) (6*uiCode) );
-  pcSPS->setQpBDOffset( CHANNEL_TYPE_CHROMA, (int) (6*uiCode) );
+  CHECK( uiCode != 0, "Unsupported bit depth" );
+  //pcSPS->setBitDepth( CHANNEL_TYPE_LUMA, 8 + uiCode );
+  //pcSPS->setBitDepth( CHANNEL_TYPE_CHROMA, 8 + uiCode);
+  //pcSPS->setQpBDOffset( CHANNEL_TYPE_LUMA, (int) (6*uiCode) );
+  //pcSPS->setQpBDOffset( CHANNEL_TYPE_CHROMA, (int) (6*uiCode) );
   
   READ_FLAG( uiCode, "sps_entropy_coding_sync_enabled_flag" );               pcSPS->setEntropyCodingSyncEnabledFlag( uiCode == 1 );
 #if JVET_R0165_OPTIONAL_ENTRY_POINT
@@ -1673,7 +1674,7 @@ void HLSyntaxReader::parseSPS( SPS* pcSPS, ParameterSetManager *parameterSetMana
       chromaQpMappingTableParams.setDeltaQpInValMinus1( i, deltaQpInValMinus1 );
       chromaQpMappingTableParams.setDeltaQpOutVal( i, deltaQpOutVal );
     }
-    pcSPS->setChromaQpMappingTableFromParams( chromaQpMappingTableParams, pcSPS->getQpBDOffset( CHANNEL_TYPE_CHROMA ) );
+    pcSPS->setChromaQpMappingTableFromParams( chromaQpMappingTableParams );
     pcSPS->derivedChromaQPMappingTables();
   }
   
@@ -3993,7 +3994,7 @@ void HLSyntaxReader::parseSliceHeader( Slice* pcSlice, PicHeader* parsedPicHeade
 
   if( pcSlice->getFirstCtuRsAddrInSlice() == 0 )
   {
-    pcSlice->setDefaultClpRng( *sps );
+    //pcSlice->setDefaultClpRng( *sps );
   }
 
   if( pps->getSliceHeaderExtensionPresentFlag() )
@@ -4461,7 +4462,7 @@ void HLSyntaxReader::parsePredWeightTable( Slice* pcSlice, const SPS *sps )
         CHECK( iDeltaWeight >  127, "Invalid code" );
         wp[COMPONENT_Y].iWeight = ( iDeltaWeight + ( 1 << wp[COMPONENT_Y].uiLog2WeightDenom ) );
         READ_SVLC( wp[COMPONENT_Y].iOffset, iNumRef == 0? "luma_offset_l0[ i ]" : "luma_offset_l1[ i ]" );
-        const int range = sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth(CHANNEL_TYPE_LUMA ) ) / 2 : 128;
+        constexpr int range = 128/*sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth(CHANNEL_TYPE_LUMA ) ) / 2 : 128*/;
         if( wp[0].iOffset < -range ) { THROW( "Offset out of range" ); }
         if( wp[0].iOffset >= range ) { THROW( "Offset out of range" ); }
       }
@@ -4474,7 +4475,7 @@ void HLSyntaxReader::parsePredWeightTable( Slice* pcSlice, const SPS *sps )
       {
         if( wp[COMPONENT_Cb].bPresentFlag )
         {
-          int range = sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth( CHANNEL_TYPE_CHROMA ) ) / 2 : 128 ;
+          constexpr int range = 128/*sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth( CHANNEL_TYPE_CHROMA ) ) / 2 : 128*/ ;
           for( int j = 1 ; j < numValidComp ; j++ )
           {
             int iDeltaWeight;
@@ -4591,7 +4592,7 @@ void HLSyntaxReader::parsePredWeightTable( PicHeader *picHeader, const SPS *sps 
         READ_SVLC( deltaWeight, numRef == 0 ? "delta_luma_weight_l0[ i ]" : "delta_luma_weight_l1[ i ]" );
         wp[COMPONENT_Y].iWeight = ( deltaWeight + ( 1 << wp[COMPONENT_Y].uiLog2WeightDenom ) );
         READ_SVLC( wp[COMPONENT_Y].iOffset, numRef == 0 ? "luma_offset_l0[ i ]" : "luma_offset_l1[ i ]" );
-        const int range = sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth( CHANNEL_TYPE_LUMA ) ) / 2 : 128;
+        constexpr int range = 128/*sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth( CHANNEL_TYPE_LUMA ) ) / 2 : 128*/;
         if( wp[0].iOffset < -range )
         {
           THROW( "Offset out of range" );
@@ -4610,7 +4611,7 @@ void HLSyntaxReader::parsePredWeightTable( PicHeader *picHeader, const SPS *sps 
       {
         if( wp[COMPONENT_Cb].bPresentFlag )
         {
-          int range = sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth( CHANNEL_TYPE_CHROMA ) ) / 2 : 128;
+          constexpr int range = 128/*sps->getSpsRangeExtension().getHighPrecisionOffsetsEnabledFlag() ? ( 1 << sps->getBitDepth( CHANNEL_TYPE_CHROMA ) ) / 2 : 128*/;
           for( int j = 1; j < numValidComp; j++ )
           {
             int deltaWeight;

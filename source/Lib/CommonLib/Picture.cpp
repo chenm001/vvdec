@@ -450,7 +450,7 @@ const TFilterCoeff DownsamplingFilterSRC[8][16][12] =
     }
 };
 
-void Picture::sampleRateConv( const Pel* orgSrc, SizeType orgWidth, SizeType orgHeight, ptrdiff_t orgStride, Pel* scaledSrc, SizeType scaledWidth, SizeType scaledHeight, SizeType paddedWidth, SizeType paddedHeight, ptrdiff_t scaledStride, const int bitDepth, const bool useLumaFilter, const bool downsampling )
+void Picture::sampleRateConv( const Pel* orgSrc, SizeType orgWidth, SizeType orgHeight, ptrdiff_t orgStride, Pel* scaledSrc, SizeType scaledWidth, SizeType scaledHeight, SizeType paddedWidth, SizeType paddedHeight, ptrdiff_t scaledStride, const bool useLumaFilter, const bool downsampling )
 {
   if( orgWidth == scaledWidth && orgHeight == scaledHeight )
   {
@@ -494,9 +494,9 @@ void Picture::sampleRateConv( const Pel* orgSrc, SizeType orgWidth, SizeType org
   const int log2Norm = downsampling ? 14 : 12;
 
   int *buf = new int[orgHeight * paddedWidth];
-  int maxVal = ( 1 << bitDepth ) - 1;
+  int maxVal = ( 1 << 8/*bitDepth*/ ) - 1;
 
-  CHECK( bitDepth > 17, "Overflow may happen!" );
+  CHECK( 8/*bitDepth*/ > 17, "Overflow may happen!" );
 
   for( int i = 0; i < paddedWidth; i++ )
   {
@@ -552,7 +552,7 @@ void Picture::sampleRateConv( const Pel* orgSrc, SizeType orgWidth, SizeType org
   delete[] buf;
 }
 
-void Picture::rescalePicture( const CPelUnitBuf& beforeScaling, const Window& confBefore, const PelUnitBuf& afterScaling, const Window& confAfter, const ChromaFormat chromaFormatIDC, const BitDepths& bitDepths, const bool useLumaFilter, const bool downsampling )
+void Picture::rescalePicture( const CPelUnitBuf& beforeScaling, const Window& confBefore, const PelUnitBuf& afterScaling, const Window& confAfter, const ChromaFormat chromaFormatIDC, const bool useLumaFilter, const bool downsampling )
 {
   for( int comp = 0; comp < ::getNumberValidComponents( chromaFormatIDC ); comp++ )
   {
@@ -564,7 +564,7 @@ void Picture::rescalePicture( const CPelUnitBuf& beforeScaling, const Window& co
     int widthAfter = afterScale.width - (((confAfter.getWindowLeftOffset() + confAfter.getWindowRightOffset()) * SPS::getWinUnitX(chromaFormatIDC)) >> getChannelTypeScaleX((ChannelType)(comp > 0), chromaFormatIDC));
     int heightAfter = afterScale.height - (((confAfter.getWindowTopOffset() + confAfter.getWindowBottomOffset()) * SPS::getWinUnitY(chromaFormatIDC)) >> getChannelTypeScaleY((ChannelType)(comp > 0), chromaFormatIDC));
 
-    Picture::sampleRateConv( beforeScale.buf,  widthBefore, heightBefore, beforeScale.stride, afterScale.buf, widthAfter, heightAfter, afterScale.width, afterScale.height, afterScale.stride, bitDepths.recon[comp], downsampling || useLumaFilter ? true : isLuma(compID), downsampling );
+    Picture::sampleRateConv( beforeScale.buf,  widthBefore, heightBefore, beforeScale.stride, afterScale.buf, widthAfter, heightAfter, afterScale.width, afterScale.height, afterScale.stride, downsampling || useLumaFilter ? true : isLuma(compID), downsampling );
   }
 }
 

@@ -238,8 +238,6 @@ typedef struct VVDEC_DECL Component
   {}
   unsigned char*  m_pucBuffer        = NULL;     ///< base pointer, allocated picture buffer */
   uint32_t        m_uiByteOffset     = 0;        ///< offset to first sample in bytes
-  uint32_t        m_uiBytesPerSample = 1;        ///< offset to first sample in bytes
-  uint32_t        m_uiBitDepth       = 8;        ///< bit depth of component
   uint32_t        m_uiWidth          = 0;        ///< width of the plane
   uint32_t        m_uiHeight         = 0;        ///< height of the plane
   int32_t         m_iStride          = 0;        ///< stride (width + left margin + right margins) of plane in bytes
@@ -291,7 +289,6 @@ typedef struct VVDEC_DECL Frame
   uint32_t        m_uiNumComponents  = 0;               ///< number of color components
   uint32_t        m_uiWidth          = 0;               ///< width of the luminance plane
   uint32_t        m_uiHeight         = 0;               ///< height of the luminance plane
-  uint32_t        m_uiBitDepth       = 0;               ///< bit depth of input signal (8: depth 8 bit, 10: depth 10 bit  )
   FrameFormat     m_eFrameFormat     = VVC_FF_INVALID;  ///< interlace format (VVC_FF_PROGRESSIVE)
   ColorFormat     m_eColorFormat     = VVC_CF_INVALID;  ///< color format     (VVC_CF_YUV420_PLANAR)
   uint64_t        m_uiSequenceNumber = 0;               ///< sequence number of the picture

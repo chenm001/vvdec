@@ -323,7 +323,7 @@ void IntraPredAngleCore(T* pDstBuf,const ptrdiff_t dstStride,T* refMain,int widt
 
         if( useCubicFilter ) // only cubic filter has negative coefficients and requires clipping
         {
-          pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng );
+          pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x] );
         }
       }
       deltaPos += intraPredAngle;
@@ -423,7 +423,7 @@ void IntraPrediction::destroy()
   m_pMdlmTemp = nullptr;
 }
 
-void IntraPrediction::init(ChromaFormat chromaFormatIDC, const unsigned bitDepthY)
+void IntraPrediction::init(ChromaFormat chromaFormatIDC)
 {
   // if it has been initialised before, but the chroma format has changed, release the memory and start again.
   if (m_piYuvExt[COMPONENT_Y][PRED_BUF_UNFILTERED] != nullptr && m_currChromaFormat != chromaFormatIDC)
@@ -464,7 +464,7 @@ void IntraPrediction::init(ChromaFormat chromaFormatIDC, const unsigned bitDepth
     }
   }
 
-  int shift = bitDepthY + 4;
+  int shift = 8/*bitDepthY*/ + 4;
   for (int i = 32; i < 64; i++)
   {
     m_auShiftLM[i - 32] = ((1 << shift) + i / 2) / i;
@@ -664,7 +664,7 @@ void IntraPredAngleCore(Pel *pDstBuf,const int dstStride,Pel* refMain,int width,
 
       if( useCubicFilter ) // only cubic filter has negative coefficients and requires clipping
       {
-        pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng );
+        pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x] );
       }
     }
     deltaPos += intraPredAngle;
@@ -795,7 +795,7 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
         for( int x = 0; x < lev[scale]; x++ )
         {
           int wL = 32 >> std::min( 31, ( ( x << 1 ) >> scale ) );
-          *line++ = ClipPel( ( wL * ( left - topLeft ) + ( refMain[x + 1] << 6 ) + 32 ) >> 6, clpRng );
+          *line++ = ClipPel( ( wL * ( left - topLeft ) + ( refMain[x + 1] << 6 ) + 32 ) >> 6 );
         }
         memcpy( line, refMain + lev[scale] + 1, ( width - lev[scale] ) * sizeof( Pel ) );
       }
@@ -866,7 +866,7 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
 
               if( useCubicFilter ) // only cubic filter has negative coefficients and requires clipping
               {
-                pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng );
+                pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x] );
               }
             }
             deltaPos += intraPredAngle;
@@ -1254,7 +1254,7 @@ void IntraPrediction::xFillReferenceSamples( const CPelBuf &recoBuf, Pel* refBuf
   const ptrdiff_t srcStride = recoBuf.stride;
         Pel*  ptrDst    = refBufUnfiltered;
   const Pel*  ptrSrc;
-  const Pel   valueDC   = 1 << (sps.getBitDepth( chType ) - 1);
+  const Pel   valueDC   = 1 << (8/*sps.getBitDepth( chType )*/ - 1);
 
   if( numIntraNeighbor == 0 )
   {
@@ -2100,8 +2100,6 @@ void IntraPrediction::xGetLMParameters(const PredictionUnit &pu, const Component
 
   curChroma0 += curStride + 1;
 
-  unsigned internalBitDepth = sps.getBitDepth(CHANNEL_TYPE_CHROMA);
-
   int minLuma[2] = {  MAX_INT, 0 };
   int maxLuma[2] = { -MAX_INT, 0 };
 
@@ -2227,7 +2225,7 @@ void IntraPrediction::xGetLMParameters(const PredictionUnit &pu, const Component
   {
     a = 0;
 
-    b = 1 << (internalBitDepth - 1);
+    b = 1 << (8/*internalBitDepth*/ - 1);
 
     iShift = 0;
   }
@@ -2248,9 +2246,9 @@ void IntraPrediction::initIntraMip( const PredictionUnit &pu, const CompArea &ar
   const int srcHStride = m_leftRefLength + 1;
 
 #if JVET_R0350_MIP_CHROMA_444_SINGLETREE
-  m_matrixIntraPred.prepareInputForPred( CPelBuf( ptrSrc, srcStride, srcHStride ), area, pu.slice->getSPS()->getBitDepth( toChannelType( area.compID ) ), area.compID );
+  m_matrixIntraPred.prepareInputForPred( CPelBuf( ptrSrc, srcStride, srcHStride ), area, area.compID );
 #else
-  m_matrixIntraPred.prepareInputForPred( CPelBuf( ptrSrc, srcStride, srcHStride ), area, pu.slice->getSPS()->getBitDepth( CHANNEL_TYPE_LUMA ) );
+  m_matrixIntraPred.prepareInputForPred( CPelBuf( ptrSrc, srcStride, srcHStride ), area );
 #endif
 }
 
@@ -2284,11 +2282,9 @@ void IntraPrediction::predIntraMip( const ComponentID compId, PelBuf &piPred, co
 
   CHECK(modeIdx >= getNumModesMip(piPred), "Error: Wrong MIP mode index");
 
-  const int bitDepth = pu.slice->getSPS()->getBitDepth( toChannelType( compId ) );
-  m_matrixIntraPred.predBlock( piPred, modeIdx, piPred, transposeFlag, bitDepth, compId );
+  m_matrixIntraPred.predBlock( piPred, modeIdx, piPred, transposeFlag, compId );
 #else
-  const int bitDepth = pu.slice->getSPS()->getBitDepth( CHANNEL_TYPE_LUMA );
-  m_matrixIntraPred.predBlock( piPred, pu.intraDir[CHANNEL_TYPE_LUMA], piPred, pu.mipTransposedFlag(), bitDepth );
+  m_matrixIntraPred.predBlock( piPred, pu.intraDir[CHANNEL_TYPE_LUMA], piPred, pu.mipTransposedFlag() );
 #endif
 }
 

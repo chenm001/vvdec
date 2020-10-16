@@ -106,7 +106,7 @@ public:
   static void swapBufs      ( CodingStructure &cs );
   static bool getAlfSkipPic       ( const CodingStructure& cs );
   static void reconstructCoeffAPSs( Slice& slice );
-  static void reconstructCoeff    ( AlfSliceParam& alfSliceParam, ChannelType channel, const int inputBitDepth[MAX_NUM_CHANNEL_TYPE] );
+  static void reconstructCoeff    ( AlfSliceParam& alfSliceParam, ChannelType channel );
 protected:
   static void getCompatibleBuffer( const CodingStructure & cs, const CPelUnitBuf & srcBuf, PelStorage & destBuf );
 
@@ -141,7 +141,7 @@ protected:
   short                   m_clipDefault                                  [MAX_NUM_ALF_TRANSPOSE_ID * MAX_NUM_ALF_CLASSES * MAX_NUM_ALF_LUMA_COEFF];
   static const Pel        m_alfClippVls[3][MaxAlfNumClippingValues];
   std::vector<PelStorage> m_tempBuf;
-  int           m_inputBitDepth[MAX_NUM_CHANNEL_TYPE] = { 0, 0 };
+  int           m_inputBitDepth = 0;
   int           m_picWidth;
   int           m_picHeight;
   int           m_alfVBLumaPos;

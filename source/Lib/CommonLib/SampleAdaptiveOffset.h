@@ -77,7 +77,7 @@ public:
   SampleAdaptiveOffset() {}
   ~SampleAdaptiveOffset();
 
-  void create( int picWidth, int picHeight, ChromaFormat format, uint32_t maxCUWidth, uint32_t maxCUHeight, uint32_t maxCUDepth, uint32_t lumaBitShift, uint32_t chromaBitShift );
+  void create( int picWidth, int picHeight, ChromaFormat format, uint32_t maxCUWidth, uint32_t maxCUHeight, uint32_t maxCUDepth/*, uint32_t lumaBitShift, uint32_t chromaBitShift*/ );
   void destroy();
 
 //  void SAOProcess( CodingStructure& cs );
@@ -85,7 +85,7 @@ public:
   void SAOProcessCTULine( CodingStructure& cs, const UnitArea& lineArea );
   void SAOPrepareCTULine( CodingStructure& cs, const UnitArea& lineArea );
 
-  static int getMaxOffsetQVal( const int channelBitDepth ) { return ( 1 << ( std::min<int>( channelBitDepth, MAX_SAO_TRUNCATED_BITDEPTH ) - 5 ) ) - 1; }   // Table 9-32, inclusive
+  static constexpr int getMaxOffsetQVal( ) { return ( 1 << ( std::min<int>( 8/*channelBitDepth*/, MAX_SAO_TRUNCATED_BITDEPTH ) - 5 ) ) - 1; }   // Table 9-32, inclusive
   void setReshaper(Reshape * p) { m_pcReshape = p; }
 
 protected:
@@ -100,8 +100,7 @@ protected:
                                              bool&            isBelowLeftAvail,
                                              bool&            isBelowRightAvail ) const;
 
-  static void offsetBlock_core( const int            channelBitDepth,
-                                const ClpRng&        clpRng,
+  static void offsetBlock_core( const ClpRng&        clpRng,
                                 int                  typeIdx,
                                 int*                 offset,
                                 int                  startIdx,
@@ -127,8 +126,7 @@ protected:
                                 int                  numHorVirBndry,
                                 int                  numVerVirBndry );
 
-  void ( *offsetBlock )( const int            channelBitDepth,
-                         const ClpRng&        clpRng,
+  void ( *offsetBlock )( const ClpRng&        clpRng,
                          int                  typeIdx,
                          int*                 offset,
                          int                  startIdx,
@@ -165,7 +163,6 @@ protected:
 
 
 protected:
-  std::array<uint32_t, MAX_NUM_COMPONENT> m_offsetStepLog2;   // offset step
   PelStorage                              m_tempBuf;
   uint32_t                                m_numberOfComponents;
 };

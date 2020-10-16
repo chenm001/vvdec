@@ -437,7 +437,7 @@ void CABACReader::sao( CodingStructure& cs, unsigned ctuRsAddr )
 
     // sao_offset_abs
     int       offset[4];
-    const int maxOffsetQVal = SampleAdaptiveOffset::getMaxOffsetQVal( sps.getBitDepth( toChannelType(compID) ) );
+    constexpr int maxOffsetQVal = SampleAdaptiveOffset::getMaxOffsetQVal( );
     offset    [0]           = (int)unary_max_eqprob( maxOffsetQVal );
     offset    [1]           = (int)unary_max_eqprob( maxOffsetQVal );
     offset    [2]           = (int)unary_max_eqprob( maxOffsetQVal );
@@ -2311,7 +2311,7 @@ void CABACReader::cu_qp_delta( CodingUnit& cu, int predQP, int8_t& qp )
     {
       DQp = -DQp;
     }
-    int     qpBdOffsetY = cu.cs->sps->getQpBDOffset( CHANNEL_TYPE_LUMA );
+    constexpr int qpBdOffsetY = 0/*cu.cs->sps->getQpBDOffset( CHANNEL_TYPE_LUMA )*/;
     qpY = ( (predQP + DQp + (MAX_QP + 1) + 2 * qpBdOffsetY) % ((MAX_QP + 1) + qpBdOffsetY)) - qpBdOffsetY;
   }
   qp = (int8_t)qpY;

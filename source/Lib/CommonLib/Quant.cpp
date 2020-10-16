@@ -75,7 +75,7 @@ QpParam::QpParam( const TransformUnit& tu, const ComponentID &compIDX, const boo
   const ComponentID compID = MAP_CHROMA( compIDX );
   const ChannelType chType = toChannelType( compID );
   const SPS        &sps    = *tu.cu->cs->sps;
-  const int     qpBdOffset = sps.getQpBDOffset( chType );
+  constexpr int qpBdOffset = 0/*sps.getQpBDOffset( chType )*/;
   const bool useJQP        = isChroma( compID ) && TU::getICTMode( tu, false ) == 2;
   const ComponentID jCbCr  = useJQP ? JOINT_CbCr : compID;
   
@@ -316,7 +316,6 @@ void Quant::dequant(   const TransformUnit &tu,
   const bool            enableScalingLists = getUseScalingList(isTransformSkip);
 #endif
   const int             scalingListType    = getScalingListType(tu.cu->predMode(), compID);
-  const int             channelBitDepth    = sps->getBitDepth(toChannelType(compID));
 
   int maxX, maxY;
 
@@ -337,7 +336,7 @@ void Quant::dequant(   const TransformUnit &tu,
 
   // Represents scaling through forward transform
   const bool bClipTransformShiftTo0 = tu.mtsIdx[compID] != 1 && sps->getSpsRangeExtension().getExtendedPrecisionProcessingFlag();
-  const int  originalTransformShift = getTransformShift(channelBitDepth, area.size(), maxLog2TrDynamicRange);
+  const int  originalTransformShift = getTransformShift(area.size(), maxLog2TrDynamicRange);
   const bool needSqrtAdjustment     = TU::needsBlockSizeTrafoScale( tu, compID );
   const int  iTransformShift        = (bClipTransformShiftTo0 ? std::max<int>(0, originalTransformShift) : originalTransformShift) + (needSqrtAdjustment?-1:0);
   const bool depQuant = tu.cu->slice->getDepQuantEnabledFlag() && ( tu.mtsIdx[compID] != MTS_SKIP );

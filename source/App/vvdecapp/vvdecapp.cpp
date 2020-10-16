@@ -308,7 +308,7 @@ int main( int argc, char* argv[] )
           {
             if( cVVDecParameter.m_eLogLevel >= vvdec::LL_INFO )
             {
-              std::cout << "vvdecapp [info]: SizeInfo: " << pcFrame->m_uiWidth << "x" << pcFrame->m_uiHeight << " (" << pcFrame->m_uiBitDepth << "b)" << std::endl;
+              std::cout << "vvdecapp [info]: SizeInfo: " << pcFrame->m_uiWidth << "x" << pcFrame->m_uiHeight << " (" << 8/*pcFrame->m_uiBitDepth*/ << "b)" << std::endl;
             }
             bOutputInfoWritten = true;
           }

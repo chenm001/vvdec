@@ -66,7 +66,7 @@ void applyPROFCore( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gr
   static constexpr int height = 4;
 
   int idx = 0;
-  const int dILimit = 1 << std::max<int>(clpRng.bd + 1, 13);
+  const int dILimit = 1 << std::max<int>(8/*clpRng.bd*/ + 1, 13);
 
   for (int h = 0; h < height; h++)
   {
@@ -78,7 +78,7 @@ void applyPROFCore( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gr
       if (!bi)
       {
         dst[w] = (dst[w] + offset) >> shiftNum;
-        dst[w] = ClipPel(dst[w], clpRng);
+        dst[w] = ClipPel(dst[w]);
       }
       idx++;
     }
@@ -116,16 +116,16 @@ void addBIOAvg4(const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_
     for (int x = 0; x < width; x += 4)
     {
       b = tmpx * (gradX0[x] - gradX1[x]) + tmpy * (gradY0[x] - gradY1[x]);
-      dst[x] = ClipPel((int16_t)rightShift((src0[x] + src1[x] + b + offset), shift), clpRng);
+      dst[x] = ClipPel((int16_t)rightShift((src0[x] + src1[x] + b + offset), shift));
 
       b = tmpx * (gradX0[x + 1] - gradX1[x + 1]) + tmpy * (gradY0[x + 1] - gradY1[x + 1]);
-      dst[x + 1] = ClipPel((int16_t)rightShift((src0[x + 1] + src1[x + 1] + b + offset), shift), clpRng);
+      dst[x + 1] = ClipPel((int16_t)rightShift((src0[x + 1] + src1[x + 1] + b + offset), shift));
 
       b = tmpx * (gradX0[x + 2] - gradX1[x + 2]) + tmpy * (gradY0[x + 2] - gradY1[x + 2]);
-      dst[x + 2] = ClipPel((int16_t)rightShift((src0[x + 2] + src1[x + 2] + b + offset), shift), clpRng);
+      dst[x + 2] = ClipPel((int16_t)rightShift((src0[x + 2] + src1[x + 2] + b + offset), shift));
 
       b = tmpx * (gradX0[x + 3] - gradX1[x + 3]) + tmpy * (gradY0[x + 3] - gradY1[x + 3]);
-      dst[x + 3] = ClipPel((int16_t)rightShift((src0[x + 3] + src1[x + 3] + b + offset), shift), clpRng);
+      dst[x + 3] = ClipPel((int16_t)rightShift((src0[x + 3] + src1[x + 3] + b + offset), shift));
     }
     dst += dstStride;       src0 += src0Stride;     src1 += src1Stride;
     gradX0 += gradStride; gradX1 += gradStride; gradY0 += gradStride; gradY1 += gradStride;
@@ -211,7 +211,7 @@ void BiOptFlowCore(const Pel* srcY0,const Pel* srcY1,const Pel* gradX0,const Pel
 }
 
 template<bool PAD = true>
-void gradFilterCore(Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY, const int bitDepth)
+void gradFilterCore(Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY)
 {
   Pel* srcTmp   = PAD ? pSrc  + srcStride  + 1 : pSrc;
   Pel* gradXTmp = PAD ? gradX + gradStride + 1 : gradX;
@@ -633,7 +633,7 @@ void InterPrediction::xSubPuBio(PredictionUnit& pu, PelUnitBuf& predBuf )
       m_iRefListIdx = REF_PIC_LIST_1;
       xPredInterUni( subPu, REF_PIC_LIST_1, pcMbBuf1, true, true, true, true );
 
-      xWeightedAverage( subPu, pcMbBuf0, pcMbBuf1, subPredBuf, pu.slice->getSPS()->getBitDepths(), pu.slice->clpRngs(), true );
+      xWeightedAverage( subPu, pcMbBuf0, pcMbBuf1, subPredBuf, pu.slice->clpRngs(), true );
     }
   }
 }
@@ -770,7 +770,7 @@ void InterPrediction::xPredInterBi( PredictionUnit& pu, PelUnitBuf &pcYuvPred )
     }
     else if( isBiPred )
     {
-      xWeightedAverage( pu, pcMbBuf0, pcMbBuf1, pcYuvPred, slice.getSPS()->getBitDepths(), slice.clpRngs(), false );
+      xWeightedAverage( pu, pcMbBuf0, pcMbBuf1, pcYuvPred, slice.clpRngs(), false );
     }
   }
 }
@@ -885,7 +885,7 @@ void InterPrediction::xPredInterBlk( const ComponentID&    compID,
 
   if( bioApplied && compID == COMPONENT_Y )
   {
-    const int   shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.bd ) );
+    const int   shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - 8/*clpRng.bd*/ ) );
     const int   xOffset = ( xFrac < 8 ) ? 1 : 0;
     const int   yOffset = ( yFrac < 8 ) ? 1 : 0;
     const Pel*  refPel  = refPtr + ( 1 - yOffset ) * refStride - xOffset;
@@ -1249,7 +1249,7 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
 
         if( enablePROF )
         {
-          const Pel shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.bd ) );
+          const Pel shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - 8/*clpRng.bd*/ ) );
           const int xOffset = xFrac >> 3;
           const int yOffset = yFrac >> 3;
 
@@ -1274,7 +1274,7 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
             dstPel[blockWidth] = ( refPel[blockWidth] << shift ) - Pel( IF_INTERNAL_OFFS );
           }
 
-          profGradFilter( dst, dstStride, blockWidth, blockHeight, AFFINE_MIN_BLOCK_SIZE, gradX, gradY, clpRng.bd );
+          profGradFilter( dst, dstStride, blockWidth, blockHeight, AFFINE_MIN_BLOCK_SIZE, gradX, gradY );
           
           Pel *dstY = dstBuf.buf + w + dstBuf.stride * h;
           const Pel offset   = ( 1 << ( shift- 1 ) ) + IF_INTERNAL_OFFS;
@@ -1298,8 +1298,7 @@ void InterPrediction::applyBiOptFlow( const PredictionUnit &pu,
                                       const PelUnitBuf &    yuvSrc1,
                                       const int &           refIdx0,
                                       const int &           refIdx1,
-                                      PelUnitBuf &          yuvDst,
-                                      const BitDepths &     clipBitDepths )
+                                      PelUnitBuf &          yuvDst )
 {
   const int height  = yuvDst.Y().height;
   const int width   = yuvDst.Y().width;
@@ -1318,14 +1317,14 @@ void InterPrediction::applyBiOptFlow( const PredictionUnit &pu,
   Pel *           dstY      = yuvDst.Y().buf;
   const ptrdiff_t dstStride = yuvDst.Y().stride;
 
-  const int       bitDepth  = clipBitDepths.recon[toChannelType( COMPONENT_Y )];
+  constexpr int   bitDepth  = 8;
 
   for( int refList = 0; refList < NUM_REF_PIC_LIST_01; refList++ )
   {
     Pel *dstTempPtr = m_filteredBlockTmp[2 + refList][COMPONENT_Y] + stridePredMC;
     Pel *gradY      = ( refList == 0 ) ? m_gradY0 : m_gradY1;
     Pel *gradX      = ( refList == 0 ) ? m_gradX0 : m_gradX1;
-    BioGradFilter( dstTempPtr, stridePredMC, widthG, heightG, width + BIO_ALIGN_SIZE, gradX, gradY, bitDepth );
+    BioGradFilter( dstTempPtr, stridePredMC, widthG, heightG, width + BIO_ALIGN_SIZE, gradX, gradY );
     Pel *padStr = m_filteredBlockTmp[2 + refList][COMPONENT_Y] + 2 * stridePredMC + 1;
     for( int y = 0; y < height; y++ )
     {
@@ -1364,7 +1363,7 @@ void InterPrediction::applyBiOptFlow( const PredictionUnit &pu,
             );
 }
 
-void InterPrediction::xWeightedAverage(const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const BitDepths& clipBitDepths, const ClpRngs& clpRngs, const bool& bioApplied )
+void InterPrediction::xWeightedAverage(const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const ClpRngs& clpRngs, const bool& bioApplied )
 {
   const int iRefIdx0 = pu.refIdx[0];
   const int iRefIdx1 = pu.refIdx[1];
@@ -1380,7 +1379,7 @@ void InterPrediction::xWeightedAverage(const PredictionUnit& pu, const PelUnitBu
 
   if( bioApplied )
   {
-    applyBiOptFlow( pu, pcYuvSrc0, pcYuvSrc1, iRefIdx0, iRefIdx1, pcYuvDst, clipBitDepths );
+    applyBiOptFlow( pu, pcYuvSrc0, pcYuvSrc1, iRefIdx0, iRefIdx1, pcYuvDst );
   }
 
   pcYuvDst.addAvg( pcYuvSrc0, pcYuvSrc1, clpRngs, bioApplied );
@@ -1920,7 +1919,6 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
   int dx = std::min<int>( pu.lumaSize().width,  DMVR_SUBCU_WIDTH );
 
   Position puPos = pu.lumaPos();
-  BitDepths bds  = pu.slice->getSPS()->getBitDepths();
 
   int  bioEnabledThres = ( 2 * dy * dx );
   bool bioAppliedSubblk;
@@ -1946,7 +1944,7 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
     PelUnitBuf srcPred1 = PelUnitBuf( pu.chromaFormat, PelBuf( m_acYuvPred[1][0], subPu.Y() ), PelBuf( m_acYuvPred[1][1], subPu.Cb() ), PelBuf( m_acYuvPred[1][2], subPu.Cr() ) );
 
     DistParam cDistParam;
-    m_pcRdCost->setDistParam( cDistParam, nullptr, nullptr, m_biLinearBufStride, m_biLinearBufStride, clpRngs.bd, dx, dy, 1 );
+    m_pcRdCost->setDistParam( cDistParam, nullptr, nullptr, m_biLinearBufStride, m_biLinearBufStride, dx, dy, 1 );
     
     PelUnitBuf subPredBuf = pcYuvDst.subBuf( UnitAreaRelative( pu, subPu ) );
 #if JVET_Q0438_MONOCHROME_BUGFIXES
@@ -2052,7 +2050,7 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
           subPredBuf.bufs[COMPONENT_Cr].buf = pcYuvDst.bufs[COMPONENT_Cr].buf + ( xStart >> scaleX ) + ( ( yStart >> scaleY ) * dstStride[COMPONENT_Cr] );
         }
 
-        xWeightedAverage( subPu, srcPred0, srcPred1, subPredBuf, bds, clpRngs, bioAppliedSubblk );
+        xWeightedAverage( subPu, srcPred0, srcPred1, subPredBuf, clpRngs, bioAppliedSubblk );
         num++;
       }
     }

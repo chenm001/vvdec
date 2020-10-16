@@ -54,7 +54,7 @@ vvc@hhi.fraunhofer.de
 template< typename T >
 void addAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t dstStride, int width, int height, int rshift, int offset, const ClpRng& clpRng )
 {
-#define ADD_AVG_CORE_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src1[ADDR] + src2[ADDR] + offset ), rshift ), clpRng )
+#define ADD_AVG_CORE_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src1[ADDR] + src2[ADDR] + offset ), rshift ) )
 #define ADD_AVG_CORE_INC    \
   src1 += src1Stride;       \
   src2 += src2Stride;       \
@@ -69,7 +69,7 @@ void addAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t s
 template<typename T>
 void reconstructCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t dstStride, int width, int height, const ClpRng& clpRng )
 {
-#define RECO_CORE_OP( ADDR ) dest[ADDR] = ClipPel( src1[ADDR] + src2[ADDR], clpRng )
+#define RECO_CORE_OP( ADDR ) dest[ADDR] = ClipPel( src1[ADDR] + src2[ADDR] )
 #define RECO_CORE_INC     \
   src1 += src1Stride;     \
   src2 += src2Stride;     \
@@ -85,7 +85,7 @@ void reconstructCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdif
 template<typename T>
 void linTfCore( const T* src, ptrdiff_t srcStride, Pel *dst, ptrdiff_t dstStride, int width, int height, int scale, int shift, int offset, const ClpRng& clpRng, bool bClip )
 {
-#define LINTF_CORE_OP( ADDR ) dst[ADDR] = ( Pel ) bClip ? ClipPel( rightShift( scale * src[ADDR], shift ) + offset, clpRng ) : ( rightShift( scale * src[ADDR], shift ) + offset )
+#define LINTF_CORE_OP( ADDR ) dst[ADDR] = ( Pel ) bClip ? ClipPel( rightShift( scale * src[ADDR], shift ) + offset ) : ( rightShift( scale * src[ADDR], shift ) + offset )
 #define LINTF_CORE_INC  \
   src += srcStride;     \
   dst += dstStride;     \
@@ -143,7 +143,7 @@ void copyClipCore( const T* src, ptrdiff_t srcStride, Pel *dst, ptrdiff_t dstStr
 template<typename T>
 void addWeightedAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptrdiff_t src2Stride, T* dest, ptrdiff_t destStride, int width, int height, int rshift, int offset, int w0, int w1, const ClpRng& clpRng )
 {
-#define ADD_WGHT_AVG_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src1[ADDR]*w0 + src2[ADDR]*w1 + offset ), rshift ), clpRng )
+#define ADD_WGHT_AVG_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src1[ADDR]*w0 + src2[ADDR]*w1 + offset ), rshift ) )
 #define ADD_WGHT_AVG_INC     \
     src1 += src1Stride; \
     src2 += src2Stride; \
@@ -274,8 +274,7 @@ void AreaBuf<Pel>::addWeightedAvg(const AreaBuf<const Pel> &other1, const AreaBu
   const ptrdiff_t src1Stride = other1.stride;
   const ptrdiff_t src2Stride = other2.stride;
   const ptrdiff_t destStride = stride;
-  const int clipbd    = clpRng.bd;
-  const int shiftNum  = std::max<int>( 2, ( IF_INTERNAL_PREC - clipbd ) ) + log2WeightBase;
+  const int shiftNum  = std::max<int>( 2, ( IF_INTERNAL_PREC - 8/*clpRng.bd*/ ) ) + log2WeightBase;
   const int offset    = ( 1 << ( shiftNum - 1 ) ) + ( IF_INTERNAL_OFFS << log2WeightBase );
 
   if( ( width & 7 ) == 0 )
@@ -288,7 +287,7 @@ void AreaBuf<Pel>::addWeightedAvg(const AreaBuf<const Pel> &other1, const AreaBu
   }
   else
   {
-#define ADD_AVG_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src0[ADDR]*w0 + src2[ADDR]*w1 + offset ), shiftNum ), clpRng )
+#define ADD_AVG_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src0[ADDR]*w0 + src2[ADDR]*w1 + offset ), shiftNum ) )
 #define ADD_AVG_INC     \
     src0 += src1Stride; \
     src2 += src2Stride; \
@@ -313,7 +312,7 @@ void AreaBuf<Pel>::scaleSignal(const int scale, const ClpRng& clpRng)
   Pel* dst = buf;
   Pel* src = buf;
   int sign, absval;
-  int maxAbsclipBD = ( 1 << clpRng.bd ) - 1;
+  int maxAbsclipBD = ( 1 << 8/*clpRng.bd*/ ) - 1;
 
   for (unsigned y = 0; y < height; y++)
   {
@@ -346,8 +345,7 @@ void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const
   const ptrdiff_t src1Stride = other1.stride;
   const ptrdiff_t src2Stride = other2.stride;
   const ptrdiff_t destStride =        stride;
-  const int       clipbd     = clpRng.bd;
-  const int       shiftNum   = std::max<int>(2, (IF_INTERNAL_PREC - clipbd)) + 1;
+  const int       shiftNum   = std::max<int>(2, (IF_INTERNAL_PREC - 8/*clpRng.bd*/)) + 1;
   const int       offset     = (1 << (shiftNum - 1)) + 2 * IF_INTERNAL_OFFS;
 
   if( ( width & 15 ) == 0 )
@@ -364,7 +362,7 @@ void AreaBuf<Pel>::addAvg( const AreaBuf<const Pel> &other1, const AreaBuf<const
   }
   else
   {
-#define ADD_AVG_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src0[ADDR] + src2[ADDR] + offset ), shiftNum ), clpRng )
+#define ADD_AVG_OP( ADDR ) dest[ADDR] = ClipPel( rightShift( ( src0[ADDR] + src2[ADDR] + offset ), shiftNum ) )
 #define ADD_AVG_INC     \
     src0 += src1Stride; \
     src2 += src2Stride; \
@@ -398,7 +396,7 @@ void AreaBuf<Pel>::reconstruct( const AreaBuf<const Pel> &pred, const AreaBuf<co
   }
   else
   {
-#define RECO_OP( ADDR ) dest[ADDR] = ClipPel( src1[ADDR] + src2[ADDR], clpRng )
+#define RECO_OP( ADDR ) dest[ADDR] = ClipPel( src1[ADDR] + src2[ADDR] )
 #define RECO_INC        \
     src1 += src1Stride; \
     src2 += src2Stride; \
@@ -431,7 +429,7 @@ void AreaBuf<Pel>::linearTransform( const int scale, const int shift, const int 
   }
   else
   {
-#define LINTF_OP( ADDR ) dst[ADDR] = ( Pel ) bClip ? ClipPel( rightShift( scale * src[ADDR], shift ) + offset, clpRng ) : ( rightShift( scale * src[ADDR], shift ) + offset )
+#define LINTF_OP( ADDR ) dst[ADDR] = ( Pel ) bClip ? ClipPel( rightShift( scale * src[ADDR], shift ) + offset ) : ( rightShift( scale * src[ADDR], shift ) + offset )
 #define LINTF_INC        \
     src += stride;       \
     dst += stride;       \
@@ -682,7 +680,7 @@ void UnitBuf<Pel>::colorSpaceConvert( const UnitBuf<Pel> &other, const ClpRng& c
 
   int width  = bufs[COMPONENT_Y].width;
   int height = bufs[COMPONENT_Y].height;
-  int maxAbsclipBD = (1 << (clpRng.bd + 1)) - 1;
+  int maxAbsclipBD = (1 << (8/*clpRng.bd*/ + 1)) - 1;
   int y0, cg, co;
 
   CHECKD( bufs[COMPONENT_Y].stride != bufs[COMPONENT_Cb].stride || bufs[COMPONENT_Y].stride != bufs[COMPONENT_Cr].stride, "unequal stride for 444 content" );

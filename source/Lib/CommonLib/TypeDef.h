@@ -232,6 +232,7 @@ vvc@hhi.fraunhofer.de
 // ====================================================================================================================
 
 #if RExt__HIGH_BIT_DEPTH_SUPPORT
+#error Unsupport HIGH_BIT_DEPTH feature
 typedef       int             Pel;               ///< pixel type
 typedef       int64_t         TCoeff;            ///< transform coefficient
 typedef       int             TMatrixCoeff;      ///< transform matrix coefficient
@@ -765,11 +766,6 @@ struct SAOBlkParam
 
 private:
   SAOOffset offsetParam[MAX_NUM_COMPONENT];
-};
-
-struct BitDepths
-{
-  int recon[MAX_NUM_CHANNEL_TYPE] = {8, 8}; ///< the bit depth as indicated in the SPS
 };
 
 /// parameters for deblocking filter

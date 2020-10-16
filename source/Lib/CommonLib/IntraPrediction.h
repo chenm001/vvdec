@@ -125,7 +125,7 @@ public:
   IntraPrediction();
   virtual ~IntraPrediction();
 
-  void init                       (ChromaFormat chromaFormatIDC, const unsigned bitDepthY);
+  void init                       (ChromaFormat chromaFormatIDC);
 
   // Angular Intra
   void predIntraAng               ( const ComponentID compId, PelBuf &piPred, const PredictionUnit &pu, const bool useFilteredPredSamples );

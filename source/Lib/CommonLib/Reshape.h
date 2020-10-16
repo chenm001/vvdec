@@ -74,7 +74,6 @@ protected:
   std::vector<Pel>        m_inputPivot;
   std::vector<int32_t>    m_fwdScaleCoef;
   std::vector<int32_t>    m_invScaleCoef;
-  int                     m_lumaBD;
   int                     m_reshapeLUTSize;
   int                     m_chromaScale;
   int                     m_vpduX;
@@ -83,7 +82,7 @@ public:
   Reshape();
   ~Reshape();
 
-  void createDec(int bitDepth);
+  void createDec();
   void destroy();
 
   void initSlice( Slice* pcSlice );
