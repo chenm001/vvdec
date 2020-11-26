@@ -121,16 +121,6 @@ Position CompArea::lumaPos( const ChromaFormat chromaFormat ) const
   }
 }
 
-Position CompArea::compPos( const ChromaFormat chromaFormat, const ComponentID compID ) const
-{
-  return isLuma( compID ) ? lumaPos( chromaFormat ) : chromaPos( chromaFormat );
-}
-
-Position CompArea::chanPos( const ChromaFormat chromaFormat, const ChannelType chType ) const
-{
-  return isLuma( chType ) ? lumaPos( chromaFormat ) : chromaPos( chromaFormat );
-}
-
 // ---------------------------------------------------------------------------
 // unit method definitions
 // ---------------------------------------------------------------------------
@@ -164,14 +154,6 @@ UnitArea::UnitArea(const ChromaFormat _chromaFormat, const Area &_area) : chroma
   blocks[1].height       = blocks[2].height       = ( _area.height >> csy );
 }
 
-UnitArea::UnitArea(const ChromaFormat _chromaFormat, const CompArea &blkY) : chromaFormat(_chromaFormat), blocks { blkY } {}
-
-UnitArea::UnitArea(const ChromaFormat _chromaFormat,       CompArea &&blkY) : chromaFormat(_chromaFormat), blocks { std::forward<CompArea>(blkY) } {}
-
-UnitArea::UnitArea(const ChromaFormat _chromaFormat, const CompArea &blkY, const CompArea &blkCb, const CompArea &blkCr)  : chromaFormat(_chromaFormat), blocks { blkY, blkCb, blkCr } {}
-
-UnitArea::UnitArea(const ChromaFormat _chromaFormat,       CompArea &&blkY,      CompArea &&blkCb,      CompArea &&blkCr) : chromaFormat(_chromaFormat), blocks { std::forward<CompArea>(blkY), std::forward<CompArea>(blkCb), std::forward<CompArea>(blkCr) } {}
-
 bool UnitArea::contains(const UnitArea& other) const
 {
   bool any = false;
@@ -197,54 +179,12 @@ bool UnitArea::contains(const UnitArea& other) const
   return any;
 }
 
-bool UnitArea::contains( const UnitArea& other, const ChannelType chType ) const
-{
-  if( chType == CH_L && blocks[0].valid() && other.blocks[0].valid() )
-  {
-    if( !blocks[0].contains( other.blocks[0] ) ) return false;
-    return true;
-  }
-
-  if( chType == CH_L ) return false;
-
-  bool any = false;
-
-  if( blocks[1].valid() && other.blocks[1].valid() )
-  {
-    any = true;
-    if( !blocks[1].contains( other.blocks[1] ) ) return false;
-  }
-
-  if( blocks[2].valid() && other.blocks[2].valid() )
-  {
-    any = true;
-    if( !blocks[2].contains( other.blocks[2] ) ) return false;
-  }
-
-  return any;
-}
-
 void UnitArea::repositionTo(const UnitArea& unitArea)
 {
   for(uint32_t i = 0; i < blocks.size(); i++)
   {
     blocks[i].repositionTo(unitArea.blocks[i]);
   }
-}
-
-const UnitArea UnitArea::singleComp(const ComponentID compID) const
-{
-  UnitArea ret = *this;
-
-  for( auto &blk : ret.blocks )
-  {
-    if( blk.compID != compID )
-    {
-      new ( &blk ) CompArea();
-    }
-  }
-
-  return ret;
 }
 
 const UnitArea UnitArea::singleChan(const ChannelType chType) const
