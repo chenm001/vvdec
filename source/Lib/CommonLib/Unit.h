@@ -134,7 +134,6 @@ struct CompArea : public Area
   CompArea() : Area(), compID(MAX_NUM_TBLOCKS)                                                                                                            { }
   CompArea(const ComponentID _compID, const Area &_area)                                                          : Area(_area),          compID(_compID) { }
   CompArea(const ComponentID _compID, const Position& _pos, const Size& _size)                                    : Area(_pos, _size),    compID(_compID) { }
-  CompArea(const ComponentID _compID, const uint32_t _x, const uint32_t _y, const uint32_t _w, const uint32_t _h) : Area(_x, _y, _w, _h), compID(_compID) { }
 
   ComponentID compID;
 
@@ -143,9 +142,6 @@ struct CompArea : public Area
 
   Size     chromaSize(const ChromaFormat chromaFormat) const;
   Size     lumaSize(const ChromaFormat chromaFormat)   const;
-
-  Position compPos(const ChromaFormat chromaFormat, const ComponentID compID) const;
-  Position chanPos(const ChromaFormat chromaFormat, const ChannelType chType) const;
 
   Position topLeftComp    (const ChromaFormat chromaFormat, const ComponentID _compID) const { return recalcPosition(chromaFormat, compID, _compID, *this);                                                     }
   Position topRightComp   (const ChromaFormat chromaFormat, const ComponentID _compID) const { return recalcPosition(chromaFormat, compID, _compID, { (PosType) (x + width - 1), y                          }); }
@@ -186,10 +182,6 @@ struct UnitArea
   UnitArea() : chromaFormat(NUM_CHROMA_FORMAT) { }
   UnitArea(const ChromaFormat _chromaFormat);
   UnitArea(const ChromaFormat _chromaFormat, const Area &area);
-  UnitArea(const ChromaFormat _chromaFormat, const CompArea  &blkY);
-  UnitArea(const ChromaFormat _chromaFormat,       CompArea &&blkY);
-  UnitArea(const ChromaFormat _chromaFormat, const CompArea  &blkY, const CompArea  &blkCb, const CompArea  &blkCr);
-  UnitArea(const ChromaFormat _chromaFormat,       CompArea &&blkY,       CompArea &&blkCb,       CompArea &&blkCr);
 
         CompArea& Y()                                  { return blocks[COMPONENT_Y];  }
   const CompArea& Y()                            const { return blocks[COMPONENT_Y];  }
@@ -202,10 +194,6 @@ struct UnitArea
   const CompArea& block(const ComponentID comp) const { return blocks[comp]; }
 
   bool contains(const UnitArea& other) const;
-  bool contains(const UnitArea& other, const ChannelType chType) const;
-
-        CompArea& operator[]( const int n )       { return blocks[n]; }
-  const CompArea& operator[]( const int n ) const { return blocks[n]; }
 
   bool operator==(const UnitArea &other) const
   {
@@ -232,7 +220,6 @@ struct UnitArea
   const Size&     chromaSize() const { return Cb(); }
   const Area&     chromaArea() const { return Cb(); }
 
-  const UnitArea  singleComp(const ComponentID compID) const;
   const UnitArea  singleChan(const ChannelType chType) const;
 
   SizeType  lwidth()  const { return Y().width; }  /*! luma width  */
