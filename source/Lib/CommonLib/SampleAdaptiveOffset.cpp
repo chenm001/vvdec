@@ -446,48 +446,6 @@ void SampleAdaptiveOffset::SAOPrepareCTULine( CodingStructure &cs, const UnitAre
   m_tempBuf.subBuf( cpyLine ).copyFrom( rec.subBuf( cpyLine ) );
 }
 
-void SampleAdaptiveOffset::SAOProcessCTULine( CodingStructure &cs, const UnitArea &lineArea )
-{
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_SAO );
-
-  const PreCalcValues& pcv = *cs.pcv;
-  PelUnitBuf           rec = cs.getRecoBuf();
-
-  const int height         = lineArea.lumaSize().height;
-  const int y              = lineArea.lumaPos().y;
-  
-  bool anySaoBlk = false;
-  
-  for( int x = 0; x < pcv.lumaWidth; x += pcv.maxCUWidth )
-  {
-    const int ctuRsAddr = getCtuAddr( Position( x, y ), *cs.pcv );
-
-    for( int i = 0; i < MAX_NUM_COMPONENT; i++ )
-    {
-      if( cs.m_ctuData[ctuRsAddr].saoParam[i].modeIdc != SAO_MODE_OFF )
-      {
-        anySaoBlk = true;
-      }
-    }
-  }
-
-  if( !anySaoBlk ) return;
-
-  std::vector<int8_t> signLineBuf1;
-  std::vector<int8_t> signLineBuf2;
-
-  for( int x = 0; x < pcv.lumaWidth; x += pcv.maxCUWidth )
-  {
-    const int width = ( x + pcv.maxCUWidth > pcv.lumaWidth ) ? ( pcv.lumaWidth - x ) : pcv.maxCUWidth;
-
-    const UnitArea ctuArea( pcv.chrFormat, Area( x, y, width, height ) );
-
-    const int ctuRsAddr = getCtuAddr( ctuArea.lumaPos(), *cs.pcv );
-
-    offsetCTU( ctuArea, m_tempBuf, rec, cs.m_ctuData[ctuRsAddr].saoParam, cs, signLineBuf1, signLineBuf2 );
-  }
-}
-
 void SampleAdaptiveOffset::SAOProcessCTU( CodingStructure &cs, const UnitArea &ctuArea )
 {
   PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_SAO );

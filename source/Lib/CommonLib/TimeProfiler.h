@@ -62,6 +62,10 @@ vvc@hhi.fraunhofer.de
 #include <ostream>
 #include <sstream>
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4267)
+#endif
+
 //! \ingroup CommonLib
 //! \{
 

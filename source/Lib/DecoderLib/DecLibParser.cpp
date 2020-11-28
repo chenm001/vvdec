@@ -332,34 +332,10 @@ Picture* DecLibParser::getNextDecodablePicture()
   return pic;
 }
 
-void DecLibParser::checkAPSInPictureUnit()
-{
-  bool firstVCLFound  = false;
-  bool suffixAPSFound = false;
-
-  for( auto &nalu : m_pictureUnitNals )
-  {
-    if( NALUnit::isVclNalUnitType(nalu) )
-    {
-      firstVCLFound = true;
-      CHECK( suffixAPSFound, "When any suffix APS NAL units are present in a PU, they shall follow the last VCL unit of the PU" );
-    }
-    else if( nalu == NAL_UNIT_PREFIX_APS )
-    {
-      CHECK( firstVCLFound, "When any prefix APS NAL units are present in a PU, they shall precede the first VCL unit of the PU");
-    }
-    else if( nalu == NAL_UNIT_SUFFIX_APS )
-    {
-      suffixAPSFound = true;
-    }
-  }
-}
-
 DecLibParser::SliceHeadResult DecLibParser::xDecodeSliceHead( InputNALUnit& nalu, int* pSkipFrame )
 {
   m_apcSlicePilot->initSlice(); // the slice pilot is an object to prepare for a new slice
                                 // it is not associated with picture, sps or pps structures.
-
 
   m_apcSlicePilot->setNalUnitType   ( nalu.m_nalUnitType );
   m_apcSlicePilot->setNalUnitLayerId( nalu.m_nuhLayerId  );

@@ -201,7 +201,6 @@ void dtrace_frame_blockwise( CDTrace *trace_ctx, DTRACE_CHANNEL channel, Tsrc *b
 #define DTRACE_WITHOUT_COUNT(ctx,channel,...) ctx->dtrace<false>( channel, __VA_ARGS__ )
 #define DTRACE_DECR_COUNTER(ctx,channel)     ctx->decrementChannelCounter( channel )
 #define DTRACE_UPDATE(ctx,s)                 if((ctx)){(ctx)->update((s));}
-#define DTRACE_REPEAT(ctx,channel,times,...) ctx->dtrace_repeat( channel, times,__VA_ARGS__ )
 #define DTRACE_COND(cond,ctx,channel,...)    { if( cond ) ctx->dtrace<true>( channel, __VA_ARGS__ ); }
 #define DTRACE_BLOCK(...)                    dtrace_block(__VA_ARGS__)
 #define DTRACE_FRAME_BLOCKWISE(...)          dtrace_frame_blockwise(__VA_ARGS__)
@@ -275,7 +274,6 @@ inline CDTrace* tracing_init( std::string& sTracingFile, std::string& sTracingRu
 #define DTRACE_DECR_COUNTER(ctx,channel)      {}
 #define DTRACE_UPDATE(ctx,s)                  {}
 #define DTRACE_COND(cond,level,...)           {}
-#define DTRACE_REPEAT(ctx,channel,times,...)  {}
 #define DTRACE_SET(_dst,_src)  (_dst)=(_src)
 #define DTRACE_BLOCK(...)                     {}
 #define DTRACE_FRAME_BLOCKWISE(...)           {}

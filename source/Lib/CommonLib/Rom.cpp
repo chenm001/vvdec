@@ -195,36 +195,6 @@ void resetBcwCodingOrder(bool bRunDecoding, const CodingStructure &cs)
   }
 }
 
-uint32_t deriveWeightIdxBits(uint8_t bcwIdx) // Note: align this with TEncSbac::codeGbiIdx and TDecSbac::parseGbiIdx
-{
-  uint32_t numBits = 1;
-  uint8_t  bcwCodingIdx = (uint8_t)g_BcwCodingOrder[bcwIdx];
-
-  if (BCW_NUM > 2 && bcwCodingIdx != 0)
-  {
-    uint32_t prefixNumBits = BCW_NUM - 2;
-    uint32_t step = 1;
-    uint8_t  prefixSymbol = bcwCodingIdx;
-
-    // Truncated unary code
-    uint8_t idx = 1;
-    for (int ui = 0; ui < prefixNumBits; ++ui)
-    {
-      if (prefixSymbol == idx)
-      {
-        ++numBits;
-        break;
-      }
-      else
-      {
-        ++numBits;
-        idx += step;
-      }
-    }
-  }
-  return numBits;
-}
-
 const uint32_t g_log2SbbSize[MAX_CU_DEPTH + 1][MAX_CU_DEPTH + 1][2] =
 //===== luma/chroma =====
 {

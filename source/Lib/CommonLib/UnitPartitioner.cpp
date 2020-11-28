@@ -549,11 +549,6 @@ void Partitioner::updateNeighbors( const CodingStructure& cs )
   setNeighborCu( m_partStack.back(), *this, cs );
 }
 
-bool Partitioner::hasNextPart() const
-{
-  return ( ( m_partStack.back().idx + 1 ) < m_partStack.back().parts.size() );
-}
-
 //////////////////////////////////////////////////////////////////////////
 // Partitioner methods describing the actual partitioning logic
 //////////////////////////////////////////////////////////////////////////

@@ -97,7 +97,6 @@ public:
   int  calculateChromaAdj(Pel avgLuma) const;
   int  getPWLIdxInv(int lumaVal) const;
   SliceReshapeInfo& getSliceReshaperInfo() { return m_sliceReshapeInfo; }
-  void copySliceReshaperInfo(SliceReshapeInfo& tInfo, SliceReshapeInfo& sInfo);
 
   void constructReshaper();
   int  calculateChromaAdjVpduNei(TransformUnit &tu, const Position pos);

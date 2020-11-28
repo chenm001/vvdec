@@ -215,7 +215,6 @@ extern       int8_t g_BcwParsingOrder[BCW_NUM];
 class CodingStructure;
 int8_t getBcwWeight(uint8_t bcwIdx, uint8_t uhRefFrmList);
 void resetBcwCodingOrder(bool bRunDecoding, const CodingStructure &cs);
-uint32_t deriveWeightIdxBits(uint8_t bcwIdx);
 
 constexpr uint8_t g_tbMax[257] = { 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
                                    4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,

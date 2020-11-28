@@ -82,7 +82,6 @@ public:
 
 //  void SAOProcess( CodingStructure& cs );
   void SAOProcessCTU    ( CodingStructure& cs, const UnitArea& ctuArea );
-  void SAOProcessCTULine( CodingStructure& cs, const UnitArea& lineArea );
   void SAOPrepareCTULine( CodingStructure& cs, const UnitArea& lineArea );
 
   static constexpr int getMaxOffsetQVal( ) { return ( 1 << ( std::min<int>( 8/*channelBitDepth*/, MAX_SAO_TRUNCATED_BITDEPTH ) - 5 ) ) - 1; }   // Table 9-32, inclusive

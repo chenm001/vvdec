@@ -2052,29 +2052,6 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
   }
 }
 
-void InterPrediction::xFillIBCBuffer(CodingUnit &cu)
-{
-  for( TransformUnit &tu : TUTraverser( &cu.firstTU, cu.lastTU->next ) )
-  {
-    for( const CompArea &area : tu.blocks )
-    {
-      if (!area.valid())
-        continue;
-
-      const unsigned int lcuWidth = cu.slice->getSPS()->getMaxCUWidth();
-      const int shiftSample = ::getComponentScaleX(area.compID, cu.chromaFormat);
-      const int ctuSizeLog2 = getLog2(lcuWidth) - shiftSample;
-      const int pux = area.x & ((m_IBCBufferWidth >> shiftSample) - 1);
-      const int puy = area.y & (( 1 << ctuSizeLog2 ) - 1);
-      const CompArea dstArea = CompArea(area.compID, Position(pux, puy), Size(area.width, area.height));
-      CPelBuf srcBuf = cu.cs->getRecoBuf(area);
-      PelBuf dstBuf = m_IBCBuffer.getBuf(dstArea);
-
-      dstBuf.copyFrom(srcBuf);
-    }
-  }
-}
-
 void InterPrediction::xIntraBlockCopy( PredictionUnit &pu, PelUnitBuf &predBuf, const ComponentID compID )
 {
   const unsigned int lcuWidth = pu.slice->getSPS()->getMaxCUWidth();

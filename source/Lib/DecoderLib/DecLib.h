@@ -116,10 +116,6 @@ public:
   uint32_t getNumberOfChecksumErrorsDetected() const { return m_numberOfChecksumErrorsDetected; }
   void     checkPictureHashSEI( Picture* pcPic );
 
-  void     checkNalUnitConstraints( uint32_t naluType );
-  void     checkSeiInPictureUnit();
-  void     resetPictureSeiNalus();
-  void checkAPSInPictureUnit();
   void resetPictureUnitNals() { m_pictureUnitNals.clear(); }
 
 private:
@@ -130,7 +126,6 @@ private:
   int      finishPicture    ( Picture* pcPic, MsgLevel msgl = INFO );
 #endif
   Picture* getNextOutputPic ( bool bFlush = false );
-  void     xCheckNalUnitConstraintFlags( const ConstraintInfo *cInfo, uint32_t naluType );
 };
 
 //! \}

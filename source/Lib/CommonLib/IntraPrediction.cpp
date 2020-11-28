@@ -618,20 +618,6 @@ void IntraPrediction::predIntraChromaLM(const ComponentID compID, PelBuf &piPred
   piPred.linearTransform(a, iShift, b, true);
 }
 
-void IntraPrediction::xFilterGroup(Pel* pMulDst[], int i, Pel const * const piSrc, int iRecStride, bool bAboveAvaillable, bool bLeftAvaillable)
-{
-  pMulDst[0][i] = (piSrc[1] + piSrc[iRecStride + 1] + 1) >> 1;
-
-  pMulDst[1][i] = (piSrc[iRecStride] + piSrc[iRecStride + 1] + 1) >> 1;
-
-  pMulDst[3][i] = (piSrc[0] + piSrc[1] + 1) >> 1;
-
-  pMulDst[2][i] = (piSrc[0] + piSrc[1] + piSrc[iRecStride] + piSrc[iRecStride + 1] + 2) >> 2;
-
-}
-
-
-
 void IntraPrediction::xPredIntraDc( const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const bool enableBoundaryFilter, const int mrlIdx )
 {
   const Pel dcval = xGetPredValDc( pSrc, pDst, mrlIdx );
@@ -1013,19 +999,6 @@ void IntraPrediction::geneWeightedPred( const ComponentID compId, PelBuf &pred, 
   }
 }
 
-void IntraPrediction::switchBuffer(const PredictionUnit &pu, ComponentID compID, PelBuf srcBuff, Pel *dst)
-{
-  Pel  *src = srcBuff.bufAt(0, 0);
-  int compWidth = compID == COMPONENT_Y ? pu.Y().width : pu.Cb().width;
-  int compHeight = compID == COMPONENT_Y ? pu.Y().height : pu.Cb().height;
-  for (int i = 0; i < compHeight; i++)
-  {
-    memcpy(dst, src, compWidth * sizeof(Pel));
-    src += srcBuff.stride;
-    dst += compWidth;
-  }
-}
-
 void IntraPrediction::geneIntrainterPred( const CodingUnit &cu )
 {
   if( !cu.ciipFlag() )
@@ -1075,7 +1048,6 @@ void IntraPrediction::geneIntrainterPred( const CodingUnit &cu )
   }
 }
 
-inline bool isAboveLeftAvailable  ( const CodingUnit &cu, const ChannelType &chType, const Position &posLT );
 inline int  isAboveAvailable      ( const CodingUnit &cu, const ChannelType &chType, const Position &posLT, const uint32_t uiNumUnitsInPU, const uint32_t unitWidth, bool *validFlags, const CodingUnit* startCU = nullptr );
 inline int  isLeftAvailable       ( const CodingUnit &cu, const ChannelType &chType, const Position &posLT, const uint32_t uiNumUnitsInPU, const uint32_t unitWidth, bool *validFlags, const CodingUnit* startCU = nullptr, int tuHeight = 0 );
 inline int  isAboveRightAvailable ( const CodingUnit &cu, const ChannelType &chType, const Position &posRT, const uint32_t uiNumUnitsInPU, const uint32_t unitHeight, bool *validFlags );
@@ -1531,15 +1503,6 @@ bool IntraPrediction::useFilteredIntraRefSamples( const ComponentID &compID, con
   }
 }
 
-
-bool isAboveLeftAvailable(const CodingUnit &cu, const ChannelType &chType, const Position &posLT)
-{
-  const CodingStructure& cs       = *cu.cs;
-  const Position refPos           = posLT.offset( -1, -1 );
-  const CodingUnit* pcCUAboveLeft = cs.getCURestricted( refPos, cu, chType, cu.left ? cu.left : cu.above );
-
-  return pcCUAboveLeft ? true : false;
-}
 
 int isAboveAvailable(const CodingUnit &cu, const ChannelType &chType, const Position &posLT, const uint32_t uiNumUnitsInPU, const uint32_t unitWidth, bool *bValidFlags, const CodingUnit* pcCUAbove)
 {

@@ -497,7 +497,6 @@ public:
 
 namespace DeriveCtx
 {
-void     CtxSplit     ( const CodingStructure& cs, Partitioner& partitioner, unsigned& ctxSpl, unsigned& ctxQt, unsigned& ctxHv, unsigned& ctxHorBt, unsigned& ctxVerBt, bool* canSplit = nullptr );
 unsigned CtxModeConsFlag( const CodingStructure& cs, Partitioner& partitioner );
 unsigned CtxQtCbf     ( const ComponentID compID, const bool prevCbCbf = false, const int ispIdx = 0 );
 unsigned CtxInterDir  ( const PredictionUnit& pu );

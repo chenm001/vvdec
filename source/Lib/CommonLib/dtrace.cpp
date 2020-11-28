@@ -311,23 +311,3 @@ void CDTrace::dtrace( int k, const char *format, /*va_list args*/... )
   return;
 }
 
-template void CDTrace::dtrace<true>( int k, const char *format, /*va_list args*/... );
-template void CDTrace::dtrace<false>( int k, const char *format, /*va_list args*/... );
-
-void CDTrace::dtrace_repeat( int k, int i_times, const char *format, /*va_list args*/... )
-{
-  if( m_trace_file && chanRules[k].active() )
-  {
-    va_list args;
-    va_start( args, format );
-    while( i_times > 0 )
-    {
-      i_times--;
-      vfprintf( m_trace_file, format, args );
-    }
-    fflush( m_trace_file );
-    va_end( args );
-  }
-  return;
-}
-

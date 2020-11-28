@@ -72,7 +72,6 @@ public:
   unsigned          decodeBinsEP        ( unsigned numBins  );
   unsigned          decodeRemAbsEP      ( unsigned goRicePar, unsigned cutoff, int maxLog2TrDynamicRange );
   unsigned          decodeBinTrm        ();
-  void              align               ();
   unsigned          getNumBitsRead      () { return m_Bitstream->getNumBitsRead() + m_bitsNeeded; }
 private:
   unsigned          decodeAlignedBinsEP ( unsigned numBins  );

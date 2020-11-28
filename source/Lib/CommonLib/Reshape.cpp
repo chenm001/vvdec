@@ -338,29 +338,6 @@ int Reshape::getPWLIdxInv(int lumaVal) const
   return std::min(idxS, PIC_CODE_CW_BINS-1);
 }
 
-/**
--copy Slice reshaper info structure
-\param   tInfo describing the target Slice reshaper info structure
-\param   sInfo describing the source Slice reshaper info structure
-*/
-void Reshape::copySliceReshaperInfo(SliceReshapeInfo& tInfo, SliceReshapeInfo& sInfo)
-{
-  tInfo.sliceReshaperModelPresentFlag = sInfo.sliceReshaperModelPresentFlag;
-  if (sInfo.sliceReshaperModelPresentFlag)
-  {
-    tInfo.reshaperModelMaxBinIdx = sInfo.reshaperModelMaxBinIdx;
-    tInfo.reshaperModelMinBinIdx = sInfo.reshaperModelMinBinIdx;
-    memcpy(tInfo.reshaperModelBinCWDelta, sInfo.reshaperModelBinCWDelta, sizeof(int)*(PIC_CODE_CW_BINS));
-    tInfo.maxNbitsNeededDeltaCW = sInfo.maxNbitsNeededDeltaCW;
-    tInfo.chrResScalingOffset = sInfo.chrResScalingOffset;
-  }
-  tInfo.sliceReshaperEnableFlag = sInfo.sliceReshaperEnableFlag;
-  if (sInfo.sliceReshaperEnableFlag)
-    tInfo.enableChromaAdj = sInfo.enableChromaAdj;
-  else
-    tInfo.enableChromaAdj = 0;
-}
-
 /** Construct reshaper from syntax
 * \param void
 * \return void

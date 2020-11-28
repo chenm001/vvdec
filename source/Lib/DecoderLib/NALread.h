@@ -78,7 +78,6 @@ class InputNALUnit : public NALUnit
 
     void read();
     void readNalUnitHeader();
-    bool checkPictureHeaderInSliceHeaderFlag(InputNALUnit & nalu);
 };
 
 
