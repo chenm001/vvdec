@@ -3104,21 +3104,6 @@ unsigned CABACReader::exp_golomb_eqprob( unsigned count )
   return symbol;
 }
 
-unsigned CABACReader::code_unary_fixed( unsigned ctxId, unsigned unary_max, unsigned fixed )
-{
-  unsigned idx;
-  bool unary = m_BinDecoder.decodeBin( ctxId );
-  if( unary )
-  {
-    idx = unary_max_eqprob( unary_max );
-  }
-  else
-  {
-    idx = unary_max + 1 + m_BinDecoder.decodeBinsEP( fixed );
-  }
-  return idx;
-}
-
 void CABACReader::mip_flag( CodingUnit& cu )
 {
   if( !cu.cs->sps->getUseMIP() )

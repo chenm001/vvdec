@@ -125,11 +125,6 @@ int VVDec::uninit()
   return VVDEC_OK;
 }
 
-bool VVDec::isInitialized()
-{
-  return m_pcVVDecImpl->m_bInitialized;
-}
-
 int VVDec::decode( AccessUnit& rcAccessUnit, Frame** ppcFrame )
 {
   if( !m_pcVVDecImpl->m_bInitialized )

@@ -172,11 +172,4 @@ void InputNALUnit::read()
   readNalUnitHeader();
 }
 
-bool InputNALUnit::checkPictureHeaderInSliceHeaderFlag( InputNALUnit& nalu )
-{
-  InputBitstream& bitstream = nalu.getBitstream();
-  CHECK(bitstream.getByteLocation() != 2, "The picture_header_in_slice_header_flag is the first bit after the NAL unit header");
-  return (bool)bitstream.read(1);
-}
-
 //! \}

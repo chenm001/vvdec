@@ -623,20 +623,6 @@ void IntraPrediction::predIntraChromaLM(const ComponentID compID, PelBuf &piPred
   piPred.linearTransform(a, iShift, b, true, pu.slice->clpRng(compID));
 }
 
-void IntraPrediction::xFilterGroup(Pel* pMulDst[], int i, Pel const * const piSrc, int iRecStride, bool bAboveAvaillable, bool bLeftAvaillable)
-{
-  pMulDst[0][i] = (piSrc[1] + piSrc[iRecStride + 1] + 1) >> 1;
-
-  pMulDst[1][i] = (piSrc[iRecStride] + piSrc[iRecStride + 1] + 1) >> 1;
-
-  pMulDst[3][i] = (piSrc[0] + piSrc[1] + 1) >> 1;
-
-  pMulDst[2][i] = (piSrc[0] + piSrc[1] + piSrc[iRecStride] + piSrc[iRecStride + 1] + 2) >> 2;
-
-}
-
-
-
 void IntraPrediction::xPredIntraDc( const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const bool enableBoundaryFilter, const int mrlIdx )
 {
   const Pel dcval = xGetPredValDc( pSrc, pDst, mrlIdx );
@@ -1015,19 +1001,6 @@ void IntraPrediction::geneWeightedPred( const ComponentID compId, PelBuf &pred, 
       dstBuf[y*dstStride + x + 2] = ( wMerge * dstBuf[y*dstStride + x + 2] + wIntra * srcBuf[y*srcStride + x + 2] + 2 ) >> 2;
       dstBuf[y*dstStride + x + 3] = ( wMerge * dstBuf[y*dstStride + x + 3] + wIntra * srcBuf[y*srcStride + x + 3] + 2 ) >> 2;
     }
-  }
-}
-
-void IntraPrediction::switchBuffer(const PredictionUnit &pu, ComponentID compID, PelBuf srcBuff, Pel *dst)
-{
-  Pel  *src = srcBuff.bufAt(0, 0);
-  int compWidth = compID == COMPONENT_Y ? pu.Y().width : pu.Cb().width;
-  int compHeight = compID == COMPONENT_Y ? pu.Y().height : pu.Cb().height;
-  for (int i = 0; i < compHeight; i++)
-  {
-    memcpy(dst, src, compWidth * sizeof(Pel));
-    src += srcBuff.stride;
-    dst += compWidth;
   }
 }
 

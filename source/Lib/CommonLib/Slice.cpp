@@ -251,22 +251,6 @@ void VPS::checkVPS()
 }
 #endif
 
-void VPS::deriveTargetOutputLayerSet( int targetOlsIdx )
-{
-  m_iTargetLayer = targetOlsIdx < 0 ? m_uiMaxLayers - 1 : targetOlsIdx;
-  m_targetOutputLayerIdSet.clear();
-  m_targetLayerIdSet.clear();
-
-  for( int i = 0; i < m_numOutputLayersInOls[m_iTargetLayer]; i++ )
-  {
-    m_targetOutputLayerIdSet.push_back( m_outputLayerIdInOls[m_iTargetLayer][i] );
-  }
-
-  for( int i = 0; i < m_numLayersInOls[m_iTargetLayer]; i++ )
-  {
-    m_targetLayerIdSet.push_back( m_layerIdInOls[m_iTargetLayer][i] );
-  }
-}
 #endif
 
 Slice::Slice()
@@ -487,23 +471,6 @@ void Slice::setRefPOCList()
   }
 }
 
-void Slice::setList1IdxToList0Idx()
-{
-  int idxL0, idxL1;
-  for ( idxL1 = 0; idxL1 < getNumRefIdx( REF_PIC_LIST_1 ); idxL1++ )
-  {
-    m_list1IdxToList0Idx[idxL1] = -1;
-    for ( idxL0 = 0; idxL0 < getNumRefIdx( REF_PIC_LIST_0 ); idxL0++ )
-    {
-      if ( m_apcRefPicList[REF_PIC_LIST_0][idxL0 + 1]->getPOC() == m_apcRefPicList[REF_PIC_LIST_1][idxL1 + 1]->getPOC() )
-      {
-        m_list1IdxToList0Idx[idxL1] = idxL0;
-        break;
-      }
-    }
-  }
-}
-
 void Slice::constructRefPicLists( const PicListRange& rcListPic )
 {
   ::memset(m_bIsUsedAsLongTerm, 0, sizeof(m_bIsUsedAsLongTerm));
@@ -549,30 +516,6 @@ void Slice::constructSingleRefPicList(const PicListRange& rcListPic, RefPicList 
     m_bIsUsedAsLongTerm[listId][ii] = pcRefPic->longTerm;
 
     pLocalRPL.setRefPicLongterm( ii,pcRefPic->longTerm );
-  }
-}
-
-void Slice::checkColRefIdx(uint32_t curSliceSegmentIdx, const Picture* pic)
-{
-  int i;
-  Slice* curSlice = pic->slices[curSliceSegmentIdx];
-  int currColRefPOC =  curSlice->getRefPOC( RefPicList(1 - curSlice->getColFromL0Flag()), curSlice->getColRefIdx());
-
-  for(i=curSliceSegmentIdx-1; i>=0; i--)
-  {
-    const Slice* preSlice = pic->slices[i];
-    if(preSlice->getSliceType() != I_SLICE)
-    {
-      const int preColRefPOC  = preSlice->getRefPOC( RefPicList(1 - preSlice->getColFromL0Flag()), preSlice->getColRefIdx());
-      if(currColRefPOC != preColRefPOC)
-      {
-        THROW("Collocated_ref_idx shall always be the same for all slices of a coded picture!");
-      }
-      else
-      {
-        break;
-      }
-    }
   }
 }
 
@@ -897,82 +840,6 @@ void Slice::checkRPL(const ReferencePictureList* pRPL0, const ReferencePictureLi
     }
   }
 #endif
-}
-
-/** Function for marking the reference pictures when an IDR/CRA/CRANT/BLA/BLANT is encountered.
- * \param pocCRA POC of the CRA/CRANT/BLA/BLANT picture
- * \param bRefreshPending flag indicating if a deferred decoding refresh is pending
- * \param rcListPic reference to the reference picture list
- * This function marks the reference pictures as "unused for reference" in the following conditions.
- * If the nal_unit_type is IDR/BLA/BLANT, all pictures in the reference picture list
- * are marked as "unused for reference"
- *    If the nal_unit_type is BLA/BLANT, set the pocCRA to the temporal reference of the current picture.
- * Otherwise
- *    If the bRefreshPending flag is true (a deferred decoding refresh is pending) and the current
- *    temporal reference is greater than the temporal reference of the latest CRA/CRANT/BLA/BLANT picture (pocCRA),
- *    mark all reference pictures except the latest CRA/CRANT/BLA/BLANT picture as "unused for reference" and set
- *    the bRefreshPending flag to false.
- *    If the nal_unit_type is CRA/CRANT, set the bRefreshPending flag to true and pocCRA to the temporal
- *    reference of the current picture.
- * Note that the current picture is already placed in the reference list and its marking is not changed.
- * If the current picture has a nal_ref_idc that is not 0, it will remain marked as "used for reference".
- */
-void Slice::decodingRefreshMarking(int& pocCRA, bool& bRefreshPending, PicList& rcListPic, const bool bEfficientFieldIRAPEnabled)
-{
-  int      pocCurr = getPOC();
-
-  if ( getNalUnitType() == NAL_UNIT_CODED_SLICE_IDR_W_RADL
-    || getNalUnitType() == NAL_UNIT_CODED_SLICE_IDR_N_LP)  // IDR picture
-  {
-    // mark all pictures as not used for reference
-    for( auto & rpcPic: rcListPic )
-    {
-      if (rpcPic->getPOC() != pocCurr)
-      {
-        rpcPic->referenced = false;
-      }
-    }
-    if (bEfficientFieldIRAPEnabled)
-    {
-      bRefreshPending = true;
-    }
-  }
-  else // CRA or No DR
-  {
-    if(bEfficientFieldIRAPEnabled && (getAssociatedIRAPType() == NAL_UNIT_CODED_SLICE_IDR_N_LP || getAssociatedIRAPType() == NAL_UNIT_CODED_SLICE_IDR_W_RADL))
-    {
-      if (bRefreshPending==true && pocCurr > m_iLastIDR) // IDR reference marking pending
-      {
-        for( auto & rpcPic: rcListPic )
-        {
-          if (rpcPic->getPOC() != pocCurr && rpcPic->getPOC() != m_iLastIDR)
-          {
-            rpcPic->referenced = false;
-          }
-        }
-        bRefreshPending = false;
-      }
-    }
-    else
-    {
-      if (bRefreshPending==true && pocCurr > pocCRA) // CRA reference marking pending
-      {
-        for( auto & rpcPic: rcListPic )
-        {
-          if (rpcPic->getPOC() != pocCurr && rpcPic->getPOC() != pocCRA)
-          {
-            rpcPic->referenced = false;
-          }
-        }
-        bRefreshPending = false;
-      }
-    }
-    if ( getNalUnitType() == NAL_UNIT_CODED_SLICE_CRA ) // CRA picture found
-    {
-      bRefreshPending = true;
-      pocCRA = pocCurr;
-    }
-  }
 }
 
 void Slice::copySliceInfo(Slice *pSrc, bool cpyAlmostAll)
@@ -1308,12 +1175,6 @@ int Slice::checkThatAllRefPicsAreAvailable( const PicListRange& rcListPic, const
   return 0;
 }
 
-//! get AC and DC values for weighted pred
-void  Slice::getWpAcDcParam(const WPACDCParam *&wp) const
-{
-  wp = m_weightACDCParam;
-}
-
 //! init AC and DC values for weighted pred
 void  Slice::initWpAcDcParam()
 {
@@ -1378,32 +1239,6 @@ void  Slice::initWpScaling(const SPS *sps)
       }
     }
   }
-}
-
-unsigned Slice::getMinPictureDistance() const
-{
-  int minPicDist = MAX_INT;
-  if (getSPS()->getIBCFlag())
-  {
-    minPicDist = 0;
-  }
-  else
-  if( ! isIntra() )
-  {
-    const int currPOC  = getPOC();
-    for (int refIdx = 0; refIdx < getNumRefIdx(REF_PIC_LIST_0); refIdx++)
-    {
-      minPicDist = std::min( minPicDist, std::abs(currPOC - getRefPic(REF_PIC_LIST_0, refIdx)->getPOC()) );
-    }
-    if( getSliceType() == B_SLICE )
-    {
-      for (int refIdx = 0; refIdx < getNumRefIdx(REF_PIC_LIST_1); refIdx++)
-      {
-        minPicDist = std::min( minPicDist, std::abs(currPOC - getRefPic(REF_PIC_LIST_1, refIdx)->getPOC()) );
-      }
-    }
-  }
-  return (unsigned) minPicDist;
 }
 
 void PicHeader::getWpScaling(RefPicList e, int iRefIdx, WPScalingParam *&wp) const
@@ -2081,52 +1916,12 @@ ScalingList::ScalingList()
   }
 }
 
-/** set default quantization matrix to array
-*/
-void ScalingList::setDefaultScalingList()
-{
-  for( uint32_t scalingListId = 0; scalingListId < 28; scalingListId++ )
-  {
-    processDefaultMatrix(scalingListId);
-  }
-}
-
 /** get scaling matrix from RefMatrixID
  * \param sizeId    size index
  * \param listId    index of input matrix
  * \param refListId index of reference matrix
  */
-int ScalingList::lengthUvlc(int uiCode)
-{
-  if (uiCode < 0) printf("Error UVLC! \n");
 
-  int uiLength = 1;
-  int uiTemp = ++uiCode;
-
-  CHECK(!uiTemp, "Integer overflow");
-
-  while (1 != uiTemp)
-  {
-    uiTemp >>= 1;
-    uiLength += 2;
-  }
-  return (uiLength >> 1) + ((uiLength + 1) >> 1);
-}
-int ScalingList::lengthSvlc(int uiCode)
-{
-  uint32_t uiCode2 = uint32_t(uiCode <= 0 ? (-uiCode) << 1 : (uiCode << 1) - 1);
-  int uiLength = 1;
-  int uiTemp = ++uiCode2;
-
-  CHECK(!uiTemp, "Integer overflow");
-
-  while (1 != uiTemp)
-  {
-    uiTemp >>= 1;
-    uiLength += 2;
-  }
-  return (uiLength >> 1) + ((uiLength + 1) >> 1);
-}
 void ScalingList::processRefMatrix(uint32_t scalinListId, uint32_t refListId)
 {
   int matrixSize = (scalinListId < SCALING_LIST_1D_START_4x4) ? 2 : (scalinListId < SCALING_LIST_1D_START_8x8) ? 4 : 8;
@@ -2161,17 +1956,6 @@ const int* ScalingList::getScalingListDefaultAddress(uint32_t scalingListId)
       break;
   }
   return src;
-}
-
-/** process of default matrix
- * \param sizeId size index
- * \param listId index of input matrix
- */
-void ScalingList::processDefaultMatrix(uint32_t scalingListId)
-{
-  int matrixSize = (scalingListId < SCALING_LIST_1D_START_4x4) ? 2 : (scalingListId < SCALING_LIST_1D_START_8x8) ? 4 : 8;
-  ::memcpy(getScalingListAddress(scalingListId), getScalingListDefaultAddress(scalingListId), sizeof(int)*matrixSize*matrixSize);
-  setScalingListDC(scalingListId, SCALING_LIST_DC);
 }
 
 bool ScalingList::isLumaScalingList( int scalingListId) const
@@ -2329,30 +2113,6 @@ void Slice::freeScaledRefPicList( Picture *scaledRefPic[] )
       scaledRefPic[i] = nullptr;
     }
   }
-}
-
-bool Slice::checkRPR()
-{
-  const PPS* pps = getPPS();
-
-  for( int refList = 0; refList < NUM_REF_PIC_LIST_01; refList++ )
-  {
-
-    if( refList == 1 && m_eSliceType != B_SLICE )
-    {
-      continue;
-    }
-
-    for( int rIdx = 0; rIdx < m_aiNumRefIdx[refList]; rIdx++ )
-    {
-      if( m_scaledRefPicList[refList][rIdx]->cs->pcv->lumaWidth != pps->getPicWidthInLumaSamples() || m_scaledRefPicList[refList][rIdx]->cs->pcv->lumaHeight != pps->getPicHeightInLumaSamples() )
-      {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 bool             operator == (const ConstraintInfo& op1, const ConstraintInfo& op2)
@@ -2563,40 +2323,9 @@ ProfileLevelTierFeatures::extractPTLInformation(const SPS &sps)
   }
 }
 
-double ProfileLevelTierFeatures::getMinCr() const
-{
-  return (m_pLevelTier!=0 && m_pProfile!=0) ? (m_pProfile->minCrScaleFactorx100 * m_pLevelTier->minCrBase[m_tier?1:0])/100.0 : 0.0 ;
-}
-
 uint64_t ProfileLevelTierFeatures::getCpbSizeInBits() const
 {
   return (m_pLevelTier!=0 && m_pProfile!=0) ? uint64_t(m_pProfile->cpbVclFactor) * m_pLevelTier->maxCpb[m_tier?1:0] : uint64_t(0);
-}
-
-uint32_t ProfileLevelTierFeatures::getMaxDpbSize( uint32_t picSizeMaxInSamplesY ) const
-{
-  const uint32_t maxDpbPicBuf = 8;
-  uint32_t       maxDpbSize;
-
-  if (m_pLevelTier->level == Level::LEVEL15_5)
-  {
-    // maxDpbSize is unconstrained in this case
-    maxDpbSize = std::numeric_limits<uint32_t>::max();
-  }
-  else if (2 * picSizeMaxInSamplesY <= m_pLevelTier->maxLumaPs)
-  {
-    maxDpbSize = 2 * maxDpbPicBuf;
-  }
-  else if (3 * picSizeMaxInSamplesY <= 2 * m_pLevelTier->maxLumaPs)
-  {
-    maxDpbSize = 3 * maxDpbPicBuf / 2;
-  }
-  else
-  {
-    maxDpbSize = maxDpbPicBuf;
-  }
-
-  return maxDpbSize;
 }
 
 #if ENABLE_TRACING
