@@ -76,8 +76,6 @@ InvTrans *fastInvTrans[NUM_TRANS_TYPE][g_numTransformMatrixSizes] =
 //! \ingroup CommonLib
 //! \{
 
-static inline int64_t square( const int d ) { return d * (int64_t)d; }
-
 template<int signedMode> void invTransformCbCr( PelBuf &resCb, PelBuf &resCr )
 {
   Pel*  cb  = resCb.buf;

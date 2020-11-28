@@ -67,93 +67,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 // Class definition
 // ====================================================================================================================
 /**
- * Model of a writable bitstream that accumulates bits to produce a
- * bytestream.
- */
-class OutputBitstream
-{
-  /**
-   * FIFO for storage of bytes.  Use:
-   *  - fifo.push_back(x) to append words
-   *  - fifo.clear() to empty the FIFO
-   *  - &fifo.front() to get a pointer to the data array.
-   *    NB, this pointer is only valid until the next push_back()/clear()
-   */
-  std::vector<uint8_t> m_fifo;
-
-  uint32_t m_num_held_bits; /// number of bits not flushed to bytestream.
-  uint8_t m_held_bits; /// the bits held and not flushed to bytestream.
-                             /// this value is always msb-aligned, bigendian.
-public:
-  // create / destroy
-  OutputBitstream();
-  ~OutputBitstream();
-
-  // interface for encoding
-  /**
-   * append uiNumberOfBits least significant bits of uiBits to
-   * the current bitstream
-   */
-  void        write           ( uint32_t uiBits, uint32_t uiNumberOfBits );
-
-  /** insert one bits until the bitstream is byte-aligned */
-  void        writeAlignOne   ();
-
-  /** insert zero bits until the bitstream is byte-aligned */
-  void        writeAlignZero  ();
-
-  // utility functions
-
-  /**
-   * Return a pointer to the start of the byte-stream buffer.
-   * Pointer is valid until the next write/flush/reset call.
-   * NB, data is arranged such that subsequent bytes in the
-   * bytestream are stored in ascending addresses.
-   */
-  uint8_t* getByteStream() const;
-
-  /**
-   * Return the number of valid bytes available from  getByteStream()
-   */
-  uint32_t getByteStreamLength();
-
-  /**
-   * Reset all internal state.
-   */
-  void clear();
-
-  /**
-   * returns the number of bits that need to be written to
-   * achieve byte alignment.
-   */
-  int getNumBitsUntilByteAligned() const { return (8 - m_num_held_bits) & 0x7; }
-
-  /**
-   * Return the number of bits that have been written since the last clear()
-   */
-  uint32_t getNumberOfWrittenBits() const { return uint32_t(m_fifo.size()) * 8 + m_num_held_bits; }
-
-  void insertAt(const OutputBitstream& src, uint32_t pos);
-
-  /**
-   * Return a reference to the internal fifo
-   */
-  std::vector<uint8_t>& getFIFO() { return m_fifo; }
-
-  uint8_t getHeldBits  ()          { return m_held_bits;          }
-
-  //OutputBitstream& operator= (const OutputBitstream& src);
-  /** Return a reference to the internal fifo */
-  const std::vector<uint8_t>& getFIFO() const { return m_fifo; }
-
-  void          addSubstream    ( OutputBitstream* pcSubstream );
-  void writeByteAlignment();
-
-  //! returns the number of start code emulations contained in the current buffer
-  int countStartCodeEmulations();
-};
-
-/**
  * Model of an input bitstream that extracts bits from a predefined
  * bytestream.
  */
@@ -195,7 +108,6 @@ public:
 
   uint32_t         readOutTrailingBits();
   uint8_t          getHeldBits() { return m_held_bits; }
-  OutputBitstream& operator=( const OutputBitstream& src );
   uint32_t         getByteLocation() { return m_fifo_idx; }
 
   // Peek at bits in word-storage. Used in determining if we have completed reading of current bitstream and therefore

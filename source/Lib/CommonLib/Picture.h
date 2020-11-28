@@ -120,8 +120,6 @@ struct Picture : public UnitArea
   
   int           getSpliceIdx(uint32_t idx) const { return m_spliceIdx[idx]; }
   void          setSpliceIdx(uint32_t idx, int poc) { m_spliceIdx[idx] = poc; }
-  void          createSpliceIdx(int nums);
-  bool          getSpliceFull();
   static void   sampleRateConv( const Pel* orgSrc, SizeType orgWidth, SizeType orgHeight, ptrdiff_t orgStride, Pel* scaledSrc, SizeType scaledWidth, SizeType scaledHeight, SizeType paddedWidth, SizeType paddedHeight, ptrdiff_t scaledStride, const int bitDepth, const bool useLumaFilter, const bool downsampling = false );
 
   static void   rescalePicture(const CPelUnitBuf& beforeScaling, const Window& confBefore, const PelUnitBuf& afterScaling, const Window& confAfter, const ChromaFormat chromaFormatIDC, const BitDepths& bitDepths, const bool useLumaFilter, const bool downsampling = false);

@@ -215,23 +215,6 @@ void AUDReader::parseAccessUnitDelimiter( InputBitstream* bs, uint32_t &picType 
   xReadRbspTrailingBits();
 }
 
-void FDReader::parseFillerData( InputBitstream* bs, uint32_t &fdSize )
-{
-  setBitstream( bs );
-#if ENABLE_TRACING
-  xTraceFillerData();
-#endif
-  uint32_t ffByte;
-  fdSize = 0;
-  while( m_pcBitstream->getNumBitsLeft() > 8 )
-  {
-    READ_CODE( 8, ffByte, "fd_ff_byte" );
-    CHECK( ffByte != 0xff, "Invalid fillter data not '0xff'" );
-    fdSize++;
-  }
-  xReadRbspTrailingBits();
-}
-
 // ====================================================================================================================
 // Constructor / destructor / create / destroy
 // ====================================================================================================================
@@ -3935,88 +3918,6 @@ void HLSyntaxReader::parsePicOrSliceHeaderRPL( HeaderT* header, const SPS* sps, 
   }
 }
 
-void HLSyntaxReader::getSlicePoc( Slice* pcSlice, PicHeader* picHeader, ParameterSetManager *parameterSetManager, const int prevTid0POC )
-{
-  //TODO: check this, function gets never called
-  uint32_t  uiCode;
-  uint32_t  iPOClsb;
-  PPS* pps = NULL;
-  SPS* sps = NULL;
-
-  CHECK(picHeader==0, "Invalid Picture Header");
-  CHECK(picHeader->isValid()==false, "Invalid Picture Header");
-  pps = parameterSetManager->getPPS( picHeader->getPPSId() );
-  //!KS: need to add error handling code here, if PPS is not available
-  CHECK(pps==0, "Invalid PPS");
-  sps = parameterSetManager->getSPS(pps->getSPSId());
-  //!KS: need to add error handling code here, if SPS is not available
-  CHECK(sps==0, "Invalid SPS");
-  
-  READ_FLAG(uiCode, "picture_header_in_slice_header_flag");
-  if (uiCode == 0)
-  {
-    iPOClsb = picHeader->getPocLsb();
-  }
-  else
-  {
-    READ_FLAG(uiCode, "gdr_or_irap_pic_flag");
-    if (uiCode)
-    {
-      READ_FLAG(uiCode, "gdr_pic_flag");
-    }
-    READ_FLAG(uiCode, "pic_inter_slice_allowed_flag");
-    if (uiCode)
-    {
-      READ_FLAG(uiCode, "pic_intra_slice_allowed_flag");
-    }
-    READ_FLAG(uiCode, "non_reference_picture_flag");
-    // parameter sets
-    READ_UVLC(uiCode, "ph_pic_parameter_set_id");
-    // picture order count
-    READ_CODE(sps->getBitsForPOC(), iPOClsb, "ph_pic_order_cnt_lsb");
-  }
-  int iMaxPOClsb = 1 << sps->getBitsForPOC();
-  int iPOCmsb;
-  if (pcSlice->getIdrPicFlag())
-  {
-    if (picHeader->getPocMsbPresentFlag())
-    {
-      iPOCmsb = picHeader->getPocMsbVal()*iMaxPOClsb;
-    }
-    else
-    {
-      iPOCmsb = 0;
-    }
-    pcSlice->setPOC(iPOCmsb + iPOClsb);
-  }
-  else
-  {
-    int iPrevPOC = prevTid0POC;
-    int iPrevPOClsb = iPrevPOC & (iMaxPOClsb - 1);
-    int iPrevPOCmsb = iPrevPOC - iPrevPOClsb;
-    if( picHeader->getPocMsbPresentFlag() )
-    {
-      iPOCmsb = picHeader->getPocMsbVal()*iMaxPOClsb;
-    }
-    else
-    {
-      if ((iPOClsb  <  iPrevPOClsb) && ((iPrevPOClsb - iPOClsb) >= (iMaxPOClsb / 2)))
-      {
-        iPOCmsb = iPrevPOCmsb + iMaxPOClsb;
-      }
-      else if ((iPOClsb  >  iPrevPOClsb) && ((iPOClsb - iPrevPOClsb)  >  (iMaxPOClsb / 2)))
-      {
-        iPOCmsb = iPrevPOCmsb - iMaxPOClsb;
-      }
-      else
-      {
-        iPOCmsb = iPrevPOCmsb;
-      }
-    }
-    pcSlice->setPOC(iPOCmsb + iPOClsb);
-  }
-}
-
 void HLSyntaxReader::parseConstraintInfo( ConstraintInfo *cinfo )
 {
   uint32_t symbol;
@@ -4224,41 +4125,6 @@ void HLSyntaxReader::parseProfileTierLevel( ProfileTierLevel *ptl, int maxNumSub
     }
   }
 }
-
-void HLSyntaxReader::parseTerminatingBit( uint32_t& ruiBit )
-{
-  ruiBit = false;
-  int iBitsLeft = m_pcBitstream->getNumBitsLeft();
-  if(iBitsLeft <= 8)
-  {
-    uint32_t uiPeekValue = m_pcBitstream->peekBits( iBitsLeft );
-    if( uiPeekValue == ( 1<<( iBitsLeft-1 ) ) )
-    {
-      ruiBit = true;
-    }
-  }
-}
-
-void HLSyntaxReader::parseRemainingBytes( bool noTrailingBytesExpected )
-{
-  if( noTrailingBytesExpected )
-  {
-    CHECK( 0 != m_pcBitstream->getNumBitsLeft(), "Bits left although no bits expected" );
-  }
-  else
-  {
-    while( m_pcBitstream->getNumBitsLeft() )
-    {
-      uint32_t trailingNullByte = m_pcBitstream->readByte();
-      if( trailingNullByte!=0 )
-      {
-        msg( ERROR, "Trailing byte should be 0, but has value %02x\n", trailingNullByte );
-        THROW( "Invalid trailing '0' byte" );
-      }
-    }
-  }
-}
-
 
 // ====================================================================================================================
 // Protected member functions

@@ -161,7 +161,6 @@ public:
   void splitCurrArea                      ( const PartSplit split, const CodingStructure &cs );
   void exitCurrSplit                      ( const CodingStructure& cs );
   bool nextPart                           ( const CodingStructure &cs, bool autoPop = false );
-  bool hasNextPart                        () const;
   void setCUData                          ( CodingUnit& cu );
   void canSplit                           ( const CodingStructure &cs, bool& canNo, bool& canQt, bool& canBh, bool& canBv, bool& canTh, bool& canTv ) const;
   bool canSplit                           ( const PartSplit split, const CodingStructure &cs, bool isISP = false ) const;

@@ -183,7 +183,6 @@ public:
   void xinitMC(PredictionUnit& pu, const ClpRngs &clpRngs);
   void xProcessDMVR(PredictionUnit& pu, PelUnitBuf &pcYuvDst, const ClpRngs &clpRngs, const bool bioApplied );
   static bool isSubblockVectorSpreadOverLimit( int a, int b, int c, int d, int predType );
-  void xFillIBCBuffer(CodingUnit &cu);
 #if JVET_O1170_CHECK_BV_AT_DECODER
   void resetIBCBuffer(const ChromaFormat chromaFormatIDC, const int ctuSize);
   void resetVPDUforIBC(const ChromaFormat chromaFormatIDC, const int ctuSize, const int vSize, const int xPos, const int yPos);

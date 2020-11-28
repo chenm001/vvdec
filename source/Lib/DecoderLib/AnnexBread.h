@@ -202,8 +202,6 @@ struct AnnexBStats
   }
 };
 
-bool byteStreamNALUnit(InputByteStream& bs, std::vector<uint8_t>& nalUnit, AnnexBStats& stats);
-
 //! \}
 
 #endif

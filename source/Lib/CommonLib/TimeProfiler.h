@@ -66,6 +66,10 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include <ostream>
 #include <sstream>
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4267)
+#endif
+
 //! \ingroup CommonLib
 //! \{
 

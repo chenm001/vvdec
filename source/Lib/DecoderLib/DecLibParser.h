@@ -175,7 +175,6 @@ public:
   void setTargetDecLayer        (int val)               { m_iTargetLayer = val; }
   int  getTargetDecLayer        ()                      { return m_iTargetLayer; }
 
-  void checkAPSInPictureUnit    ();
   void resetPictureUnitNals     ()                      { m_pictureUnitNals.clear(); }
 
   ParameterSetManager getParameterSetManager()          { return m_parameterSetManager; }

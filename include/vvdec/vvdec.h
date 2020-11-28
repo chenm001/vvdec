@@ -364,11 +364,6 @@ public:
   */
    int uninit();
 
-   /**
-    * \brief Returns initialization status
-    */
-   bool isInitialized();
-
   /**
     This method decodes a compressed image packet (bitstream).
     Compressed image packet are passed to the decoder in decoder order. A picture is returned by filling the assigned Picture struct.

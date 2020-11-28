@@ -127,18 +127,6 @@ public:
   void parseAccessUnitDelimiter( InputBitstream* bs, uint32_t &picType );
 };
 
-
-
-class FDReader: public VLCReader
-{
-public:
-  FDReader() {};
-  virtual ~FDReader() {};
-  void parseFillerData(InputBitstream* bs, uint32_t &fdSize);
-};
-
-
-
 class HLSyntaxReader : public VLCReader
 {
 public:
@@ -173,9 +161,6 @@ public:
   template<typename HeaderT>
   void  parsePicOrSliceHeaderRPL( HeaderT* header, const SPS* sps, const PPS* pps );
   void  checkAlfNaluTidAndPicTid( Slice* pcSlice, PicHeader* picHeader, ParameterSetManager *parameterSetManager);
-  void  getSlicePoc         ( Slice* pcSlice, PicHeader* picHeader, ParameterSetManager *parameterSetManager, const int prevTid0POC );
-  void  parseTerminatingBit ( uint32_t& ruiBit );
-  void  parseRemainingBytes ( bool noTrailingBytesExpected );
 
   void  parsePredWeightTable( Slice* pcSlice, const SPS *sps );
   void  parsePredWeightTable( PicHeader *picHeader, const SPS *sps );

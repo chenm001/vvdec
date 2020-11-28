@@ -167,7 +167,6 @@ public:
   uint32_t       getRefMatrixId(uint32_t scalingListId) const                 { return m_refMatrixId[scalingListId];                      } //!< get reference matrix ID
   
   static const int* getScalingListDefaultAddress(uint32_t scalinListId);                                                                           //!< get default matrix coefficient
-  void       processDefaultMatrix(uint32_t scalinListId);
 
   void       setScalingListDC(uint32_t scalinListId, uint32_t u)              { m_scalingListDC[scalinListId] = u;                        } //!< set DC value
   int        getScalingListDC(uint32_t scalinListId) const                    { return m_scalingListDC[scalinListId];                     } //!< get DC value
@@ -176,14 +175,11 @@ public:
   bool       getScalingListCopyModeFlag(uint32_t scalinListId) const          { return m_scalingListPredModeFlagIsCopy[scalinListId];     } //getScalingListPredModeFlag
   void       processRefMatrix(uint32_t scalingListId, uint32_t refListId);
 
-  int        lengthUvlc(int uiCode);
-  int        lengthSvlc(int uiCode);
   void       setScalingListPreditorModeFlag(uint32_t scalingListId, bool bIsPred) { m_scalingListPreditorModeFlag[scalingListId] = bIsPred; }
   bool       getScalingListPreditorModeFlag(uint32_t scalingListId) const { return m_scalingListPreditorModeFlag[scalingListId]; }
   bool       getChromaScalingListPresentFlag() const {return m_chromaScalingListPresentFlag;}
   void       setChromaScalingListPresentFlag( bool flag) { m_chromaScalingListPresentFlag = flag;}
   bool       isLumaScalingList( int scalingListId) const;
-  void       setDefaultScalingList();
 
 private:
   bool             m_scalingListPredModeFlagIsCopy [30]; //!< reference list index
@@ -1226,7 +1222,6 @@ public:
   void              setOlsDpbParamsIdx( int olsIdx, int paramIdx )       { m_olsDpbParamsIdx[olsIdx] = paramIdx;    }
   
   void              deriveOutputLayerSets();
-  void              deriveTargetOutputLayerSet( int targetOlsIdx );
 #endif
 #if JVET_S0100_ASPECT3
   void              checkVPS();
@@ -2996,7 +2991,6 @@ public:
   int                         getRefPOC( RefPicList e, int iRefIdx) const            { return m_aiRefPOCList[e][iRefIdx];                            }
   bool                        getColFromL0Flag() const                               { return m_colFromL0Flag;                                       }
   uint32_t                    getColRefIdx() const                                   { return m_colRefIdx;                                           }
-  void                        checkColRefIdx(uint32_t curSliceSegmentIdx, const Picture* pic);
   bool                        getIsUsedAsLongTerm(int i, int j) const                { return m_bIsUsedAsLongTerm[i][j];                             }
   void                        setIsUsedAsLongTerm(int i, int j, bool value)          { m_bIsUsedAsLongTerm[i][j] = value;                            }
   bool                        getCheckLDC() const                                    { return m_bCheckLDC;                                           }
@@ -3016,7 +3010,6 @@ public:
   void                        checkCRA( int& pocCRA, NalUnitType& associatedIRAPType, const PicListRange& rcListPic );
   void                        checkSTSA( const PicListRange& rcListPic );
   void                        checkRPL(const ReferencePictureList* pRPL0, const ReferencePictureList* pRPL1, const int associatedIRAPDecodingOrderNumber, const PicListRange& rcListPic);
-  void                        decodingRefreshMarking(int& pocCRA, bool& bRefreshPending, PicList& rcListPic, const bool bEfficientFieldIRAPEnabled);
   void                        setSliceType( SliceType e )                            { m_eSliceType        = e;                                      }
   void                        setSliceQp( int i )                                    { m_iSliceQp          = i;                                      }
   void                        setSliceQpDelta( int i )                               { m_iSliceQpDelta     = i;                                      }
@@ -3068,8 +3061,6 @@ public:
 
   uint32_t                    getCuQpDeltaSubdiv() const                             { return this->isIntra() ? m_pcPicHeader->getCuQpDeltaSubdivIntra() : m_pcPicHeader->getCuQpDeltaSubdivInter(); }
   uint32_t                    getCuChromaQpOffsetSubdiv() const                      { return this->isIntra() ? m_pcPicHeader->getCuChromaQpOffsetSubdivIntra() : m_pcPicHeader->getCuChromaQpOffsetSubdivInter(); }
-
-  void                        setList1IdxToList0Idx();
 
   uint32_t                    getTLayer() const                                      { return m_uiTLayer;                                            }
   void                        setTLayer( uint32_t uiTLayer )                         { m_uiTLayer = uiTLayer;                                        }
@@ -3128,7 +3119,6 @@ public:
 
   void                        setWpAcDcParam( WPACDCParam wp[MAX_NUM_COMPONENT] )    { memcpy(m_weightACDCParam, wp, sizeof(WPACDCParam)*MAX_NUM_COMPONENT); }
 
-  void                        getWpAcDcParam( const WPACDCParam *&wp ) const;
   void                        initWpAcDcParam();
 
   void                        clearSubstreamSizes( )                                 { return m_substreamSizes.clear();                              }
@@ -3153,7 +3143,6 @@ public:
   const ClpRngs&              clpRngs()                                         const { return m_clpRngs; }
   const ClpRng&               clpRng( ComponentID id)                           const { return m_clpRngs; }
   ClpRngs&                    getClpRngs()                                            { return m_clpRngs; }
-  unsigned                    getMinPictureDistance()                           const ;
 
   void                        resetTileGroupAlfEnabledFlag()                          { memset(m_tileGroupAlfEnabledFlag, 0, sizeof(m_tileGroupAlfEnabledFlag)); }
   bool                        getTileGroupAlfEnabledFlag(ComponentID compId)    const { return m_tileGroupAlfEnabledFlag[compId]; }
@@ -3186,7 +3175,6 @@ public:
 
   void                        scaleRefPicList( PicHeader *picHeader, APS** apss, APS* lmcsAps, APS* scalingListAps, const bool isDecoder );
   void                        freeScaledRefPicList( Picture *scaledRefPic[] );
-  bool                        checkRPR();
   const std::pair<int, int>&  getScalingRatio( const RefPicList refPicList, const int refIdx )  const { return m_scalingRatio[refPicList][refIdx]; }
   void                        setNumEntryPoints( const SPS *sps, const PPS *pps );
   uint32_t                    getNumEntryPoints( ) const { return m_numEntryPoints;  }
@@ -3324,8 +3312,6 @@ class ProfileLevelTierFeatures
     const LevelTierFeatures   *getLevelTierFeatures() const { return m_pLevelTier; }
     Level::Tier                getTier()              const { return m_tier; }
     uint64_t getCpbSizeInBits()                       const;
-    double getMinCr()                                 const;
-    uint32_t getMaxDpbSize( uint32_t picSizeMaxInSamplesY ) const;
 };
 
 

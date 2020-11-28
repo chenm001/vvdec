@@ -237,14 +237,6 @@ unsigned BinDecoderBase::decodeBinTrm()
 }
 
 
-
-
-void BinDecoderBase::align()
-{
-  m_Range = 256;
-}
-
-
 unsigned BinDecoderBase::decodeAlignedBinsEP( unsigned numBins )
 {
 #if ENABLE_TRACING
