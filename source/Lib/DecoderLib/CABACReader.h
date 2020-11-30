@@ -157,7 +157,6 @@ private:
   unsigned    unary_max_symbol          ( unsigned ctxId0, unsigned ctxIdN, unsigned maxSymbol );
   unsigned    unary_max_eqprob          (                                   unsigned maxSymbol );
   unsigned    exp_golomb_eqprob         ( unsigned count );
-  unsigned    get_num_bits_read         () { return m_BinDecoder.getNumBitsRead(); }
 
   void        xReadTruncBinCode         ( uint32_t &symbol, uint32_t maxSymbol );
 
