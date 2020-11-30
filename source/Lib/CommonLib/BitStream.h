@@ -85,7 +85,6 @@ public:
   InputBitstream()                            = default;
   ~InputBitstream()                           = default;
   InputBitstream( const InputBitstream& src ) = default;
-  InputBitstream( InputBitstream&& src )      = default;
 
   void resetToStart();
 
