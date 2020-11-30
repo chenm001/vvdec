@@ -142,7 +142,6 @@ public:
   DecLibRecon();
   ~DecLibRecon() = default;
   DecLibRecon( const DecLibRecon& )  = delete;
-  DecLibRecon( const DecLibRecon&& ) = delete;
 
   void create( NoMallocThreadPool* threadPool, unsigned instanceId );
   void destroy();
