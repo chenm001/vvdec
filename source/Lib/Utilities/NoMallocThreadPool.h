@@ -107,10 +107,8 @@ struct Barrier
   explicit Barrier( bool locked ) : m_lockState( locked ) {}
 
   Barrier( const Barrier & ) = delete;
-  Barrier( Barrier && )      = delete;
 
   Barrier& operator=( const Barrier & ) = delete;
-  Barrier& operator=( Barrier && )      = delete;
 
 private:
   std::atomic_bool m_lockState{ true };
@@ -151,10 +149,8 @@ struct BlockingBarrier
   ~BlockingBarrier() { std::unique_lock<std::mutex> l( m_lock ); } // ensure all threads have unlocked the mutex, when we start destruction
 
   BlockingBarrier( const BlockingBarrier& ) = delete;
-  BlockingBarrier( BlockingBarrier&& )      = delete;
 
   BlockingBarrier& operator=( const BlockingBarrier& ) = delete;
-  BlockingBarrier& operator=( BlockingBarrier&& ) = delete;
 
   // cast to const ref Barrier, so we can use it for thread pool tasks:
   operator const Barrier&() const { return m_intBarrier; }
@@ -204,10 +200,8 @@ struct WaitCounter
   ~WaitCounter() { std::unique_lock<std::mutex> l( m_lock ); }   // ensure all threads have unlocked the mutex, when we start destruction
 
   WaitCounter( const WaitCounter & ) = delete;
-  WaitCounter( WaitCounter && )      = delete;
 
   WaitCounter &operator=( const WaitCounter & ) = delete;
-  WaitCounter &operator=( WaitCounter && )      = delete;
 
   Barrier done{ false };
 
@@ -344,7 +338,6 @@ class NoMallocThreadPool
     }
 
     ChunkedTaskQueue( const ChunkedTaskQueue& ) = delete;
-    ChunkedTaskQueue( ChunkedTaskQueue&& )      = delete;
 
     // grow the queue by adding a chunk and return an iterator to the first new task-slot
     Iterator grow()
