@@ -159,7 +159,6 @@ struct CompArea : public Area
 
   bool operator!=(const CompArea &other) const { return !(operator==(other)); }
 
-  void     repositionTo      (const Position& newPos)       { Position::repositionTo(newPos); }
   void     positionRelativeTo(const CompArea& origCompArea) { Position::relativeTo(origCompArea); }
 };
 
@@ -207,8 +206,6 @@ struct UnitArea
 
     return true;
   }
-
-  void repositionTo(const UnitArea& unit);
 
   bool operator!=(const UnitArea &other) const { return !(*this == other); }
 
