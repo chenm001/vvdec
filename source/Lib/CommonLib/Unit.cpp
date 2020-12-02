@@ -175,14 +175,6 @@ bool UnitArea::contains(const UnitArea& other) const
   return any;
 }
 
-void UnitArea::repositionTo(const UnitArea& unitArea)
-{
-  for(uint32_t i = 0; i < blocks.size(); i++)
-  {
-    blocks[i].repositionTo(unitArea.blocks[i]);
-  }
-}
-
 const UnitArea UnitArea::singleChan(const ChannelType chType) const
 {
 #if 1

@@ -62,12 +62,8 @@ struct Position
   constexpr bool operator!=(const Position &other)  const { return x != other.x || y != other.y; }
   constexpr bool operator==(const Position &other)  const { return x == other.x && y == other.y; }
 
-  constexpr Position offset(const Position pos)                 const { return Position(x + pos.x, y + pos.y); }
   constexpr Position offset(const PosType _x, const PosType _y) const { return Position(x + _x   , y + _y   ); }
-  void     repositionTo(const Position newPos)              { x  = newPos.x; y  = newPos.y; }
-  void     relativeTo  (const Position origin)              { x -= origin.x; y -= origin.y; }
-
-  constexpr Position operator-( const Position &other )         const { return{ x - other.x, y - other.y }; }
+            void     relativeTo(const Position origin)                { x -= origin.x; y -= origin.y; }
 };
 
 struct Size
@@ -80,7 +76,7 @@ struct Size
 
   constexpr bool operator!=(const Size &other)      const { return (width != other.width) || (height != other.height); }
   constexpr bool operator==(const Size &other)      const { return (width == other.width) && (height == other.height); }
-  constexpr uint32_t area()                             const { return (uint32_t) width * (uint32_t) height; }
+  constexpr uint32_t area()                         const { return (uint32_t) width * (uint32_t) height; }
 };
 
 struct Area : public Position, public Size
@@ -89,9 +85,7 @@ struct Area : public Position, public Size
   constexpr Area(const Position &_pos, const Size &_size)                                  : Position(_pos),   Size(_size)  { }
   constexpr Area(const PosType _x, const PosType _y, const SizeType _w, const SizeType _h) : Position(_x, _y), Size(_w, _h) { }
 
-                  Position& pos()                           { return *this; }
   constexpr const Position& pos()                     const { return *this; }
-                  Size&     size()                          { return *this; }
   constexpr const Size&     size()                    const { return *this; }
 
   constexpr const Position& topLeft()                 const { return *this; }
@@ -102,9 +96,6 @@ struct Area : public Position, public Size
 
   constexpr bool contains(const Position &_pos)       const { return (_pos.x >= x) && (_pos.x < (x + width)) && (_pos.y >= y) && (_pos.y < (y + height)); }
             bool contains(const Area &_area)          const { return contains(_area.pos()) && contains(_area.bottomRight()); }
-
-  constexpr bool operator!=(const Area &other)        const { return (Size::operator!=(other)) || (Position::operator!=(other)); }
-  constexpr bool operator==(const Area &other)        const { return (Size::operator==(other)) && (Position::operator==(other)); }
 };
 
 struct UnitScale
@@ -116,19 +107,16 @@ struct UnitScale
     MI_MAP
   };
 
-  constexpr UnitScale()                 : posx( 0), posy( 0), area(0) {}
-  constexpr UnitScale( int sx, int sy ) : posx(sx), posy(sy), area(posx+posy) {}
-  int posx = 0;
-  int posy = 0;
-  int area = 0;
+  constexpr UnitScale()                 : posx( 0), posy( 0) {}
+  constexpr UnitScale( int sx, int sy ) : posx(sx), posy(sy) {}
+  int posx;
+  int posy;
 
-  template<typename T> constexpr T scaleHor ( const T &in ) const { return in >> posx; }
-  template<typename T> constexpr T scaleVer ( const T &in ) const { return in >> posy; }
-  template<typename T> constexpr T scaleArea( const T &in ) const { return in >> area; }
+  template<typename T> constexpr T scaleHor( const T &in ) const { return in >> posx; }
+  template<typename T> constexpr T scaleVer( const T &in ) const { return in >> posy; }
 
   constexpr Position scale( const Position &pos  ) const { return { pos.x >> posx, pos.y >> posy }; }
   constexpr Size     scale( const Size     &size ) const { return { size.width >> posx, size.height >> posy }; }
-  constexpr Area     scale( const Area    &_area ) const { return Area{ scale( _area.pos() ), scale( _area.size() ) }; }
 };
 namespace std
 {
@@ -150,24 +138,10 @@ namespace std
     }
   };
 }
-constexpr inline ptrdiff_t rsAddr(const Position &pos, const ptrdiff_t stride, const UnitScale &unitScale )
-{
-  return ( ptrdiff_t )(stride >> unitScale.posx) * ( ptrdiff_t )(pos.y >> unitScale.posy) + ( ptrdiff_t )(pos.x >> unitScale.posx);
-}
-
-constexpr inline ptrdiff_t rsAddr(const Position &pos, const Position &origin, const ptrdiff_t stride, const UnitScale &unitScale )
-{
-  return (stride >> unitScale.posx) * ((pos.y - origin.y) >> unitScale.posy) + ((pos.x - origin.x) >> unitScale.posx);
-}
 
 constexpr inline ptrdiff_t rsAddr(const Position &pos, const ptrdiff_t stride )
 {
   return stride * ( ptrdiff_t )pos.y + ( ptrdiff_t )pos.x;
-}
-
-constexpr inline ptrdiff_t rsAddr(const Position &pos, const Position &origin, const ptrdiff_t stride )
-{
-  return stride * (pos.y - origin.y) + (pos.x - origin.x);
 }
 
 inline Area clipArea(const Area &_area, const Area &boundingBox)
