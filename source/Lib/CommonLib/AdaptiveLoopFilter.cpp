@@ -379,8 +379,9 @@ void AdaptiveLoopFilter::create( const PicHeader* picHeader, const SPS* sps, con
       || !loopFilterAcrossSubPicEnabledFlag )
   {
     m_tempBuf.resize( std::max( 1, numThreads ) );
-    for( auto &buf: m_tempBuf )
+    for(int i = 0; i < std::max(1, numThreads); i++)
     {
+      PelStorage &buf = m_tempBuf[i];
       if( buf.chromaFormat!=format || buf.Y()!=Size( maxCUWidth, maxCUHeight ) )
       {
         buf.destroy();
@@ -1064,7 +1065,10 @@ void AdaptiveLoopFilter::deriveClassificationBlk( AlfClassifier *classifier, con
       static const int transposeTable[8] = { 0, 1, 0, 2, 2, 3, 1, 3 };
       int transposeIdx = transposeTable[mainDirection * 2 + ( secondaryDirection >> 1 )];
 
-      classifier[( i / 4 ) * ( MAX_CU_SIZE / 4 ) + j / 4] = AlfClassifier( classIdx, transposeIdx );
+      AlfClassifier *const node = &classifier[(i / 4) * (MAX_CU_SIZE / 4) + j / 4];
+
+      node->classIdx     = classIdx;
+      node->transposeIdx = transposeIdx;
     }
   }
 }
