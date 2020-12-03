@@ -53,7 +53,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "CommonLib/TrQuant.h"
 #include "CommonLib/UnitTools.h"
 #include "CommonLib/dtrace_next.h"
-#include "CommonLib/TimeProfiler.h"
 #include "CommonLib/AdaptiveLoopFilter.h"
 
 #include <vector>
@@ -67,7 +66,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 void DecSlice::parseSlice( Slice* slice, InputBitstream* bitstream, int threadId )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_CONTROL_PARSE_DERIVE_LL, *slice->getPic()->cs, CH_L );
   const unsigned numSubstreams = slice->getNumberOfSubstreamSizes() + 1;
   // Table of extracted substreams.
   std::vector<std::shared_ptr<InputBitstream>> ppcSubstreams( numSubstreams );

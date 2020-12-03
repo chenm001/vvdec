@@ -55,7 +55,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "CodingStructure.h"
 #include "CommonLib/dtrace_codingstruct.h"
 #include "CommonLib/dtrace_buffer.h"
-#include "CommonLib/TimeProfiler.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -406,8 +405,6 @@ void SampleAdaptiveOffset::SAOProcess( CodingStructure& cs )
 
 void SampleAdaptiveOffset::SAOPrepareCTULine( CodingStructure &cs, const UnitArea &lineArea )
 {
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_SAO );
-
   const PreCalcValues& pcv = *cs.pcv;
   PelUnitBuf           rec = cs.getRecoBuf();
 
@@ -459,8 +456,6 @@ void SampleAdaptiveOffset::SAOPrepareCTULine( CodingStructure &cs, const UnitAre
 
 void SampleAdaptiveOffset::SAOProcessCTU( CodingStructure &cs, const UnitArea &ctuArea )
 {
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_SAO );
-
   PelUnitBuf           rec = cs.getRecoBuf();
 
   const int ctuRsAddr = getCtuAddr( ctuArea.lumaPos(), *cs.pcv );

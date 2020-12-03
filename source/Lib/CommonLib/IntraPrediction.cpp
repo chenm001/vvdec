@@ -64,7 +64,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include <array>
 
 #include "CommonLib/InterpolationFilter.h"
-#include "CommonLib/TimeProfiler.h"
 
 //! \ingroup CommonLib
 //! \{
@@ -1010,7 +1009,6 @@ void IntraPrediction::geneIntrainterPred( const CodingUnit &cu )
   {
     return;
   }
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_INTRAPRED, *cu.cs, compID );
 
   const PredictionUnit &pu = cu;
 

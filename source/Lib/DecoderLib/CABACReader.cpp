@@ -56,7 +56,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "CommonLib/SampleAdaptiveOffset.h"
 #include "CommonLib/dtrace_next.h"
 #include "CommonLib/Picture.h"
-#include "CommonLib/TimeProfiler.h"
 
 
 void CABACReader::initCtxModels( Slice& slice )
@@ -2370,7 +2369,6 @@ void CABACReader::joint_cb_cr( TransformUnit& tu, const int cbfMask )
 
 void CABACReader::residual_coding( TransformUnit& tu, ComponentID compID, CUCtx& cuCtx )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_PARSERESIDUALS, *tu.cu->cs, compID );
   const CodingUnit& cu = *tu.cu;
 
   DTRACE( g_trace_ctx, D_SYNTAX, "residual_coding() etype=%d pos=(%d,%d) size=%dx%d predMode=%d\n", tu.blocks[compID].compID, tu.blocks[compID].x, tu.blocks[compID].y, tu.blocks[compID].width, tu.blocks[compID].height, cu.predMode() );
