@@ -60,7 +60,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 struct AlfClassifier
 {
-
   uint8_t classIdx;
   uint8_t transposeIdx;
 };

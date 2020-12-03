@@ -53,7 +53,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "CodingStructure.h"
 #include "Picture.h"
 #include "UnitTools.h"
-#include "CommonLib/TimeProfiler.h"
 #include <array>
 #include <cmath>
 
@@ -366,6 +365,7 @@ void AdaptiveLoopFilter::create( const PicHeader* picHeader, const SPS* sps, con
     for(int i = 0; i < std::max(1, numThreads); i++)
     {
       PelStorage &buf = m_tempBuf[i];
+
       if( buf.chromaFormat!=format || buf.Y()!=Size( maxCUWidth, maxCUHeight ) )
       {
         buf.destroy();
@@ -384,7 +384,6 @@ void AdaptiveLoopFilter::preparePic( CodingStructure & cs )
 {
   if( !AdaptiveLoopFilter::getAlfSkipPic( cs ) )
   {
-    PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_ALF, cs, CH_L );
     PelUnitBuf recYuv = cs.getRecoBuf();
     getCompatibleBuffer( cs, recYuv, cs.m_alfBuf );
   }
@@ -392,7 +391,6 @@ void AdaptiveLoopFilter::preparePic( CodingStructure & cs )
 
 void AdaptiveLoopFilter::prepareCTU( CodingStructure &cs, unsigned col, unsigned line )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_ALF, cs, CH_L );
   // border-extend the buffer per ctu-line
   const int PEL_EXT_SIZE = MAX_ALF_FILTER_LENGTH/2 + ( MAX_ALF_FILTER_LENGTH/2 % 2 );  // PEL_EXT_SIZE needs to be divisible by 2
 
@@ -405,7 +403,6 @@ void AdaptiveLoopFilter::prepareCTU( CodingStructure &cs, unsigned col, unsigned
 
 void AdaptiveLoopFilter::processCTU( CodingStructure & cs, unsigned col, unsigned line, int tid, const ChannelType chType )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_ALF, cs, CH_L );
   PelUnitBuf recYuv = cs.getRecoBuf();
 
   const UnitArea ctuArea( getCtuArea( cs, col, line, true ) );
