@@ -50,7 +50,6 @@ vvc@hhi.fraunhofer.de
 #include "CommonLib/IntraPrediction.h"
 #include "CommonLib/Picture.h"
 #include "CommonLib/UnitTools.h"
-#include "CommonLib/TimeProfiler.h"
 
 #include "CommonLib/dtrace_buffer.h"
 
@@ -60,8 +59,6 @@ vvc@hhi.fraunhofer.de
 
 void DecCu::TaskDeriveCtuMotionInfo( CodingStructure &cs, const UnitArea &ctuArea, MotionHist& hist )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_CONTROL_PARSE_DERIVE_LL, cs, CH_L );
-
   const unsigned  ctuRsAddr      = getCtuAddr( Position( ctuArea.lumaPos().x, ctuArea.lumaPos().y ), *cs.pcv );
   const unsigned  ctuXPosInCtus  = ctuRsAddr % cs.pcv->widthInCtus;
   const unsigned  tileColIdx     = cs.pps->ctuToTileCol( ctuXPosInCtus );
@@ -97,8 +94,6 @@ void DecCu::TaskDeriveCtuMotionInfo( CodingStructure &cs, const UnitArea &ctuAre
 
 void DecCu::TaskTrafoCtu( CodingStructure &cs, const UnitArea &ctuArea )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_ITRANS_REC, cs, CH_L );
-
   for( auto &currCU : cs.traverseCUs( ctuArea ) )
   {
     CHECK( !ctuArea.blocks[currCU.chType()].contains( currCU.blocks[currCU.chType()] ), "Should never happen!" );
@@ -112,8 +107,6 @@ void DecCu::TaskTrafoCtu( CodingStructure &cs, const UnitArea &ctuArea )
 
 void DecCu::TaskInterCtu( CodingStructure &cs, const UnitArea &ctuArea )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_CONTROL_PARSE_DERIVE_LL, cs, CH_L );
-
   for( auto &currCU: cs.traverseCUs( ctuArea ) )
   {
     CHECK( !ctuArea.blocks[currCU.chType()].contains( currCU.blocks[currCU.chType()] ), "Should never happen!" );
@@ -127,7 +120,6 @@ void DecCu::TaskInterCtu( CodingStructure &cs, const UnitArea &ctuArea )
 
 void DecCu::TaskCriticalIntraKernel( CodingStructure &cs, const UnitArea &ctuArea )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_CONTROL_PARSE_DERIVE_LL, cs, CH_L );
   for( auto &currCU : cs.traverseCUs( ctuArea ) )
   {
     CHECK( !ctuArea.blocks[currCU.chType()].contains( currCU.blocks[currCU.chType()] ), "Should never happen!" );
@@ -150,7 +142,6 @@ void DecCu::TaskCriticalIntraKernel( CodingStructure &cs, const UnitArea &ctuAre
 
 void DecCu::TaskDeriveDMVRMotionInfo( CodingStructure& cs, const UnitArea& ctuArea )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_CONTROL_PARSE_DERIVE_LL, cs, CH_L );
   MotionBuf   mb     = cs.getMotionBuf( ctuArea.Y() );
   MotionInfo* orgPtr = mb.buf;
 
@@ -236,7 +227,6 @@ void DecCu::destroy()
 
 void DecCu::predAndReco( CodingUnit& cu, bool doCiipIntra )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_ITRANS_REC, *cu.cs, CH_L );
   CodingStructure &cs = *cu.cs;
   
   if( CU::isIntra( cu ) )
@@ -261,8 +251,6 @@ void DecCu::predAndReco( CodingUnit& cu, bool doCiipIntra )
 
         PelBuf piPred;
         {
-          PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_INTRAPRED, cs, compID );
-
           if( chType == CHANNEL_TYPE_LUMA )
           {
             Position pos = Position( tu.Y().x - cu.lumaPos().x, tu.Y().y - cu.lumaPos().y );
@@ -465,7 +453,6 @@ void DecCu::predAndReco( CodingUnit& cu, bool doCiipIntra )
 
 void DecCu::finishLMCSAndReco( CodingUnit &cu )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_ITRANS_REC, *cu.cs, CH_L );
   CodingStructure &cs = *cu.cs;
 
   const uint32_t uiNumVaildComp = getNumberValidComponents( cu.chromaFormat );

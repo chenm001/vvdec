@@ -50,8 +50,6 @@ vvc@hhi.fraunhofer.de
 #include "UnitTools.h"
 #include "ContextModelling.h"
 #include "CodingStructure.h"
-#include "CommonLib/TimeProfiler.h"
-
 
 #include "dtrace_buffer.h"
 
@@ -138,7 +136,6 @@ void TrQuant::xDeQuant(const TransformUnit &tu,
                        const ComponentID   &compID,
                        const QpParam       &cQP)
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_PARSERESIDUALS, *tu.cu->cs, compID );
   dequant( tu, dstCoeff, compID, cQP );
 }
 

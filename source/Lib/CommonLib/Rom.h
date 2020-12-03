@@ -177,15 +177,6 @@ extern std::string sTracingFile;
 extern bool   bTracingChannelsList;
 #endif
 
-#if ENABLE_TIME_PROFILING || ENABLE_TIME_PROFILING_EXTENDED
-#include "TimeProfiler.h"
-#if ENABLE_TIME_PROFILING
-extern TimeProfiler *g_timeProfiler;
-#else
-extern TimeProfiler2D *g_timeProfiler;
-#endif
-#endif
-
 const char* nalUnitTypeToString(NalUnitType type);
 
 extern const char *MatrixType   [SCALING_LIST_SIZE_NUM][SCALING_LIST_NUM];

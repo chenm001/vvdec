@@ -48,7 +48,6 @@ vvc@hhi.fraunhofer.de
 
 #include "CommonLib/dtrace_next.h"
 #include "CommonLib/dtrace_buffer.h"
-#include "CommonLib/TimeProfiler.h"
 
 #include "NALread.h"
 
@@ -170,7 +169,6 @@ Picture* DecLib::decode( InputNALUnit& nalu, int* pSkipFrame, int iTargetLayer )
 Picture* DecLib::decode( InputNALUnit& nalu, int* pSkipFrame )
 #endif
 {
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_NALU_SLICE_PIC_HL );
   Picture * pcParsedPic = nullptr;
   if( m_iMaxTemporalLayer >= 0 && nalu.m_temporalId > m_iMaxTemporalLayer )
   {

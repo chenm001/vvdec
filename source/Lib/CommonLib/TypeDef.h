@@ -148,17 +148,6 @@ vvc@hhi.fraunhofer.de
 #define ENABLE_TRACING                                    0 // DISABLE by default (enable only when debugging)
 #endif // ! ENABLE_TRACING
 
-#ifndef ENABLE_TIME_PROFILING
-#define ENABLE_TIME_PROFILING                             0 // DISABLED by default (can be enabled by project configuration or make command) 
-#endif
-#ifndef ENABLE_TIME_PROFILING_PIC_TYPES
-#define ENABLE_TIME_PROFILING_PIC_TYPES                   0 // DISABLED by default (can be enabled by project configuration or make command) 
-#endif
-#ifndef ENABLE_TIME_PROFILING_CU_SHAPES
-#define ENABLE_TIME_PROFILING_CU_SHAPES                   0 // DISABLED by default (can be enabled by project configuration or make command) 
-#endif
-#define ENABLE_TIME_PROFILING_EXTENDED                    ( ENABLE_TIME_PROFILING_PIC_TYPES || ENABLE_TIME_PROFILING_CU_SHAPES )
-
 // ====================================================================================================================
 // Debugging
 // ====================================================================================================================

@@ -64,12 +64,6 @@ std::string sTracingFile="tracefile_dec.txt";
 bool   bTracingChannelsList = false;
 #endif
 
-#if ENABLE_TIME_PROFILING
-TimeProfiler *g_timeProfiler = nullptr;
-#elif ENABLE_TIME_PROFILING_EXTENDED
-TimeProfiler2D *g_timeProfiler = nullptr;
-#endif
-
 //! \ingroup CommonLib
 //! \{
 

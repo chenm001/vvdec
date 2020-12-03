@@ -52,7 +52,6 @@ vvc@hhi.fraunhofer.de
 #include "UnitPartitioner.h"
 #include "dtrace_codingstruct.h"
 #include "dtrace_buffer.h"
-#include "CommonLib/TimeProfiler.h"
 
 #include "Quant.h"
 
@@ -372,7 +371,6 @@ LoopFilter::~LoopFilter()
  */
 void LoopFilter::loopFilterPic( CodingStructure& cs ) const
 {
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_DBFILTER );
   if( cs.pps->getDeblockingFilterControlPresentFlag() && cs.pps->getPPSDeblockingFilterDisabledFlag() && !cs.pps->getDeblockingFilterOverrideEnabledFlag() )
   {
     return;
@@ -409,7 +407,6 @@ void LoopFilter::loopFilterPic( CodingStructure& cs ) const
 
 void LoopFilter::loopFilterPicLine( CodingStructure &cs, const ChannelType chType, const int ctuLine, const int offset, const DeblockEdgeDir edgeDir ) const
 {
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_DBFILTER );
   const PreCalcValues &pcv = *cs.pcv;
 
   const bool frstLine = ctuLine == 0;
@@ -466,8 +463,6 @@ void LoopFilter::loopFilterPicLine( CodingStructure &cs, const ChannelType chTyp
 
 void LoopFilter::calcFilterStrengthsCTU( CodingStructure& cs, const UnitArea& ctuArea )
 {
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_DBFILTER );
-
   for( auto &currCU : cs.traverseCUs( clipArea( ctuArea, *cs.picture ) ) )
   {
     calcFilterStrengths( currCU );
@@ -476,7 +471,6 @@ void LoopFilter::calcFilterStrengthsCTU( CodingStructure& cs, const UnitArea& ct
 
 void LoopFilter::loopFilterCTU( CodingStructure &cs, const ChannelType chType, const int ctuCol, const int ctuLine, const int offset, const DeblockEdgeDir edgeDir ) const
 {
-  PROFILER_SCOPE_AND_STAGE( 1, g_timeProfiler, P_DBFILTER );
   const PreCalcValues &pcv = *cs.pcv;
 
   const bool frstLine = ctuLine == 0;

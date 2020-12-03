@@ -48,8 +48,8 @@ vvc@hhi.fraunhofer.de
 #include <string.h>
 #include <math.h>
 #include <UnitTools.h>
-#include "CommonLib/TimeProfiler.h"
- //! \ingroup CommonLib
+
+//! \ingroup CommonLib
  //! \{
 
  // ====================================================================================================================
@@ -176,7 +176,6 @@ void Reshape::rspLine( CodingStructure &cs, int ln, const int offset ) const
   {
     return;
   }
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_RESHAPER, cs, CH_L );
 
   const PreCalcValues &pcv = *cs.pcv;
 
@@ -204,8 +203,6 @@ void Reshape::rspCtu( CodingStructure &cs, int col, int ln, const int offset ) c
   {
     return;
   }
-
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_RESHAPER, cs, CH_L );
 
   const PreCalcValues &pcv = *cs.pcv;
 

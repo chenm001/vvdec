@@ -56,7 +56,6 @@ vvc@hhi.fraunhofer.de
 
 struct AlfClassifier
 {
-
   uint8_t classIdx;
   uint8_t transposeIdx;
 };

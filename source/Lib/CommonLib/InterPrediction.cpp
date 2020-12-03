@@ -48,7 +48,6 @@ vvc@hhi.fraunhofer.de
 
 #include "Buffer.h"
 #include "UnitTools.h"
-#include "CommonLib/TimeProfiler.h"
 
 #include <memory.h>
 #include <algorithm>
@@ -1384,7 +1383,6 @@ void InterPrediction::xWeightedAverage(const PredictionUnit& pu, const PelUnitBu
 
 void InterPrediction::motionCompensation( PredictionUnit &pu, PelUnitBuf &predBuf, const bool luma, const bool chroma )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_MOTCOMP, *pu.cs, luma ? CH_L: CH_C );
   m_currCuArea = pu;
   
 #if JVET_R0058
@@ -1476,7 +1474,6 @@ void InterPrediction::motionCompensation( PredictionUnit &pu, PelUnitBuf &predBu
 
 void InterPrediction::motionCompensationGeo( PredictionUnit &pu, PelUnitBuf &predBuf )
 {
-  PROFILER_SCOPE_AND_STAGE_EXT( 1, g_timeProfiler, P_MOTCOMP, *pu.cs, CH_L );
   const uint8_t splitDir = pu.geoSplitDir;
   
 #if JVET_R0058
