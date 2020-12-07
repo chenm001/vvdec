@@ -1062,7 +1062,6 @@ struct AlfSliceParam
   int              numLumaFilters;                                                  // number_of_filters_minus1 + 1
   bool             coeffDeltaFlag;                                                  // alf_coefficients_delta_flag
   
-  bool             lumaCoeffSummed = false;
   bool             lumaFinalDone   = false;
   bool             chrmFinalDone   = false;
   short            lumaCoeffFinal     [MAX_NUM_ALF_TRANSPOSE_ID * MAX_NUM_ALF_CLASSES * MAX_NUM_ALF_LUMA_COEFF];
