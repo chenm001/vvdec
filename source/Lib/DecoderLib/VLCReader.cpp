@@ -4548,7 +4548,7 @@ void HLSyntaxReader::alfFilter( AlfSliceParam& alfSliceParam, const bool isChrom
 //  READ_UVLC( code, "min_golomb_order" );
   const int numFilters = isChroma ? 1 : alfSliceParam.numLumaFilters;
   short* coeff = isChroma ? alfSliceParam.chromaCoeff + altIdx*MAX_NUM_ALF_CHROMA_COEFF : alfSliceParam.lumaCoeff;
-  short* clipp = isChroma ? alfSliceParam.chromaClipp + altIdx*MAX_NUM_ALF_CHROMA_COEFF : alfSliceParam.lumaClipp;
+  uint8_t* clipp = isChroma ? alfSliceParam.chromaClipp + altIdx*MAX_NUM_ALF_CHROMA_COEFF : alfSliceParam.lumaClipp;
 
   // Filter coefficients
   for( int ind = 0; ind < numFilters; ++ind )
