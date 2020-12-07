@@ -86,8 +86,6 @@ public:
 
   static constexpr int m_NUM_BITS                = 8;
   static constexpr int m_CLASSIFICATION_BLK_SIZE = 128;   // non-normative, local buffer size
-  static constexpr int m_ALF_UNUSED_CLASSIDX     = 255;
-  static constexpr int m_ALF_UNUSED_TRANSPOSIDX  = 255;
 
   AdaptiveLoopFilter();
   ~AdaptiveLoopFilter() {}
