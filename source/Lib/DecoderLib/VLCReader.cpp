@@ -4564,11 +4564,6 @@ void HLSyntaxReader::alfFilter( AlfSliceParam& alfSliceParam, const bool isChrom
        }
     }
 
-    if( isLuma )
-    {
-      alfSliceParam.lumaCoeffSummed = false;
-    }
-
     const int factor = 1 << ( AdaptiveLoopFilter::m_NUM_BITS - 1 );
     coeff[ind * MAX_NUM_ALF_LUMA_COEFF + numCoeff - 1] = factor;
   }
