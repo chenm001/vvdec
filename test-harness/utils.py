@@ -497,10 +497,10 @@ def parsetestfile():
         if len(line) < 3 or line[0] == '#':
             continue
 
-        seq,md5,cmt = line.split(',', 2)
-        seq = seq.strip()
-        md5 = md5.strip()
-        cmt = cmt.strip()
+        v = line.split();
+        seq = v[0].strip()
+        md5 = v[1].strip()
+        cmt = v[2].strip() if len(v) > 2 else ''
 
         if not os.path.exists(os.path.join(my_sequences, seq)):
             if seq not in missing:
