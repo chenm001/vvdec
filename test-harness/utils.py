@@ -6,7 +6,7 @@
 import atexit
 import datetime
 import filecmp
-import md5
+import md5 as md5lib
 import os
 import platform
 import random
@@ -556,6 +556,12 @@ class Logger():
         '''print text to stdout and maybe write to file'''
         print ' '.join(args)
 
+    def writefp(self, message):
+        if os.linesep == '\r\n':
+            message = message.replace(os.linesep, '\n')
+        self.logfp.write(message + '\n')
+        self.logfp.flush()
+
     def summaryfile(self, commit):
         self.write('summary.txt file does not exist for <%s> \n\n' % commit)
         self.logfp.write(self.test)
@@ -743,14 +749,17 @@ def buildall(prof=None, buildoptions=None):
             if extra_link_flag: defaultco.append(extra_link_flag)
         build.cmakeoptions(defaultco, prof)
         build.cmake_build(key, defaultco, os.path.join(work_folder, 'default'))
+        if not os.path.isfile(build.exe):
+            logger.write('vvdec executable not found')
+            logger.writeerr('vvdec <%s> cli not compiled\n\n' % build.exe)
 
 def testcasehash(command):
-    m = md5.new()
+    m = md5lib.new()
     m.update(command)
     return m.hexdigest()[:12]
 
 def hashbitstream(infn):
-    m = md5.new()
+    m = md5lib.new()
     m.update(open(infn, 'rb').read())
     return m.hexdigest()
 
@@ -782,7 +791,7 @@ def runtest(key, seq, md5, extras):
     vvdec = build.exe
     command = vvdec + r' -b ' + seqfullpath + r' -o tmp.yuv '
     testhash = testcasehash(command)
-    tmpfolder = tempfile.mkdtemp(prefix='vvdec-temp')
+    tmpfolder = tempfile.mkdtemp(prefix='vvdec-tmp')
 
     try:
         logger.settest(seq, command, extras, testhash)
@@ -791,10 +800,7 @@ def runtest(key, seq, md5, extras):
         sys.stdout.flush()
 
         logs, errors, summary = '', '', ''
-        if not os.path.isfile(vvdec):
-            logger.write('vvdec executable not found')
-            errors = 'vvdec <%s> cli not compiled\n\n' % vvdec
-        elif not os.path.isfile(seqfullpath):
+        if not os.path.isfile(seqfullpath):
             logger.write('Sequence not found')
             errors = 'sequence <%s> not found\n\n' % seqfullpath
         else:
@@ -839,7 +845,10 @@ def runtest(key, seq, md5, extras):
                 errors += 'vvdec return code %d\n\n' % p.returncode
             else:
                 _hash = hashbitstream(os.path.join(tmpfolder, r'tmp.yuv'))
-                if _hash != md5:
+                if _hash == md5:
+                    logger.writefp('[%d/%d] [%s] %s (%s)' % (logger.testcount, logger.totaltests, key, seq, _hash))
+                else:
+                    logger.writefp('[%d/%d] [%s] %s (%s -> %s)' % (logger.testcount, logger.totaltests, key, seq, md5, _hash))
                     logger.testfail('hash mismatch', 'yuv is mismatched with reference yuv', '')
 
         #logger.write('')
