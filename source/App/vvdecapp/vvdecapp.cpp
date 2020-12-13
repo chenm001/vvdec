@@ -58,7 +58,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "vvdecHelper.h"
 
 /*! Prototypes */
-int writeYUVToFile( std::ostream *f, vvdec::Frame *frame );
+int writeYUVToFile( std::ostream *f, vvdec::Frame *frame, int iCksum );
 
 int main( int argc, char* argv[] )
 {
@@ -83,6 +83,8 @@ int main( int argc, char* argv[] )
   std::string cOutputFile = "";
   int iMaxFrames=-1;
   int iLoopCount=1;
+  int iMD5=0;
+  libmd5::MD5 cksum;
   vvdec::VVDecParameter cVVDecParameter;
 
   cVVDecParameter.m_eLogLevel = vvdec::LogLevel::LL_INFO;
@@ -93,7 +95,7 @@ int main( int argc, char* argv[] )
     return 0;
   }
 
-  int iRet = vvdecoderapp::CmdLineParser::parse_command_line(  argc, argv, cVVDecParameter, cBitstreamFile, cOutputFile, iMaxFrames, iLoopCount );
+  int iRet = vvdecoderapp::CmdLineParser::parse_command_line(  argc, argv, cVVDecParameter, cBitstreamFile, cOutputFile, iMaxFrames, iLoopCount, iMD5 );
   if( iRet != 0 )
   {
     if( iRet == 2 )
@@ -330,9 +332,9 @@ int main( int argc, char* argv[] )
             uiBitrate += pcFrame->m_pcPicExtendedAttributes->m_uiBits;
           }
 
-          if( cRecFile.is_open() )
+          if( cRecFile.is_open() || iMD5 )
           {
-            if( 0 != writeYUVToFile( outStream, pcFrame ) )
+            if( 0 != writeYUVToFile( outStream, pcFrame, ( iMD5 ? &cksum : NULL ) ) )
             {
               std::cout << "vvdecapp [error]: write of rec. yuv failed for picture seq. " <<  pcFrame->m_uiSequenceNumber << std::endl;
               return iRet;
@@ -377,9 +379,9 @@ int main( int argc, char* argv[] )
       {
         uiFrames++;
 
-        if( cRecFile.is_open() )
+        if( cRecFile.is_open() || iMD5 )
         {
-          if( 0 != writeYUVToFile( outStream, pcFrame ) )
+          if( 0 != writeYUVToFile( outStream, pcFrame, ( iMD5 ? &cksum : NULL ) ) )
           {
             std::cout << "vvdecapp [error]: write of rec. yuv failed for picture seq. " <<  pcFrame->m_uiSequenceNumber << std::endl;
             return iRet;
@@ -462,6 +464,19 @@ int main( int argc, char* argv[] )
   }
 
   cInFile.close();
+
+  if( iMD5 )
+  {
+    char buf[128];
+    unsigned char digest[MD5_DIGEST_STRING_LENGTH];
+    cksum.finalize(digest);
+    snprintf(buf, sizeof(buf), "YUV_MD5=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+                                       digest[ 0], digest[ 1], digest[ 2], digest[ 3],
+                                       digest[ 4], digest[ 5], digest[ 6], digest[ 7],
+                                       digest[ 8], digest[ 9], digest[10], digest[11],
+                                       digest[12], digest[13], digest[14], digest[15]);
+    std::cout << buf << std::endl;
+  }
 
   if( iLoopCount > 1 )
   {

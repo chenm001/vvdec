@@ -88,13 +88,14 @@ public:
           "\t\t [--loops,-L  <int>         ] : number of decoder loops (default: 0, -1 endless)\n"
           "\t\t [--verbosity,-v  <int>     ] : verbosity level (0: silent, 1: error, 2: warning, 3: info, 4: notice: 5, verbose, 6: debug) (default: " << (int)rcParams.m_eLogLevel << ")\n"
           "\t\t [--help,-h                 ] : show help\n"
+          "\t\t [--md5                     ] : show yuv cksum\n"
           "\n" ;
       std::cout << std::endl;
   }
 
 
   static int parse_command_line( int argc, char* argv[] , vvdec::VVDecParameter& rcParams, std::string& rcBitstreamFile, std::string& rcOutputFile,
-                                 int& riFrames, int& riLoops )
+                                 int& riFrames, int& riLoops, int& riMD5 )
   {
     int iRet = 0;
     /* Check command line parameters */
@@ -207,6 +208,11 @@ public:
       else if( (!strcmp( (const char*)argv[i_arg], "-h" )) || !strcmp( (const char*)argv[i_arg], "--help" ) )
       {
         // already processed
+        i_arg++;
+      }
+      else if( !strcmp( (const char*)argv[i_arg], "--md5" ) )
+      {
+        riMD5 = 1;
         i_arg++;
       }
       else
