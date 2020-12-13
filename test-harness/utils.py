@@ -394,8 +394,8 @@ def msbuild(buildkey, buildfolder, generator, cmakeopts):
     target = ''.join(['/p:Configuration=', build.target])
 
     # use the newest MSBuild installed
-    for f in (os.path.abspath(vcbasepath + r'\MSBuild\15.0\Bin\MSBuild.exe'),
-              r'C:\Program Files (x86)\MSBuild\15.0\Bin\MSBuild.exe',
+    for f in (os.path.join(vcbasepath, r'MSBuild\15.0\Bin\MSBuild.exe'),
+              os.path.join(os.environ["ProgramFiles(x86)"], r'MSBuild\15.0\Bin\MSBuild.exe'),
               r'C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe',
               r'C:\Windows\Microsoft.NET\Framework\v3.5\MSBuild.exe'):
         if os.path.exists(f):
@@ -414,7 +414,7 @@ def msbuild(buildkey, buildfolder, generator, cmakeopts):
         for line in out.splitlines(True):
             if 'MSBUILD : warning MSB' in line: # vc9 is a mess
                 continue
-            if 'warning MSB' in line: # vc15 is a mess
+            if 'warning MSB' in line or 'warning LNK' in line: # vc15 is a mess
                 continue
             if 'warning' in line:
                 warnings.append(line.strip())
