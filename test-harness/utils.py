@@ -16,6 +16,7 @@ import sys
 import tempfile
 import time
 import urllib
+import re
 from subprocess import Popen, PIPE
 from distutils.spawn import find_executable
 import multiprocessing
@@ -794,7 +795,7 @@ def runtest(key, seq, md5, extras):
     build = buildObj[key]
     seqfullpath = os.path.join(my_sequences, seq)
     vvdec = build.exe
-    command = vvdec + r' -b ' + seqfullpath + r' -o tmp.yuv '
+    command = vvdec + r' -b ' + seqfullpath + r' --md5'
     testhash = testcasehash(command)
     tmpfolder = tempfile.mkdtemp(prefix='vvdec-tmp')
 
@@ -849,8 +850,14 @@ def runtest(key, seq, md5, extras):
             elif p.returncode:
                 errors += 'vvdec return code %d\n\n' % p.returncode
             else:
-                _hash = hashbitstream(os.path.join(tmpfolder, r'tmp.yuv'))
-                if _hash == md5:
+                _hash = '' #hashbitstream(os.path.join(tmpfolder, r'tmp.yuv'))
+                
+                posHash = stdout.rfind('YUV_MD5')
+                _s = re.search('YUV_MD5=([0-9a-f]+)', stdout[posHash:]).group(1)
+                if _s:
+                    _hash = _s.strip()
+
+                if _hash.lower() == md5.lower():
                     logger.writefp('[%d/%d] [%s] %s (%s)' % (logger.testcount, logger.totaltests, key, seq, _hash))
                 else:
                     logger.writefp('[%d/%d] [%s] %s (%s -> %s)' % (logger.testcount, logger.totaltests, key, seq, md5, _hash))
