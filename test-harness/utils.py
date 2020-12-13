@@ -6,7 +6,7 @@
 import atexit
 import datetime
 import filecmp
-import md5 as md5lib
+import hashlib
 import os
 import platform
 import random
@@ -754,13 +754,18 @@ def buildall(prof=None, buildoptions=None):
             logger.writeerr('vvdec <%s> cli not compiled\n\n' % build.exe)
 
 def testcasehash(command):
-    m = md5lib.new()
+    m = hashlib.md5()
     m.update(command)
     return m.hexdigest()[:12]
 
-def hashbitstream(infn):
-    m = md5lib.new()
-    m.update(open(infn, 'rb').read())
+def hashbitstream(infn, blocksize=2**20):
+    m = hashlib.md5()
+    with open(infn, "rb" ) as f:
+        while True:
+            buf = f.read(blocksize)
+            if not buf:
+                break
+            m.update(buf)
     return m.hexdigest()
 
 def runtest(key, seq, md5, extras):
