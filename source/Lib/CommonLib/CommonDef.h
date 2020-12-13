@@ -411,7 +411,7 @@ template<typename T>
 struct ClpRngTemplate
 {
   T min() const { return 0; }
-  T max() const { return ( ( 1 << bd ) - 1 );}
+  T max() const { return bd == 8 ? (1<<8)-1 : bd == 9 ? (1<<9)-1 : bd == 10 ? (1<<10)-1 : bd == 11 ? (1<<11)-1 : bd == 12 ? (1<<12)-1 : (1<<8)-1;}
   int bd;
 };
 
