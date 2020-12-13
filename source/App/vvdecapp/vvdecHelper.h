@@ -59,15 +59,16 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 
 #include "vvdec/vvdec.h"
+#include "libmd5/MD5.h"
 
 #define MAX_CODED_PICTURE_SIZE  800000
 
-static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp, uint32_t uiBytesPerSample, int8_t iScale = 0 )
+static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp, uint32_t uiBytesPerSample, libmd5::MD5* md5, int8_t iScale = 0 )
 {
   uint32_t uiWidth  = comp->m_uiWidth;
   uint32_t uiHeight = comp->m_uiHeight;
 
-  assert( f != NULL );
+  assert( f != NULL || md5 != NULL );
 
   if( comp->m_uiBytesPerSample == 2 )
   {
@@ -84,7 +85,10 @@ static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp, uint3
          {
            tmp[x] = (unsigned char)(p[x]>>2);
          }
-         f->write( (char*)&tmp[0], sizeof(std::vector<unsigned char>::value_type)*tmp.size());
+         if( f != NULL )
+           f->write( (char*)&tmp[0], sizeof(std::vector<unsigned char>::value_type)*tmp.size());
+         if( md5 != NULL )
+           md5->update( &tmp[0], (unsigned)(sizeof(std::vector<unsigned char>::value_type)*tmp.size()) );
          p += comp->m_iStride;
        }
      }
@@ -93,14 +97,17 @@ static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp, uint3
        unsigned char *p = comp->m_pucBuffer;
        for( uint32_t y = 0; y < uiHeight; y++ )
        {
-         f->write( (char*)p, uiWidth*uiBytesPerSample );
+         if( f != NULL )
+           f->write( (char*)p, uiWidth*uiBytesPerSample );
+         if( md5 != NULL )
+           md5->update( p, uiWidth*uiBytesPerSample );
          p += comp->m_iStride;
        }
      }
   }
   else
   {
-   uint8_t *p = comp->m_pucBuffer;
+   unsigned char *p = comp->m_pucBuffer;
    if( uiBytesPerSample == 2 )
    {
      // 8bit > 16bit conversion
@@ -114,7 +121,10 @@ static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp, uint3
          tmp[x] = p[x] << iScale;
        }
 
-       f->write( (char*)&tmp[0], sizeof(std::vector<short>::value_type)*tmp.size());
+       if( f != NULL )
+         f->write( (char*)&tmp[0], sizeof(std::vector<short>::value_type)*tmp.size());
+       if( md5 != NULL )
+         md5->update( (unsigned char*)&tmp[0], (unsigned)(sizeof(std::vector<short>::value_type)*tmp.size()) );
        p += comp->m_iStride;
      }
    }
@@ -122,14 +132,16 @@ static int _writeComponentToFile( std::ostream *f, vvdec::Component *comp, uint3
    {
      for( uint32_t y = 0; y < uiHeight; y++ )
      {
-       f->write( (char*)p, uiBytesPerSample*uiWidth );
+       if( f != NULL )
+         f->write( (char*)p, uiBytesPerSample*uiWidth );
+       if( md5 != NULL )
+         md5->update( p, uiWidth*uiBytesPerSample );
        p += comp->m_iStride;
      }
    }
   }
   return 0;
 }
-
 
 /**
  * \brief Retrieving of NAL unit start code
@@ -302,10 +314,11 @@ static int readBitstreamFromFile( std::ifstream *f, vvdec::AccessUnit* pcAccessU
    This method writes and yuv planar picture into a file sink.
    \param[in]  *f file sink pointer
    \param[in]  *frame decoded picture pointer
+   \param[in]  *md5 hash class pointer
    \retval     int  if non-zero an error occurred (see ErrorCodes), otherwise the return value indicates success VVC_DEC_OK
    \pre        The decoder must not be initialized.
  */
-static int writeYUVToFile( std::ostream *f, vvdec::Frame *frame )
+static int writeYUVToFile( std::ostream *f, vvdec::Frame *frame, libmd5::MD5* md5 )
 {
   int ret;
   uint32_t c = 0;
@@ -313,7 +326,7 @@ static int writeYUVToFile( std::ostream *f, vvdec::Frame *frame )
   uint32_t uiBytesPerSample = 1;
   uint32_t uiBitDepth       = frame->m_uiBitDepth;
 
-  assert( f != NULL );
+  assert( f != NULL || md5 != NULL );
 
   for( c = 0; c < frame->m_uiNumComponents; c++ )
   {
@@ -324,7 +337,7 @@ static int writeYUVToFile( std::ostream *f, vvdec::Frame *frame )
   {
     uint32_t iScale = uiBitDepth - frame->m_cComponent[c].m_uiBitDepth;
 
-    if( ( ret = _writeComponentToFile( f, &frame->m_cComponent[c], uiBytesPerSample, iScale ) ) != 0 )
+    if( ( ret = _writeComponentToFile( f, &frame->m_cComponent[c], uiBytesPerSample, md5, iScale ) ) != 0 )
     {
       return ret;
     }

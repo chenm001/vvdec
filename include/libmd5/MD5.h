@@ -54,8 +54,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 //! \ingroup libMD5
 //! \{
 
-static const uint32_t MD5_DIGEST_STRING_LENGTH=16;
-
+#define MD5_DIGEST_STRING_LENGTH (16)
 
 #ifndef __BIG_ENDIAN__
 # define byteReverse(buf, len)    /* Nothing */
