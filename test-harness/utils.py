@@ -26,6 +26,7 @@ rebuild   = False    # delete build folders prior to build
 test_file = None     # filename or full path of file containing test cases
 skip_string = None   # filter tests - all except those matching this string
 only_string = None   # filter tests - only those matching this string
+only_yuv = False     # Verify output with YUV file
 
 logger = None
 buildObj = {}
@@ -652,7 +653,7 @@ def setup(argv, preferredlist):
     #if not find_executable(my_vtm_binary):
     #    raise Exception('Unable to find decoder')
 
-    global run_make, rebuild, test_file
+    global run_make, rebuild, only_yuv, test_file
     global only_string, skip_string
 
     if my_tempfolder:
@@ -661,7 +662,7 @@ def setup(argv, preferredlist):
     test_file = preferredlist
 
     import getopt
-    longopts = ['builds=', 'help', 'no-make', 'only=', 'rebuild', 'only=', 'skip=', 'tests=']
+    longopts = ['builds=', 'help', 'no-make', 'rebuild', 'yuv', 'only=', 'skip=', 'tests=']
     optlist, args = getopt.getopt(argv[1:], 'hb:t:', longopts)
     for opt, val in optlist:
         # restrict the list of target builds to just those specified by -b
@@ -681,6 +682,8 @@ def setup(argv, preferredlist):
             run_make = False
         elif opt == '--rebuild':
             rebuild = True
+        elif opt == '--yuv':
+            only_yuv = True
         elif opt in ('-h', '--help'):
             print sys.argv[0], '[OPTIONS]\n'
             print '\t-h/--help            show this help'
@@ -690,6 +693,7 @@ def setup(argv, preferredlist):
             print '\t   --only <string>   only test cases matching string'
             print '\t   --no-make         do not compile sources'
             print '\t   --rebuild         remove old build folders and rebuild'
+            print '\t   --yuv             verify through generate yuv file'
             sys.exit(0)
 
     listInRepo = os.path.join(my_vvdec_source, 'test-harness', test_file)
@@ -795,12 +799,14 @@ def runtest(key, seq, md5, extras):
     build = buildObj[key]
     seqfullpath = os.path.join(my_sequences, seq)
     vvdec = build.exe
-    command = vvdec + r' -b ' + seqfullpath + r' --md5'
-    testhash = testcasehash(command)
     tmpfolder = tempfile.mkdtemp(prefix='vvdec-tmp')
+    tmpfile = os.path.join(tmpfolder, r'tmp.yuv')
+    command = vvdec + r' -b ' + seqfullpath
+    command += r' -o ' + tmpfile if only_yuv else r' --md5'
+    cmdhash = testcasehash(command)
 
     try:
-        logger.settest(seq, command, extras, testhash)
+        logger.settest(seq, command, extras, cmdhash)
         logger.write('testing [%s] %s' % (key, seq))
         #print 'extras: %s ...' % ' '.join(extras),
         sys.stdout.flush()
@@ -850,12 +856,14 @@ def runtest(key, seq, md5, extras):
             elif p.returncode:
                 errors += 'vvdec return code %d\n\n' % p.returncode
             else:
-                _hash = '' #hashbitstream(os.path.join(tmpfolder, r'tmp.yuv'))
-                
-                posHash = stdout.rfind('YUV_MD5')
-                _s = re.search('YUV_MD5=([0-9a-f]+)', stdout[posHash:]).group(1)
-                if _s:
-                    _hash = _s.strip()
+                if only_yuv:
+                    _hash = hashbitstream(tmpfile)
+                else:
+                    _hash = ''
+                    posHash = stdout.rfind('YUV_MD5')
+                    _s = re.search('YUV_MD5=([0-9a-f]+)', stdout[posHash:]).group(1)
+                    if _s:
+                        _hash = _s.strip()
 
                 if _hash.lower() == md5.lower():
                     logger.writefp('[%d/%d] [%s] %s (%s)' % (logger.testcount, logger.totaltests, key, seq, _hash))
@@ -866,6 +874,10 @@ def runtest(key, seq, md5, extras):
         #logger.write('')
         if errors:
             logger.writeerr(errors)
+
+    except ImportError, e:
+        print e
+        sys.exit(1)
 
     finally:
         shutil.rmtree(tmpfolder)
