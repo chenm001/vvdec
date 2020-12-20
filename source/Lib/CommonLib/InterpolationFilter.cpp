@@ -59,6 +59,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "Rom.h"
 
 #include "ChromaFormat.h"
+#include <malloc.h>
 
 //! \ingroup CommonLib
 //! \{

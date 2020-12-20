@@ -18,11 +18,6 @@ if( NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
     add_compile_options( "-msse4.1" )
   endif()
   
-  # set exception handling
-  if( MSVC )
-    add_compile_options( "/EHsc" )
-  endif()
-
   # vvdec embedded by superproject, always include source/Lib/vvdec  as first component
   list( PREPEND ${PROJECT_NAME}_ADD_SUBDIRECTORIES "source/Lib/vvdec" )
   list( REMOVE_DUPLICATES ${PROJECT_NAME}_ADD_SUBDIRECTORIES )
@@ -143,7 +138,11 @@ endif()
 if( MSVC )
   # add compile options
   # add_compile_options( "/MP" )
-  add_compile_options( "/EHsc" )
+  # set exception handling
+  string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+  string(REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+  add_compile_options("$<$<CONFIG:DEBUG>:/EHsc;>")
+  add_compile_options("$<$<CONFIG:RELEASE>:/D_HAS_EXCEPTIONS=0;>")
 endif()
 
 # disable warning "The file contains a character that cannot be represented in the current code page"

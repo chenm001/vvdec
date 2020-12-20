@@ -189,7 +189,6 @@ int VVDecImpl::decode( AccessUnit& rcAccessUnit, Frame** ppcFrame )
 
   int iRet= VVDEC_OK;
 
-  try
   {
     InputNALUnit nalu;
     Picture * pcPic = nullptr;
@@ -349,22 +348,6 @@ int VVDecImpl::decode( AccessUnit& rcAccessUnit, Frame** ppcFrame )
       }
     }
   }
-  catch( std::overflow_error& e )
-  {
-    //assert( 0 );
-    std::stringstream css;
-    css << "caught overflow exception " << e.what();
-    m_cAdditionalErrorString = css.str();
-    return VVDEC_ERR_UNSPECIFIED;
-  }
-  catch( std::exception& e )
-  {
-    //assert( 0 );
-    std::stringstream css;
-    css << "caught unknown exception " << e.what();
-    m_cAdditionalErrorString = css.str();
-    return VVDEC_ERR_UNSPECIFIED;
-  }
 
   return iRet;
 }
@@ -375,7 +358,6 @@ int VVDecImpl::flush( Frame** ppcFrame )
   int iRet= VVDEC_OK;
 
   // Flush decoder
-  try
   {
     Picture * pcPic = nullptr;
 
@@ -409,20 +391,6 @@ int VVDecImpl::flush( Frame** ppcFrame )
       iRet = VVDEC_EOF;
       *ppcFrame = nullptr;
     }
-  }
-  catch( std::overflow_error& e )
-  {
-    std::stringstream css;
-    css << "caught overflow exception " << e.what();
-    m_cAdditionalErrorString = css.str();
-    return VVDEC_ERR_UNSPECIFIED;
-  }
-  catch( std::exception& e )
-  {
-    std::stringstream css;
-    css << "caught unknown exception " << e.what();
-    m_cAdditionalErrorString = css.str();
-    return VVDEC_ERR_UNSPECIFIED;
   }
 
   if( 0 != iRet )
