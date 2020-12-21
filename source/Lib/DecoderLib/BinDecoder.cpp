@@ -297,7 +297,7 @@ unsigned BinDecoder::decodeBin( unsigned ctxId )
   rcProbModel.lpsmps( Range, LPS, bin );
 
 //  DTRACE( g_trace_ctx, D_CABAC, "%d" " xxx " "%d" "  " "[%d:%d]" "  " "%2d(MPS=%d)"  "  " , DTRACE_GET_COUNTER( g_trace_ctx, D_CABAC ), m_Range, m_Range-LPS, LPS, ( unsigned int )( rcProbModel.state() ), m_Value < ( ( m_Range - LPS ) << 7 ) );
-  DTRACE( g_trace_ctx, D_CABAC, "%d" " %d " "%d" "  " "[%d:%d]" "  " "%2d(MPS=%d)"  "  " , DTRACE_GET_COUNTER( g_trace_ctx, D_CABAC ), 666, Range, Range-LPS, LPS, ( unsigned int )( rcProbModel.state() ), Value < ( ( Range - LPS ) << 7 ) );
+  DTRACE( g_trace_ctx, D_CABAC, "%d" " %d " "%d" "  " "[%d:%d]" "  " "%2d(MPS=%d)"  "  " , DTRACE_GET_COUNTER( g_trace_ctx, D_CABAC ), ctxId, Range, Range-LPS, LPS, ( unsigned int )( rcProbModel.state() ), Value < ( ( Range - LPS ) << 7 ) );
   //DTRACE( g_trace_ctx, D_CABAC, " %d " "%d" "  " "[%d:%d]" "  " "%2d(MPS=%d)"  "  ", DTRACE_GET_COUNTER( g_trace_ctx, D_CABAC ), m_Range, m_Range - LPS, LPS, (unsigned int)( rcProbModel.state() ), m_Value < ( ( m_Range - LPS ) << 7 ) );
 
   Range     -=  LPS;
