@@ -264,9 +264,17 @@ if( VVDEC_ENABLE_BITSTREAM_DOWNLOAD )
   
   # create a list of all test bitstreams
   list( APPEND BITSTREAM_FILES
+    #"8b422_A_Sony_3.zip" "8b422_B_Sony_3.zip" "8b422_C_Sony_3.zip" "8b422_D_Sony_3.zip"
+    #"8b422_E_Sony_3.zip" "8b422_F_Sony_3.zip" "8b422_G_Sony_3.zip" "8b422_H_Sony_3.zip"
+    #"8b422_I_Sony_3.zip" "8b422_J_Sony_3.zip" "8b422_K_Sony_3.zip" "8b422_L_Sony_3.zip"
+    #"10b422_A_Sony_3.zip" "10b422_B_Sony_3.zip" "10b422_C_Sony_3.zip" "10b422_D_Sony_3.zip"
+    #"10b422_E_Sony_3.zip" "10b422_F_Sony_3.zip" "10b422_G_Sony_3.zip" "10b422_H_Sony_3.zip"
+    #"10b422_I_Sony_3.zip" "10b422_J_Sony_3.zip" "10b422_K_Sony_3.zip" "10b422_L_Sony_3.zip"
     "10b400_A_Bytedance_2.zip" "10b400_B_Bytedance_2.zip"
     "8b400_A_Bytedance_2.zip" "8b400_B_Bytedance_2.zip"
     "8b420_A_Bytedance_2.zip" "8b420_B_Bytedance_2.zip"
+    "ACTPIC_A_Huawei_3.zip" "ACTPIC_B_Huawei_3.zip" "ACTPIC_C_Huawei_3.zip"
+    #"ACT_A_Kwai_2.zip" # fails because of sub-pictures
     "AFF_A_HUAWEI_2.zip" "AFF_B_HUAWEI_2.zip"
     "ALF_A_Huawei_3.zip" "ALF_B_Huawei_3.zip"
     "ALF_C_KDDI_2.zip"
@@ -289,17 +297,26 @@ if( VVDEC_ENABLE_BITSTREAM_DOWNLOAD )
     "CROP_A_Panasonic_3.zip" "CROP_B_Panasonic_4.zip"
     "CST_A_MediaTek_3.zip"
     "CTU_A_MediaTek_3.zip" "CTU_B_MediaTek_3.zip" "CTU_C_MediaTek_3.zip"
+    "CUBEMAP_A_MediaTek_3.zip" "CUBEMAP_B_MediaTek_3.zip" "CUBEMAP_C_MediaTek_3.zip"
     "DEBLOCKING_A_Sharp_3.zip" "DEBLOCKING_B_Sharp_2.zip"
     "DEBLOCKING_C_Huawei_3.zip"
-    "DEBLOCKING_E_Ericsson_2.zip" "DEBLOCKING_F_Ericsson_1.zip"
+    "DEBLOCKING_E_Ericsson_2.zip" "DEBLOCKING_E_Ericsson_3.zip" "DEBLOCKING_F_Ericsson_1.zip" "DEBLOCKING_F_Ericsson_2.zip"
     "DMVR_A_Huawei_3.zip"
     "DMVR_B_KDDI_3.zip"
     "DPB_A_Sharplabs_2.zip" "DPB_B_Sharplabs_2.zip"
     "DQ_A_HHI_3.zip" "DQ_B_HHI_3.zip"
+    "ENT444HIGHTIER_A_Sony_3.zip" "ENT444HIGHTIER_B_Sony_3.zip" "ENT444HIGHTIER_C_Sony_3.zip"
+    "ENT444MAINTIER_A_Sony_3.zip" "ENT444MAINTIER_B_Sony_3.zip" "ENT444MAINTIER_C_Sony_3.zip" "ENT444MAINTIER_D_Sony_3.zip"
+    "ENTHIGHTIER_A_Sony_3.zip" "ENTHIGHTIER_B_Sony_3.zip" "ENTHIGHTIER_C_Sony_3.zip" "ENTHIGHTIER_D_Sony_3.zip"
     "ENTMAINTIER_A_Sony_3.zip" "ENTMAINTIER_B_Sony_3.zip" "ENTMAINTIER_C_Sony_3.zip" "ENTMAINTIER_D_Sony_3.zip"
     "ENTROPY_A_Chipsnmedia_2.zip"
     "ENTROPY_A_Qualcomm_2.zip"
     "ENTROPY_B_Sharp_2.zip"
+    "ERP_A_MediaTek_3.zip"
+    #"FIELD_A_Panasonic_2.zip" "FIELD_A_Panasonic_3.zip"  # Decode correct but output order mismatch to VTM-11.0
+    #"FILLER_A_Bytedance_1.zip" # fails because NAL_UNIT_FD
+    #"GDR_A_ERICSSON_2.zip"
+    #"GDR_A_NOKIA_1.zip" "GDR_B_NOKIA_1.zip" "GDR_C_NOKIA_1.zip"
     "GPM_A_Alibaba_3.zip"
     "HLG_A_NHK_2.zip" "HLG_B_NHK_2.zip"
     "IBC_A_Tencent_2.zip" "IBC_B_Tencent_2.zip" "IBC_C_Tencent_2.zip" "IBC_D_Tencent_2.zip"
@@ -322,6 +339,7 @@ if( VVDEC_ENABLE_BITSTREAM_DOWNLOAD )
     "MTS_A_LGE_3.zip" "MTS_B_LGE_3.zip"
     "MTS_LFNST_A_LGE_3.zip" "MTS_LFNST_B_LGE_3.zip"
     "MVCOMP_A_Sharp_2.zip"
+    #"PALETTE_A_Alibaba_2.zip" "PALETTE_B_Alibaba_2.zip" "PALETTE_C_Alibaba_2.zip" "PALETTE_D_Alibaba_2.zip" "PALETTE_E_Alibaba_1.zip"
     "PDPC_A_Qualcomm_3.zip" "PDPC_B_Qualcomm_3.zip" "PDPC_C_Qualcomm_2.zip" 
     "PHSH_B_Sharp_1.zip"
     "POC_A_Nokia_1.zip"
@@ -345,7 +363,6 @@ if( VVDEC_ENABLE_BITSTREAM_DOWNLOAD )
     "SPS_A_Bytedance_1.zip" "SPS_B_Bytedance_1.zip" "SPS_C_Bytedance_1.zip"
     #"SUBPIC_A_HUAWEI_3.zip" "SUBPIC_B_HUAWEI_3.zip" # subpictures currently not supported
     "TEMPSCAL_A_Panasonic_4.zip"
-    #"TEMPSCAL_B_Panasonic_4.zip" # seems broken, doesn't decode with VTM-11
     "TEMPSCAL_C_Panasonic_3.zip"
     "TILE_A_Nokia_2.zip" "TILE_B_Nokia_2.zip" "TILE_C_Nokia_2.zip" "TILE_D_Nokia_2.zip" "TILE_E_Nokia_2.zip" "TILE_F_Nokia_2.zip" "TILE_G_Nokia_2.zip"
     "TMVP_A_Chipsnmedia_3.zip" "TMVP_B_Chipsnmedia_3.zip" "TMVP_C_Chipsnmedia_3.zip" "TMVP_D_Chipsnmedia_3.zip"
