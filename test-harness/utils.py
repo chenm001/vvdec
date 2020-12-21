@@ -847,14 +847,6 @@ def runtest(key, seq, md5, extras):
                 errors += 'vvdec encountered SIGABRT (usually check failure)\n\n'
             elif p.returncode == -4:
                 errors += 'vvdec encountered SIGILL (usually -ftrapv)\n\n'
-            elif p.returncode == 1:
-                errors += 'unable to parse command line (ret 1)\n\n'
-            elif p.returncode == 2:
-                errors += 'unable open decoder (ret 2)\n\n'
-            elif p.returncode == 3:
-                errors += 'unable open generate stream headers (ret 3)\n\n'
-            elif p.returncode == 4:
-                errors += 'decoder abort (ret 4)\n\n'
             elif p.returncode:
                 errors += 'vvdec return code %d\n\n' % p.returncode
             else:
