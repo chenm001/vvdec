@@ -195,6 +195,8 @@ public:
   static const CtxSet   IntraLumaPlanarFlag;
   static const CtxSet   CclmModeFlag;
   static const CtxSet   CclmModeIdx;
+  static const CtxSet   IntraLumaMpmFlag;
+  static const CtxSet   IntraChromaPredMode;
   static const CtxSet   IPredMode       [2];    // [ ChannelType ]
   static const CtxSet   PdpcFlag;
   static const CtxSet   MipFlag;
@@ -231,13 +233,10 @@ public:
   static const CtxSet   SaoTypeIdx;
   static const CtxSet   MTSIndex;
   static const CtxSet   LFNSTIdx;
-  static const CtxSet   RdpcmFlag;
-  static const CtxSet   RdpcmDir;
   static const CtxSet   SbtFlag;
   static const CtxSet   SbtQuadFlag;
   static const CtxSet   SbtHorFlag;
   static const CtxSet   SbtPosFlag;
-  static const CtxSet   CrossCompPred;
   static const CtxSet   ChromaQpAdjFlag;
   static const CtxSet   ChromaQpAdjIdc;
   static const CtxSet   ImvFlag;
