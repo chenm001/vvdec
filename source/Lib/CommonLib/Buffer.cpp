@@ -55,7 +55,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "Buffer.h"
 #include "InterpolationFilter.h"
 
-#ifndef WIN_ARM64
+#ifdef USE_SIMD_OPT
 #include "CommonDefX86.h"
 #endif
 
@@ -165,7 +165,7 @@ void addWeightedAvgCore( const T* src1, ptrdiff_t src1Stride, const T* src2, ptr
 
 void copyBufferCore( const char *src, ptrdiff_t srcStride, char *dst, ptrdiff_t dstStride, int width, int height )
 {
-#ifndef WIN_ARM64
+#ifdef USE_SIMD_OPT
   _mm_prefetch( (const char *) ( src ),             _MM_HINT_T0 );
   _mm_prefetch( (const char *) ( src + srcStride ), _MM_HINT_T0 );
   _mm_prefetch( (const char *) ( dst ),             _MM_HINT_T0 );
@@ -178,7 +178,7 @@ void copyBufferCore( const char *src, ptrdiff_t srcStride, char *dst, ptrdiff_t 
 
   for( int i = 0; i < height; i++ )
   {
-#ifndef WIN_ARM64
+#ifdef USE_SIMD_OPT
     _mm_prefetch( (const char *) ( src + srcStride ), _MM_HINT_T0 );
     _mm_prefetch( (const char *) ( dst + dstStride ), _MM_HINT_T0 );
 #endif

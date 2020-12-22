@@ -34,6 +34,9 @@ if( NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
   return()
 endif()
 
+# enable or disable SIMD optimizations
+set( VVDEC_ENABLE_SIMD_OPT ON CACHE BOOL "Enable or disable SIMD optimizations" )
+
 # enable or disable bitstream download
 set( VVDEC_ENABLE_BITSTREAM_DOWNLOAD OFF CACHE BOOL "Enable or disable bitstream download" )
 
@@ -134,9 +137,14 @@ if( UNIX OR MINGW )
 endif()
 
 # set _WIN32_WINNT
-if( WIN32 )
+if( WIN32 ) 
   # set _WIN32_WINT version global
   add_definitions( -D_WIN32_WINNT=0x0600 )
+endif()
+
+if ( VVDEC_ENABLE_SIMD_OPT )
+  # set USE_SIMD_OPT
+  add_definitions( -DUSE_SIMD_OPT )
 endif()
 
 # enable parallel build for Visual Studio

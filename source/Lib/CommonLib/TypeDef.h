@@ -187,7 +187,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 // SIMD optimizations
-#ifndef WIN_ARM64
+#ifdef USE_SIMD_OPT
 #define SIMD_ENABLE                                       1
 #else
 #define SIMD_ENABLE                                       0

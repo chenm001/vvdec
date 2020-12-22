@@ -1,6 +1,7 @@
 # Default top-level .gitignore, please review.
 /amd64Build/
 /arm64Build/
+/testBuild/
 /downloadBitStreamBuild/
 /ext/
 /x64Build/

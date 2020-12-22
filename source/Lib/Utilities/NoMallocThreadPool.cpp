@@ -51,9 +51,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 # include <pthread.h>
 #endif
 
-#ifndef WIN_ARM64
+#ifdef USE_SIMD_OPT
 #include <emmintrin.h>
-#endif // !WIN_ARM64
+#endif // USE_SIMD_OPT
 
 
 NoMallocThreadPool::NoMallocThreadPool( int numThreads, const char * threadPoolName )
