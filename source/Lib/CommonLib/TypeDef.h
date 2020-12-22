@@ -187,7 +187,11 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 // SIMD optimizations
+#ifndef WIN_ARM64
 #define SIMD_ENABLE                                       1
+#else
+#define SIMD_ENABLE                                       0
+#endif
 #define ENABLE_SIMD_OPT                                 ( SIMD_ENABLE && !RExt__HIGH_BIT_DEPTH_SUPPORT )    ///< SIMD optimizations, no impact on RD performance
 #define ENABLE_SIMD_OPT_MCIF                            ( 1 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for the interpolation filter, no impact on RD performance
 #define ENABLE_SIMD_OPT_BUFFER                          ( 1 && ENABLE_SIMD_OPT )                            ///< SIMD optimization for the buffer operations, no impact on RD performance

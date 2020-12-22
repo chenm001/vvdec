@@ -1,4 +1,9 @@
 # Default top-level .gitignore, please review.
+/amd64Build/
+/arm64Build/
+/downloadBitStreamBuild/
+/ext/
+/x64Build/
 dec.yuv
 rec.yuv
 str.bin

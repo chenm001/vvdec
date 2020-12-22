@@ -51,7 +51,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 # include <pthread.h>
 #endif
 
+#ifndef WIN_ARM64
 #include <emmintrin.h>
+#endif // !WIN_ARM64
 
 
 NoMallocThreadPool::NoMallocThreadPool( int numThreads, const char * threadPoolName )
