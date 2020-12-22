@@ -246,22 +246,26 @@ const CtxSet ContextSetCfg::MultiRefLineIdx = ContextSetCfg::addCtxSet
   {   5,   8, },
 });
 
+const CtxSet ContextSetCfg::IntraLumaMpmFlag = ContextSetCfg::addCtxSet
+({
+  {  44, },
+  {  36, },
+  {  45, },
+  {   6, },
+});
+
+const CtxSet ContextSetCfg::IntraChromaPredMode = ContextSetCfg::addCtxSet
+({
+  {  25, },
+  {  25, },
+  {  34, },
+  {   5, },
+});
+
 const CtxSet ContextSetCfg::IPredMode[] =
 {
-  ContextSetCfg::addCtxSet
-  ({
-    {  44, },
-    {  36, },
-    {  45, },
-    {   6, },
-  }),
-  ContextSetCfg::addCtxSet
-  ({
-    {  25, },
-    {  25, },
-    {  34, },
-    {   5, },
-  })  
+  ContextSetCfg::IntraLumaMpmFlag,
+  ContextSetCfg::IntraChromaPredMode  
 };
 
 const CtxSet ContextSetCfg::IntraLumaPlanarFlag = ContextSetCfg::addCtxSet
@@ -607,22 +611,6 @@ const CtxSet ContextSetCfg::LFNSTIdx = ContextSetCfg::addCtxSet
   {   9,   9,  10, },
 });
 
-const CtxSet ContextSetCfg::RdpcmFlag = ContextSetCfg::addCtxSet
-({
-  { CNU, CNU, },
-  { CNU, CNU, },
-  { CNU, CNU, },
-  { DWS, DWS, },
-});
-
-const CtxSet ContextSetCfg::RdpcmDir = ContextSetCfg::addCtxSet
-({
-  { CNU, CNU, },
-  { CNU, CNU, },
-  { CNU, CNU, },
-  { DWS, DWS, },
-});
-
 const CtxSet ContextSetCfg::MTSIndex = ContextSetCfg::addCtxSet
 ({
   {  45,  25,  27,   0,  25,   17, },
@@ -669,14 +657,6 @@ const CtxSet ContextSetCfg::SbtPosFlag = ContextSetCfg::addCtxSet
   {  28, },
   { CNU, },
   {  13, },
-});
-
-const CtxSet ContextSetCfg::CrossCompPred = ContextSetCfg::addCtxSet
-({
-  { CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, },
-  { CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, },
-  { CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, CNU, },
-  { DWS, DWS, DWS, DWS, DWS, DWS, DWS, DWS, DWS, DWS, },
 });
 
 const CtxSet ContextSetCfg::ChromaQpAdjFlag = ContextSetCfg::addCtxSet
