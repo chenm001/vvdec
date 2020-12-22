@@ -24,8 +24,8 @@ Windows sample for Visual Studio 2017 64 Bit:
 
     cd build
     cmake .. -G "Visual Studio 15 2017 Win64"
- or cmake .. -G "Visual Studio 16 2019" -A x64 -D VVDEC_ENABLE_BITSTREAM_DOWNLOAD=1 
- or cmake .. -G "Visual Studio 16 2019" -A arm64 -D VVDEC_ENABLE_SIMD_OPT=0
+    or cmake .. -G "Visual Studio 16 2019" -A x64 -D VVDEC_ENABLE_BITSTREAM_DOWNLOAD=1 
+    or cmake .. -G "Visual Studio 16 2019" -A arm64 -D VVDEC_ENABLE_SIMD_OPT=0
 
 Linux Release Makefile sample:
 
