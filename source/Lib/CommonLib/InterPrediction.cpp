@@ -1572,12 +1572,13 @@ void InterPrediction::xPrefetch( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicLi
     height                    = pcPad.bufs[compID].height;
     offset                    = DMVR_NUM_ITERATION * ( pcPad.bufs[compID].stride + 1 );
 
-    int mvshiftTemp           = mvShift + getComponentScaleX( ( ComponentID ) compID, pu.chromaFormat );
+    int mvshiftTempHor        = mvShift + getComponentScaleX( ( ComponentID ) compID, pu.chromaFormat );
+    int mvshiftTempVer        = mvShift + getComponentScaleY( ( ComponentID ) compID, pu.chromaFormat );
 
     width                    += filtersize - 1;
     height                   += filtersize - 1;
-    cMv                      += Mv( -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTemp ),
-                                    -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTemp ) );
+    cMv                      += Mv( -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTempHor ),
+                                    -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTempVer ) );
     bool wrapRef = false;
 #if JVET_Q0764_WRAP_AROUND_WITH_RPR
     if( refPic->isWrapAroundEnabled( pu.slice->getPPS() ) )
@@ -1598,7 +1599,7 @@ void InterPrediction::xPrefetch( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicLi
     /* Pre-fetch similar to HEVC*/
     {
       CPelBuf refBuf          = refPic->getRecoBuf( ComponentID( compID ), wrapRef );
-      Position Rec_offset     = pu.blocks[compID].pos().offset( cMv.getHor() >> mvshiftTemp, cMv.getVer() >> mvshiftTemp );
+      Position Rec_offset     = pu.blocks[compID].pos().offset( cMv.getHor() >> mvshiftTempHor, cMv.getVer() >> mvshiftTempVer );
       const Pel *refBufPtr    = refBuf.bufAt( Rec_offset );
 
       PelBuf &dstBuf          = pcPad.bufs[compID];
@@ -1626,7 +1627,7 @@ void InterPrediction::xPad( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicList re
     width                = pcPad.bufs[compID].width;
     height               = pcPad.bufs[compID].height;
     offset               = DMVR_NUM_ITERATION * ( pcPad.bufs[compID].stride + 1 );
-    padsize              = DMVR_NUM_ITERATION >> getComponentScaleX( ( ComponentID ) compID, pu.chromaFormat );
+    padsize              = DMVR_NUM_ITERATION >> getComponentScaleY( ( ComponentID ) compID, pu.chromaFormat );
     width               += filtersize - 1;
     height              += filtersize - 1;
     
@@ -1809,9 +1810,10 @@ void InterPrediction::xFinalPaddedMCForDMVR(PredictionUnit& pu, PelUnitBuf &pcYu
     for (int compID = 0; compID < MAX_NUM_COMPONENT; compID++)
 #endif
     {
-      const int mvshiftTemp = mvShift + getComponentScaleX( ComponentID( compID ), pu.chromaFormat );
-      deltaIntMvX = ( cMv.getHor() >> mvshiftTemp ) - ( startMv.getHor() >> mvshiftTemp );
-      deltaIntMvY = ( cMv.getVer() >> mvshiftTemp ) - ( startMv.getVer() >> mvshiftTemp );
+      const int mvshiftTempHor = mvShift + getComponentScaleX( (ComponentID)compID, pu.chromaFormat );
+      const int mvshiftTempVer = mvShift + getComponentScaleY( (ComponentID)compID, pu.chromaFormat );
+      deltaIntMvX = ( cMv.getHor() >> mvshiftTempHor ) - ( startMv.getHor() >> mvshiftTempHor );
+      deltaIntMvY = ( cMv.getVer() >> mvshiftTempVer ) - ( startMv.getVer() >> mvshiftTempVer );
 
       if( deltaIntMvX || deltaIntMvY )
       {
@@ -1911,7 +1913,8 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
 {
   /*Always High Precision*/
   static constexpr int mvShift  = MV_FRACTIONAL_BITS_INTERNAL;
-         const     int mvShiftC = mvShift + getChannelTypeScaleX( CH_C, pu.chromaFormat );
+         const     int mvShiftX = mvShift + getChannelTypeScaleX( CH_C, pu.chromaFormat );
+         const     int mvShiftY = mvShift + getChannelTypeScaleY( CH_C, pu.chromaFormat );
 
   /*use merge MV as starting MV*/
   Mv mergeMv[] = { pu.mv[REF_PIC_LIST_0][0] , pu.mv[REF_PIC_LIST_1][0] };
@@ -2020,8 +2023,9 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
           xPrefetch( subPu, m_cYuvRefBuffDMVRL0, REF_PIC_LIST_0, true );
           xPad     ( subPu, m_cYuvRefBuffDMVRL0, REF_PIC_LIST_0, true );
         }
+
 #if JVET_Q0438_MONOCHROME_BUGFIXES
-        if( isChromaEnabled( pu.chromaFormat ) && ( ( mv0.hor >> mvShiftC ) != ( mergeMv[0].hor >> mvShiftC ) || ( mv0.ver >> mvShiftC ) != ( mergeMv[0].ver >> mvShiftC ) ) )
+        if( isChromaEnabled( pu.chromaFormat ) && ( ( mv0.hor >> mvShiftX ) != ( mergeMv[0].hor >> mvShiftX ) || ( mv0.ver >> mvShiftY ) != ( mergeMv[0].ver >> mvShiftY ) ) )
 #endif
         {
           xPrefetch( subPu, m_cYuvRefBuffDMVRL0, REF_PIC_LIST_0, false );
@@ -2034,7 +2038,7 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
           xPad     ( subPu, m_cYuvRefBuffDMVRL1, REF_PIC_LIST_1, true );
         }
 #if JVET_Q0438_MONOCHROME_BUGFIXES
-        if( isChromaEnabled( pu.chromaFormat ) && ( ( mv1.hor >> mvShiftC ) != ( mergeMv[1].hor >> mvShiftC ) || ( mv1.ver >> mvShiftC ) != ( mergeMv[1].ver >> mvShiftC ) ) )
+        if( isChromaEnabled( pu.chromaFormat ) && ( ( mv1.hor >> mvShiftX ) != ( mergeMv[1].hor >> mvShiftX ) || ( mv1.ver >> mvShiftY ) != ( mergeMv[1].ver >> mvShiftY ) ) )
 #endif
         {
           xPrefetch( subPu, m_cYuvRefBuffDMVRL1, REF_PIC_LIST_1, false );
@@ -2066,8 +2070,9 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
 void InterPrediction::xIntraBlockCopy( PredictionUnit &pu, PelUnitBuf &predBuf, const ComponentID compID )
 {
   const unsigned int lcuWidth = pu.slice->getSPS()->getMaxCUWidth();
-  int shiftSample = ::getComponentScaleX( compID, pu.chromaFormat );
-  const int ctuSizeLog2 = getLog2(lcuWidth) - shiftSample;
+  const int shiftSampleHor = ::getComponentScaleX( compID, pu.chromaFormat );
+  const int shiftSampleVer = ::getComponentScaleY( compID, pu.chromaFormat );
+  const int ctuSizeLog2 = getLog2(lcuWidth) - shiftSampleVer;
   Mv bv = pu.mv[REF_PIC_LIST_0][0];
   bv.changePrecision(MV_PRECISION_INTERNAL, MV_PRECISION_INT);
   int refx, refy;
@@ -2078,15 +2083,15 @@ void InterPrediction::xIntraBlockCopy( PredictionUnit &pu, PelUnitBuf &predBuf, 
   }
   else
   {//Cb or Cr
-    refx = pu.Cb().x + (bv.hor >> shiftSample);
-    refy = pu.Cb().y + (bv.ver >> shiftSample);
+    refx = pu.Cb().x + (bv.hor >> shiftSampleHor);
+    refy = pu.Cb().y + (bv.ver >> shiftSampleVer);
   }
-  refx &= ((m_IBCBufferWidth >> shiftSample) - 1);
+  refx &= ((m_IBCBufferWidth >> shiftSampleHor) - 1);
   refy &= ((1 << ctuSizeLog2) - 1);
 
   int lineIdx = pu.lumaPos().y / pu.slice->getSPS()->getMaxCUHeight();
   
-  if (refx + predBuf.bufs[compID].width <= (m_IBCBufferWidth >> shiftSample))
+  if (refx + predBuf.bufs[compID].width <= (m_IBCBufferWidth >> shiftSampleHor))
   {
     const CompArea srcArea = CompArea(compID, Position(refx, refy), Size(predBuf.bufs[compID].width, predBuf.bufs[compID].height));
     const CPelBuf refBuf = pu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   //m_IBCBuffer.getBuf(srcArea);
@@ -2094,16 +2099,16 @@ void InterPrediction::xIntraBlockCopy( PredictionUnit &pu, PelUnitBuf &predBuf, 
   }
   else
   {//wrap around
-    int width = (m_IBCBufferWidth >> shiftSample) - refx;
+    int width = (m_IBCBufferWidth >> shiftSampleHor) - refx;
     CompArea srcArea = CompArea(compID, Position(refx, refy), Size(width, predBuf.bufs[compID].height));
     CPelBuf srcBuf = pu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   //m_IBCBuffer.getBuf(srcArea);
     PelBuf dstBuf = PelBuf(predBuf.bufs[compID].bufAt(Position(0, 0)), predBuf.bufs[compID].stride, Size(width, predBuf.bufs[compID].height));
     dstBuf.copyFrom(srcBuf);
 
-    width = refx + predBuf.bufs[compID].width - (m_IBCBufferWidth >> shiftSample);
+    width = refx + predBuf.bufs[compID].width - (m_IBCBufferWidth >> shiftSampleHor);
     srcArea = CompArea(compID, Position(0, refy), Size(width, predBuf.bufs[compID].height));
     srcBuf = pu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   //m_IBCBuffer.getBuf(srcArea);
-    dstBuf = PelBuf(predBuf.bufs[compID].bufAt(Position((m_IBCBufferWidth >> shiftSample) - refx, 0)), predBuf.bufs[compID].stride, Size(width, predBuf.bufs[compID].height));
+    dstBuf = PelBuf(predBuf.bufs[compID].bufAt(Position((m_IBCBufferWidth >> shiftSampleHor) - refx, 0)), predBuf.bufs[compID].stride, Size(width, predBuf.bufs[compID].height));
     dstBuf.copyFrom(srcBuf);
   }
 }

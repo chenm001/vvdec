@@ -525,9 +525,10 @@ void CodingStructure::fillIBCbuffer( CodingUnit &cu, int lineIdx )
         continue;
 
       const unsigned int lcuWidth = sps->getMaxCUWidth();
-      const int shiftSample = ::getComponentScaleX(area.compID, cu.chromaFormat);
-      const int ctuSizeLog2 = getLog2(lcuWidth) - shiftSample;
-      const int pux = area.x & ((m_IBCBufferWidth >> shiftSample) - 1);
+      const int shiftSampleHor = ::getComponentScaleX(area.compID, cu.chromaFormat);
+      const int shiftSampleVer = ::getComponentScaleY(area.compID, cu.chromaFormat);
+      const int ctuSizeLog2 = getLog2(lcuWidth) - shiftSampleVer;
+      const int pux = area.x & ((m_IBCBufferWidth >> shiftSampleHor) - 1);
       const int puy = area.y & (( 1 << ctuSizeLog2 ) - 1);
       const CompArea dstArea = CompArea(area.compID, Position(pux, puy), Size(area.width, area.height));
       CPelBuf srcBuf = getRecoBuf(area);
