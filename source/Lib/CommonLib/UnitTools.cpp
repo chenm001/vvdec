@@ -1511,8 +1511,8 @@ bool PU::getColocatedMVP(const PredictionUnit &pu, const RefPicList &eRefPicList
 
   // Scale the vector.
   Mv cColMv = mi.mv[eColRefPicList];
-  cColMv.setHor(roundMvComp(cColMv.getHor()));
-  cColMv.setVer(roundMvComp(cColMv.getVer()));
+  cColMv.hor = roundMvComp(cColMv.hor);
+  cColMv.ver = roundMvComp(cColMv.ver);
 
   if (bIsCurrRefLongTerm /*|| bIsColRefLongTerm*/)
   {
@@ -1850,12 +1850,12 @@ void PU::xInheritedAffineMv( const PredictionUnit &pu, const PredictionUnit* puN
   int shift = MAX_CU_DEPTH;
   int iDMvHorX, iDMvHorY, iDMvVerX, iDMvVerY;
 
-  iDMvHorX = (mvRT - mvLT).getHor() << (shift - getLog2(neiW));
-  iDMvHorY = (mvRT - mvLT).getVer() << (shift - getLog2(neiW));
+  iDMvHorX = (mvRT - mvLT).hor << (shift - getLog2(neiW));
+  iDMvHorY = (mvRT - mvLT).ver << (shift - getLog2(neiW));
   if ( puNeighbour->affineType() == AFFINEMODEL_6PARAM && !isTopCtuBoundary )
   {
-    iDMvVerX = (mvLB - mvLT).getHor() << (shift - getLog2(neiH));
-    iDMvVerY = (mvLB - mvLT).getVer() << (shift - getLog2(neiH));
+    iDMvVerX = (mvLB - mvLT).hor << (shift - getLog2(neiH));
+    iDMvVerY = (mvLB - mvLT).ver << (shift - getLog2(neiH));
   }
   else
   {
@@ -1863,8 +1863,8 @@ void PU::xInheritedAffineMv( const PredictionUnit &pu, const PredictionUnit* puN
     iDMvVerY = iDMvHorX;
   }
 
-  int iMvScaleHor = mvLT.getHor() << shift;
-  int iMvScaleVer = mvLT.getVer() << shift;
+  int iMvScaleHor = mvLT.hor << shift;
+  int iMvScaleVer = mvLT.ver << shift;
   int horTmp, verTmp;
 
   // v0
@@ -2757,13 +2757,13 @@ void PU::setAllAffineMv( PredictionUnit& pu, Mv affLT, Mv affRT, Mv affLB, RefPi
 
   int deltaMvHorX, deltaMvHorY, deltaMvVerX, deltaMvVerY;
 
-  deltaMvHorX = ( affRT - affLT ).getHor() << ( shift - getLog2( width ) );
-  deltaMvHorY = ( affRT - affLT ).getVer() << ( shift - getLog2( width ) );
+  deltaMvHorX = ( affRT - affLT ).hor << ( shift - getLog2( width ) );
+  deltaMvHorY = ( affRT - affLT ).ver << ( shift - getLog2( width ) );
 
   if ( pu.affineType() == AFFINEMODEL_6PARAM )
   {
-    deltaMvVerX = ( affLB - affLT ).getHor() << ( shift - getLog2( height ) );
-    deltaMvVerY = ( affLB - affLT ).getVer() << ( shift - getLog2( height ) );
+    deltaMvVerX = ( affLB - affLT ).hor << ( shift - getLog2( height ) );
+    deltaMvVerY = ( affLB - affLT ).ver << ( shift - getLog2( height ) );
   }
   else
   {
@@ -2771,8 +2771,8 @@ void PU::setAllAffineMv( PredictionUnit& pu, Mv affLT, Mv affRT, Mv affLB, RefPi
     deltaMvVerY =  deltaMvHorX;
   }
 
-  const int mvScaleHor = affLT.getHor() << shift;
-  const int mvScaleVer = affLT.getVer() << shift;
+  const int mvScaleHor = affLT.hor << shift;
+  const int mvScaleVer = affLT.ver << shift;
 
   MotionBuf mb = pu.getMotionBuf();
 
@@ -2903,8 +2903,8 @@ static bool deriveScaledMotionTemporal( const Slice&      slice,
     // Scale the vector.
     // Assume always short-term for now
     iScale = xGetDistScaleFactor(iCurrPOC, iCurrRefPOC, iColPOC, iColRefPOC);
-    cColMv.setHor(roundMvComp(mi.mv[eColRefPicList].getHor()));
-    cColMv.setVer(roundMvComp(mi.mv[eColRefPicList].getVer()));
+    cColMv.hor = roundMvComp(mi.mv[eColRefPicList].hor);
+    cColMv.ver = roundMvComp(mi.mv[eColRefPicList].ver);
 
     if (iScale != 4096)
     {
@@ -2988,8 +2988,8 @@ bool PU::getInterMergeSubPuMvpCand(const PredictionUnit &pu, MergeCtx& mrgCtx, b
   cTempVector = cTMv;
 
   cTempVector.changePrecision(MV_PRECISION_INTERNAL, MV_PRECISION_INT);
-  int tempX = cTempVector.getHor();
-  int tempY = cTempVector.getVer();
+  int tempX = cTempVector.hor;
+  int tempY = cTempVector.ver;
 
   centerPos.x = puPos.x + (puSize.width  >> 1) + tempX;
   centerPos.y = puPos.y + (puSize.height >> 1) + tempY;
@@ -3413,15 +3413,15 @@ bool CU::hasSubCUNonZeroMVd( const CodingUnit& cu )
 
   if( pu.interDir() != 2 /* PRED_L1 */ )
   {
-    bNonZeroMvd |= pu.mv[REF_PIC_LIST_0][0].getHor() != 0;
-    bNonZeroMvd |= pu.mv[REF_PIC_LIST_0][0].getVer() != 0;
+    bNonZeroMvd |= pu.mv[REF_PIC_LIST_0][0].hor != 0;
+    bNonZeroMvd |= pu.mv[REF_PIC_LIST_0][0].ver != 0;
   }
   if( pu.interDir() != 1 /* PRED_L0 */ )
   {
     if( !pu.cs->picHeader->getMvdL1ZeroFlag() || pu.interDir() != 3 /* PRED_BI */ )
     {
-      bNonZeroMvd |= pu.mv[REF_PIC_LIST_1][0].getHor() != 0;
-      bNonZeroMvd |= pu.mv[REF_PIC_LIST_1][0].getVer() != 0;
+      bNonZeroMvd |= pu.mv[REF_PIC_LIST_1][0].hor != 0;
+      bNonZeroMvd |= pu.mv[REF_PIC_LIST_1][0].ver != 0;
     }
   }
 
@@ -3438,8 +3438,8 @@ bool CU::hasSubCUNonZeroAffineMVd( const CodingUnit& cu )
   {
     for( int i = 0; !nonZeroAffineMvd && i < ( cu.affineType() == AFFINEMODEL_6PARAM ? 3 : 2 ); i++ )
     {
-      nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_0][i].getHor() != 0;
-      nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_0][i].getVer() != 0;
+      nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_0][i].hor != 0;
+      nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_0][i].ver != 0;
     }
   }
 
@@ -3449,8 +3449,8 @@ bool CU::hasSubCUNonZeroAffineMVd( const CodingUnit& cu )
     {
       for( int i = 0; !nonZeroAffineMvd && i < ( cu.affineType() == AFFINEMODEL_6PARAM ? 3 : 2 ); i++ )
       {
-        nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_1][i].getHor() != 0;
-        nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_1][i].getVer() != 0;
+        nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_1][i].hor != 0;
+        nonZeroAffineMvd |= pu.mv[REF_PIC_LIST_1][i].ver != 0;
       }
     }
   }

@@ -63,7 +63,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "RdCost.h"
 #include "ContextModelling.h"
 // forward declaration
-class Mv;
+struct Mv;
 
 //! \ingroup CommonLib
 //! \{

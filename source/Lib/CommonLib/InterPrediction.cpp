@@ -1009,13 +1009,13 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
 
   int deltaMvHorX, deltaMvHorY, deltaMvVerX, deltaMvVerY;
 
-  deltaMvHorX = ( affRT - affLT ).getHor() << ( shift - getLog2( width ) );
-  deltaMvHorY = ( affRT - affLT ).getVer() << ( shift - getLog2( width ) );
+  deltaMvHorX = ( affRT.hor - affLT.hor ) << ( shift - getLog2( width ) );
+  deltaMvHorY = ( affRT.ver - affLT.ver ) << ( shift - getLog2( width ) );
 
   if( pu.affineType() == AFFINEMODEL_6PARAM )
   {
-    deltaMvVerX = ( affLB - affLT ).getHor() << ( shift - getLog2( height ) );
-    deltaMvVerY = ( affLB - affLT ).getVer() << ( shift - getLog2( height ) );
+    deltaMvVerX = ( affLB.hor - affLT.hor ) << ( shift - getLog2( height ) );
+    deltaMvVerY = ( affLB.ver - affLT.ver ) << ( shift - getLog2( height ) );
   }
   else
   {
@@ -1024,8 +1024,8 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
   }
 
 #if CALC_AFFINE_MV_ON_THE_FLY
-  const int mvScaleHor = affLT.getHor() << shift;
-  const int mvScaleVer = affLT.getVer() << shift;
+  const int mvScaleHor = affLT.hor << shift;
+  const int mvScaleVer = affLT.ver << shift;
 
   static const int halfBW = AFFINE_MIN_BLOCK_SIZE >> 1;
   static const int halfBH = AFFINE_MIN_BLOCK_SIZE >> 1;
@@ -1196,8 +1196,8 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
 #if JVET_R0058
         Mv tmpMv(iMvScaleTmpHor, iMvScaleTmpVer);
         wrapRef = wrapClipMv( tmpMv, Position( pu.Y().x + ( w << iScaleX ), pu.Y().y + ( h << iScaleY ) ), Size( blockWidth << iScaleX, blockHeight << iScaleY ), sps, *pu.cs->pps );
-        iMvScaleTmpHor = tmpMv.getHor();
-        iMvScaleTmpVer = tmpMv.getVer();
+        iMvScaleTmpHor = tmpMv.hor;
+        iMvScaleTmpVer = tmpMv.ver;
 #else
         wrapRef = wrapClipMv( iMvScaleTmpHor, iMvScaleTmpVer, Position( pu.lx() + w, pu.ly() + h ), Size( blockWidth, blockHeight ), sps, *pu.cs->pps );
 #endif
@@ -1577,8 +1577,9 @@ void InterPrediction::xPrefetch( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicLi
 
     width                    += filtersize - 1;
     height                   += filtersize - 1;
-    cMv                      += Mv( -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTempHor ),
-                                    -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTempVer ) );
+    cMv.hor                  += -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTempHor );
+    cMv.ver                  += -( ( ( filtersize >> 1 ) - 1 ) << mvshiftTempVer );
+
     bool wrapRef = false;
 #if JVET_Q0764_WRAP_AROUND_WITH_RPR
     if( refPic->isWrapAroundEnabled( pu.slice->getPPS() ) )
@@ -1599,7 +1600,7 @@ void InterPrediction::xPrefetch( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicLi
     /* Pre-fetch similar to HEVC*/
     {
       CPelBuf refBuf          = refPic->getRecoBuf( ComponentID( compID ), wrapRef );
-      Position Rec_offset     = pu.blocks[compID].pos().offset( cMv.getHor() >> mvshiftTempHor, cMv.getVer() >> mvshiftTempVer );
+      Position Rec_offset     = pu.blocks[compID].pos().offset( cMv.hor >> mvshiftTempHor, cMv.ver >> mvshiftTempVer );
       const Pel *refBufPtr    = refBuf.bufAt( Rec_offset );
 
       PelBuf &dstBuf          = pcPad.bufs[compID];
@@ -1812,8 +1813,8 @@ void InterPrediction::xFinalPaddedMCForDMVR(PredictionUnit& pu, PelUnitBuf &pcYu
     {
       const int mvshiftTempHor = mvShift + getComponentScaleX( (ComponentID)compID, pu.chromaFormat );
       const int mvshiftTempVer = mvShift + getComponentScaleY( (ComponentID)compID, pu.chromaFormat );
-      deltaIntMvX = ( cMv.getHor() >> mvshiftTempHor ) - ( startMv.getHor() >> mvshiftTempHor );
-      deltaIntMvY = ( cMv.getVer() >> mvshiftTempVer ) - ( startMv.getVer() >> mvshiftTempVer );
+      deltaIntMvX = ( cMv.hor >> mvshiftTempHor ) - ( startMv.hor >> mvshiftTempHor );
+      deltaIntMvY = ( cMv.ver >> mvshiftTempVer ) - ( startMv.ver >> mvshiftTempVer );
 
       if( deltaIntMvX || deltaIntMvY )
       {
@@ -2249,10 +2250,10 @@ void InterPrediction::xPredInterBlkRPR( const std::pair<int, int>& scalingRatio,
   int addX = isLuma( compID ) ? 0 : int( 1 - refPic->cs->sps->getHorCollocatedChromaFlag() ) * 8 * ( scalingRatio.first - SCALE_1X.first );
   int addY = isLuma( compID ) ? 0 : int( 1 - refPic->cs->sps->getVerCollocatedChromaFlag() ) * 8 * ( scalingRatio.second - SCALE_1X.second );
 
-  x0Int = ( ( posX << ( 4 + ::getComponentScaleX( compID, chFmt ) ) ) + mv.getHor() ) * (int64_t)scalingRatio.first + addX;
+  x0Int = ( ( posX << ( 4 + ::getComponentScaleX( compID, chFmt ) ) ) + mv.hor ) * (int64_t)scalingRatio.first + addX;
   x0Int = SIGN( x0Int ) * ( ( llabs( x0Int ) + ( (long long)1 << ( 7 + ::getComponentScaleX( compID, chFmt ) ) ) ) >> ( 8 + ::getComponentScaleX( compID, chFmt ) ) ) + ( ( refPic->slices[0]->getPPS()->getScalingWindow().getWindowLeftOffset() * SPS::getWinUnitX( chFmt ) ) << ( ( posShift - ::getComponentScaleX( compID, chFmt ) ) ) );
 
-  y0Int = ( ( posY << ( 4 + ::getComponentScaleY( compID, chFmt ) ) ) + mv.getVer() ) * (int64_t)scalingRatio.second + addY;
+  y0Int = ( ( posY << ( 4 + ::getComponentScaleY( compID, chFmt ) ) ) + mv.ver ) * (int64_t)scalingRatio.second + addY;
   y0Int = SIGN( y0Int ) * ( ( llabs( y0Int ) + ( (long long)1 << ( 7 + ::getComponentScaleY( compID, chFmt ) ) ) ) >> ( 8 + ::getComponentScaleY( compID, chFmt ) ) ) + ( ( refPic->slices[0]->getPPS()->getScalingWindow().getWindowTopOffset() * SPS::getWinUnitY( chFmt ) ) << ( ( posShift - ::getComponentScaleY( compID, chFmt ) ) ) );
   
   const int extSize = isLuma( compID ) ? 1 : 2;

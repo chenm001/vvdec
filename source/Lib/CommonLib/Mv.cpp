@@ -53,8 +53,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "Common.h"
 #include "Slice.h"
 
-const MvPrecision Mv::m_amvrPrecision[4] = { MV_PRECISION_QUARTER, MV_PRECISION_INT, MV_PRECISION_4PEL, MV_PRECISION_HALF }; // for cu.imv=0, 1, 2 and 3
-
 void roundAffineMv( int& mvx, int& mvy, int nShift )
 {
   const int nOffset = 1 << (nShift - 1);
@@ -79,8 +77,8 @@ void clipMvInPic ( Mv& rcMv, const Position& pos, const struct Size& size, const
   int verMax = (pps.getPicHeightInLumaSamples() + offset - (int)pos.y - 1) << mvShift;
   int verMin = (-(int)sps.getMaxCUHeight() - offset - (int)pos.y + 1) << mvShift;
 
-  rcMv.setHor(std::min(horMax, std::max(horMin, rcMv.getHor())));
-  rcMv.setVer(std::min(verMax, std::max(verMin, rcMv.getVer())));
+  rcMv.hor = std::min(horMax, std::max(horMin, rcMv.hor));
+  rcMv.ver = std::min(verMax, std::max(verMin, rcMv.ver));
 }
 
 void clipMvInSubpic ( Mv& rcMv, const struct Position& pos, const struct Size& size, const SPS& sps, const PPS& pps )
@@ -107,8 +105,8 @@ void clipMvInSubpic ( Mv& rcMv, const struct Position& pos, const struct Size& s
     verMax = ((curSubPic.getSubPicBottom() + 1) + offset - (int)pos.y - 1) << mvShift;
     verMin = (-(int)sps.getMaxCUHeight() - offset - ((int)pos.y - curSubPic.getSubPicTop()) + 1) << mvShift;
   }
-  rcMv.setHor(std::min(horMax, std::max(horMin, rcMv.getHor())));
-  rcMv.setVer(std::min(verMax, std::max(verMin, rcMv.getVer())));
+  rcMv.hor = std::min(horMax, std::max(horMin, rcMv.hor));
+  rcMv.ver = std::min(verMax, std::max(verMin, rcMv.ver));
 }
 
 bool wrapClipMv( Mv& rcMv, const Position& pos, const struct Size& size, const SPS& sps, const PPS& pps )
@@ -120,7 +118,7 @@ bool wrapClipMv( Mv& rcMv, const Position& pos, const struct Size& size, const S
   int iHorMin = ( -( int ) sps.getMaxCUWidth()                                      - iOffset - ( int ) pos.x + 1 ) << iMvShift;
   int iVerMax = ( pps.getPicHeightInLumaSamples() + iOffset - (int)pos.y - 1 ) << iMvShift;
   int iVerMin = ( -( int ) sps.getMaxCUHeight()   - iOffset - ( int ) pos.y + 1 ) << iMvShift;
-  int mvX = rcMv.getHor();
+  int mvX = rcMv.hor;
 
   if(mvX > iHorMax)
   {
@@ -143,8 +141,8 @@ bool wrapClipMv( Mv& rcMv, const Position& pos, const struct Size& size, const S
     wrapRef = false;
   }
 
-  rcMv.setHor( mvX );
-  rcMv.setVer( std::min( iVerMax, std::max( iVerMin, rcMv.getVer() ) ) );
+  rcMv.hor = mvX;
+  rcMv.ver = std::min( iVerMax, std::max( iVerMin, rcMv.ver ) );
   return wrapRef;
 }
 

@@ -1669,7 +1669,7 @@ void CABACReader::prediction_unit( PredictionUnit& pu )
     pu.mv    [1 - eCurRefList][0] . set( -pu.mv[eCurRefList][0].hor, -pu.mv[eCurRefList][0].ver );
     pu.refIdx[1 - eCurRefList]    = pu.slice->getSymRefIdx( 1 - eCurRefList );
 
-    CHECKD( !( ( pu.mv[1 - eCurRefList][0].getHor() >= MVD_MIN ) && ( pu.mv[1 - eCurRefList][0].getHor() <= MVD_MAX ) ) || !( ( pu.mv[1 - eCurRefList][0].getVer() >= MVD_MIN ) && ( pu.mv[1 - eCurRefList][0].getVer() <= MVD_MAX ) ), "Illegal MVD value" );
+    CHECKD( !( ( pu.mv[1 - eCurRefList][0].hor >= MVD_MIN ) && ( pu.mv[1 - eCurRefList][0].hor <= MVD_MAX ) ) || !( ( pu.mv[1 - eCurRefList][0].ver >= MVD_MIN ) && ( pu.mv[1 - eCurRefList][0].ver <= MVD_MAX ) ), "Illegal MVD value" );
   }
 }
 

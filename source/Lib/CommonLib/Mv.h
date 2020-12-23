@@ -75,14 +75,12 @@ enum MvPrecision
 };
 
 /// basic motion vector class
-class Mv
+struct Mv
 {
-private:
-  static const MvPrecision m_amvrPrecision[4];
-  static const int mvClipPeriod = (1 << MV_BITS);
-  static const int halMvClipPeriod = (1 << (MV_BITS - 1));
+  static constexpr MvPrecision m_amvrPrecision[4] = { MV_PRECISION_QUARTER, MV_PRECISION_INT, MV_PRECISION_4PEL, MV_PRECISION_HALF };
+  static constexpr int mvClipPeriod = (1 << MV_BITS);
+  static constexpr int halMvClipPeriod = (1 << (MV_BITS - 1));
 
-public:
   int   hor;     ///< horizontal component of motion vector
   int   ver;     ///< vertical component of motion vector
 
@@ -98,18 +96,7 @@ public:
   // ------------------------------------------------------------------------------------------------------------------
 
   void  set       ( int iHor, int iVer)     { hor = iHor;  ver = iVer; }
-  void  setHor    ( int i )                 { hor = i;                 }
-  void  setVer    ( int i )                 { ver = i;                 }
   void  setZero   ()                        { hor = ver = 0;           }
-
-  // ------------------------------------------------------------------------------------------------------------------
-  // get
-  // ------------------------------------------------------------------------------------------------------------------
-
-  int   getHor    () const { return hor;          }
-  int   getVer    () const { return ver;          }
-  int   getAbsHor () const { return abs( hor );   }
-  int   getAbsVer () const { return abs( ver );   }
 
   // ------------------------------------------------------------------------------------------------------------------
   // operations
@@ -123,29 +110,10 @@ public:
     return  *this;
   }
 
-  const Mv& operator-= (const Mv& _rcMv)
-  {
-    hor -= _rcMv.hor;
-    ver -= _rcMv.ver;
-
-    return  *this;
-  }
-
   const Mv& operator<<= (const int i)
   {
     hor <<= i;
     ver <<= i;
-    return  *this;
-  }
-
-  const Mv& operator>>= ( const int i )
-  {
-    if (i != 0)
-    {
-      const int offset = (1 << (i - 1));
-      hor = (hor + offset - (hor >= 0)) >> i;
-      ver = (ver + offset - (ver >= 0)) >> i;
-    }
     return  *this;
   }
 
@@ -171,8 +139,8 @@ public:
 
   const Mv scaleMv( int iScale ) const
   {
-    const int mvx = Clip3( -131072, 131071, (iScale * getHor() + 128 - (iScale * getHor() >= 0)) >> 8);
-    const int mvy = Clip3( -131072, 131071, (iScale * getVer() + 128 - (iScale * getVer() >= 0)) >> 8);
+    const int mvx = Clip3( -131072, 131071, (iScale * hor + 128 - (iScale * hor >= 0)) >> 8);
+    const int mvy = Clip3( -131072, 131071, (iScale * ver + 128 - (iScale * ver >= 0)) >> 8);
     return Mv( mvx, mvy );
   }
 
@@ -181,7 +149,8 @@ public:
     const int shift = (int)dst - (int)src;
     if (shift >= 0)
     {
-      *this <<= shift;
+      hor <<= shift;
+      ver <<= shift;
     }
     else
     {
@@ -208,11 +177,6 @@ public:
     roundToPrecision(src, m_amvrPrecision[amvr]);
   }
 
-  Mv getSymmvdMv(const Mv& curMvPred, const Mv& tarMvPred)
-  {
-    return Mv(tarMvPred.hor - hor + curMvPred.hor, tarMvPred.ver - ver + curMvPred.ver);
-  }
-
   void clipToStorageBitDepth()
   {
     hor = Clip3( -( 1 << 17 ), ( 1 << 17 ) - 1, hor );
@@ -227,18 +191,6 @@ public:
     ver = (ver >= halMvClipPeriod) ? (ver - mvClipPeriod) : ver;
   }
 };// END CLASS DEFINITION MV
-
-namespace std
-{
-  template <>
-  struct hash<Mv> : public unary_function<Mv, uint64_t>
-  {
-    uint64_t operator()(const Mv& value) const
-    {
-      return (((uint64_t)value.hor << 32) + value.ver);
-    }
-  };
-};
 
 #if JVET_R0058
 extern void(*clipMv) ( Mv& rcMv, const Position& pos, const struct Size& size, const SPS& sps, const PPS& pps );
