@@ -264,12 +264,14 @@ if( VVDEC_ENABLE_BITSTREAM_DOWNLOAD )
   
   # create a list of all test bitstreams
   list( APPEND BITSTREAM_FILES
-    #"8b422_A_Sony_3.zip" "8b422_B_Sony_3.zip" "8b422_C_Sony_3.zip" "8b422_D_Sony_3.zip"
-    #"8b422_E_Sony_3.zip" "8b422_F_Sony_3.zip" "8b422_G_Sony_3.zip" "8b422_H_Sony_3.zip"
-    #"8b422_I_Sony_3.zip" "8b422_J_Sony_3.zip" "8b422_K_Sony_3.zip" "8b422_L_Sony_3.zip"
-    #"10b422_A_Sony_3.zip" "10b422_B_Sony_3.zip" "10b422_C_Sony_3.zip" "10b422_D_Sony_3.zip"
-    #"10b422_E_Sony_3.zip" "10b422_F_Sony_3.zip" "10b422_G_Sony_3.zip" "10b422_H_Sony_3.zip"
-    #"10b422_I_Sony_3.zip" "10b422_J_Sony_3.zip" "10b422_K_Sony_3.zip" "10b422_L_Sony_3.zip"
+    "8b422_A_Sony_3.zip" "8b422_B_Sony_3.zip" "8b422_C_Sony_3.zip"
+    "8b422_D_Sony_3.zip"  "8b422_E_Sony_3.zip" "8b422_F_Sony_3.zip"
+    #"8b422_G_Sony_3.zip" "8b422_H_Sony_3.zip" "8b422_I_Sony_3.zip" # fails because of palette mode
+    #"8b422_J_Sony_3.zip" "8b422_K_Sony_3.zip" "8b422_L_Sony_3.zip" # fails because of palette mode
+    "10b422_A_Sony_3.zip" "10b422_B_Sony_3.zip" "10b422_C_Sony_3.zip"
+    "10b422_D_Sony_3.zip" "10b422_E_Sony_3.zip" "10b422_F_Sony_3.zip"
+    #"10b422_G_Sony_3.zip" "10b422_H_Sony_3.zip" "10b422_I_Sony_3.zip" # fails because of palette mode
+    #"10b422_J_Sony_3.zip" "10b422_K_Sony_3.zip" "10b422_L_Sony_3.zip" # fails because of palette mode
     "10b400_A_Bytedance_2.zip" "10b400_B_Bytedance_2.zip"
     "8b400_A_Bytedance_2.zip" "8b400_B_Bytedance_2.zip"
     "8b420_A_Bytedance_2.zip" "8b420_B_Bytedance_2.zip"
