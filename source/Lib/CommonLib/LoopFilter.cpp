@@ -1227,24 +1227,24 @@ void LoopFilter::xGetBoundaryStrengthSingle( LoopFilterParam& lfp, const CodingU
       {
         if( piRefP0 == piRefQ0 )
         {
-          uiBs = ( ( abs( mvQ[0].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
-                   ( abs( mvQ[1].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[1].getVer() ) >= nThreshold ) )
+          uiBs = ( ( abs( mvQ[0].hor - mvP[0].hor ) >= nThreshold ) || ( abs( mvQ[0].ver - mvP[0].ver ) >= nThreshold ) ||
+                   ( abs( mvQ[1].hor - mvP[1].hor ) >= nThreshold ) || ( abs( mvQ[1].ver - mvP[1].ver ) >= nThreshold ) )
                  ? 1 : 0;
         }
         else
         {
-          uiBs = ( ( abs( mvQ[1].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
-                   ( abs( mvQ[0].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[1].getVer() ) >= nThreshold ) )
+          uiBs = ( ( abs( mvQ[1].hor - mvP[0].hor ) >= nThreshold ) || ( abs( mvQ[1].ver - mvP[0].ver ) >= nThreshold ) ||
+                   ( abs( mvQ[0].hor - mvP[1].hor ) >= nThreshold ) || ( abs( mvQ[0].ver - mvP[1].ver ) >= nThreshold ) )
                  ? 1 : 0;
         }
       }
       else    // Same L0 & L1
       {
-        uiBs = ( ( abs( mvQ[0].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
-                 ( abs( mvQ[1].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[1].getVer() ) >= nThreshold ) )
+        uiBs = ( ( abs( mvQ[0].hor - mvP[0].hor ) >= nThreshold ) || ( abs( mvQ[0].ver - mvP[0].ver ) >= nThreshold ) ||
+                 ( abs( mvQ[1].hor - mvP[1].hor ) >= nThreshold ) || ( abs( mvQ[1].ver - mvP[1].ver ) >= nThreshold ) )
                &&
-               ( ( abs( mvQ[1].getHor() - mvP[0].getHor() ) >= nThreshold ) || ( abs( mvQ[1].getVer() - mvP[0].getVer() ) >= nThreshold ) ||
-                 ( abs( mvQ[0].getHor() - mvP[1].getHor() ) >= nThreshold ) || ( abs( mvQ[0].getVer() - mvP[1].getVer() ) >= nThreshold ) )
+               ( ( abs( mvQ[1].hor - mvP[0].hor ) >= nThreshold ) || ( abs( mvQ[1].ver - mvP[0].ver ) >= nThreshold ) ||
+                 ( abs( mvQ[0].hor - mvP[1].hor ) >= nThreshold ) || ( abs( mvQ[0].ver - mvP[1].ver ) >= nThreshold ) )
                ? 1 : 0;
       }
     }
@@ -1275,7 +1275,7 @@ void LoopFilter::xGetBoundaryStrengthSingle( LoopFilterParam& lfp, const CodingU
   Mv mvP0 = miP.mv[0];
   Mv mvQ0 = miQ.mv[0];
 
-  lfp.bs |= ( ( ( abs( mvQ0.getHor() - mvP0.getHor() ) >= nThreshold ) || ( abs( mvQ0.getVer() - mvP0.getVer() ) >= nThreshold ) ) ? ( tmpBs + 1 ) : tmpBs ) & bsMask;
+  lfp.bs |= ( ( ( abs( mvQ0.hor - mvP0.hor ) >= nThreshold ) || ( abs( mvQ0.ver - mvP0.ver ) >= nThreshold ) ) ? ( tmpBs + 1 ) : tmpBs ) & bsMask;
 }
 
 #if LUMA_ADAPTIVE_DEBLOCKING_FILTER_QP_OFFSET

@@ -324,7 +324,7 @@ void MergeCtx::setMmvdMergeCandiInfo( PredictionUnit& pu, int candIdx )
         }
         else
         {
-          tempMv[0].set( -1 * tempMv[1].getHor(), -1 * tempMv[1].getVer() );
+          tempMv[0].set( -1 * tempMv[1].hor, -1 * tempMv[1].ver );
         }
       }
       else
@@ -344,7 +344,7 @@ void MergeCtx::setMmvdMergeCandiInfo( PredictionUnit& pu, int candIdx )
         }
         else
         {
-          tempMv[1].set( -1 * tempMv[0].getHor(), -1 * tempMv[0].getVer() );
+          tempMv[1].set( -1 * tempMv[0].hor, -1 * tempMv[0].ver );
         }
       }
       else
