@@ -20,6 +20,13 @@ Create a build directory in the root directory:
 
 After that use one of the following cmake commands. Feel free to change the commands to satisfy your needs.
 
+
+Windows sample for Visual Studio 2019 64 Bit:
+
+    cmake .. -G "Visual Studio 16 2019" -A x64 -D VVDEC_ENABLE_BITSTREAM_DOWNLOAD=1
+    or cmake .. -G "Visual Studio 16 2019" -A arm64
+
+
 Windows sample for Visual Studio 2017 64 Bit:
 
     cd build
