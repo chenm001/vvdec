@@ -125,8 +125,6 @@ Position CompArea::lumaPos( const ChromaFormat chromaFormat ) const
 // unit method definitions
 // ---------------------------------------------------------------------------
 
-UnitArea::UnitArea(const ChromaFormat _chromaFormat) : chromaFormat(_chromaFormat) { }
-
 UnitArea::UnitArea(const ChromaFormat _chromaFormat, const Area &_area) : chromaFormat(_chromaFormat)
 {
   const uint32_t numCh = getNumberValidComponents( chromaFormat );

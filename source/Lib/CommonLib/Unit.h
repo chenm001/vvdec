@@ -178,8 +178,7 @@ struct UnitArea
   ChromaFormat chromaFormat;
   UnitBlocksType blocks;
 
-  UnitArea() : chromaFormat(NUM_CHROMA_FORMAT) { }
-  UnitArea(const ChromaFormat _chromaFormat);
+  UnitArea(const ChromaFormat _chromaFormat = NUM_CHROMA_FORMAT) : chromaFormat(_chromaFormat) { }
   UnitArea(const ChromaFormat _chromaFormat, const Area &area);
 
         CompArea& Y()                                  { return blocks[COMPONENT_Y];  }
@@ -193,21 +192,6 @@ struct UnitArea
   const CompArea& block(const ComponentID comp) const { return blocks[comp]; }
 
   bool contains(const UnitArea& other) const;
-
-  bool operator==(const UnitArea &other) const
-  {
-    if (chromaFormat != other.chromaFormat)   return false;
-    if (blocks.size() != other.blocks.size()) return false;
-
-    for (uint32_t i = 0; i < blocks.size(); i++)
-    {
-      if (blocks[i] != other.blocks[i]) return false;
-    }
-
-    return true;
-  }
-
-  bool operator!=(const UnitArea &other) const { return !(*this == other); }
 
   const Position& lumaPos () const { return Y(); }
   const Size&     lumaSize() const { return Y(); }
