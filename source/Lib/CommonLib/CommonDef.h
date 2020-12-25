@@ -102,6 +102,12 @@ inline int64_t abs (int64_t x) { return _abs64(x); };
 # define GCC_WARNING_DISABLE_class_memaccess
 #endif
 
+// Thanks to https://gist.github.com/PhilCK/1534763
+#ifdef __GNUC__
+#define PACKED( class_to_pack ) class_to_pack __attribute__((__packed__))
+#else
+#define PACKED( class_to_pack ) __pragma( pack(push, 1) ) class_to_pack __pragma( pack(pop) )
+#endif
 
 //! \ingroup CommonLib
 //! \{
