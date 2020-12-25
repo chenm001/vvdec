@@ -296,7 +296,6 @@ if( VVDEC_ENABLE_BITSTREAM_DOWNLOAD )
     "BDOF_A_MediaTek_3.zip"
     "BDPCM_A_Orange_2.zip"
     "BOUNDARY_A_Huawei_3.zip"
-    #"BUMP_A_LGE_1.zip" "BUMP_B_LGE_1.zip" "BUMP_C_LGE_1.zip" # missing in 11.0
     "CCALF_A_Sharp_3.zip" "CCALF_B_Sharp_3.zip" "CCALF_C_Sharp_3.zip" "CCALF_D_Sharp_3.zip"
     "CCLM_A_KDDI_1.zip"
     "CIIP_A_MediaTek_3.zip"
