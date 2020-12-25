@@ -906,13 +906,8 @@ public:
   typedef T*        iterator;
   typedef T const*  const_iterator;
 
-  static const size_type max_num_elements = N;
-
-  static_vector() : _size( 0 )                                 { }
-  static_vector( size_t N_ ) : _size( N_ )                     { }
-  static_vector( size_t N_, const T& _val ) : _size( 0 )       { resize( N_, _val ); }
-  template<typename It>
-  static_vector( It _it1, It _it2 ) : _size( 0 )               { while( _it1 < _it2 ) _arr[ _size++ ] = *_it1++; }
+  constexpr static_vector() : _size( 0 )                       { }
+  constexpr static_vector( size_t N_ ) : _size( N_ )           { }
   static_vector( std::initializer_list<T> _il ) : _size( 0 )
   {
     typename std::initializer_list<T>::iterator _src1 = _il.begin();
@@ -922,55 +917,28 @@ public:
 
     CHECKD( _size > N, "capacity exceeded" );
   }
-  static_vector& operator=( std::initializer_list<T> _il )
-  {
-    _size = 0;
-
-    typename std::initializer_list<T>::iterator _src1 = _il.begin();
-    typename std::initializer_list<T>::iterator _src2 = _il.end();
-
-    while( _src1 < _src2 ) _arr[ _size++ ] = *_src1++;
-
-    CHECKD( _size > N, "capacity exceeded" );
-    return *this;
-  }
 
   void resize_noinit( size_t N_ )               { CHECKD( N_ > N, "capacity exceeded" ); _size = N_; }
   void resize( size_t N_ )                      { CHECKD( N_ > N, "capacity exceeded" ); while(_size < N_) _arr[ _size++ ] = T() ; _size = N_; }
-  void resize( size_t N_, const T& _val )       { CHECKD( N_ > N, "capacity exceeded" ); while(_size < N_) _arr[ _size++ ] = _val; _size = N_; }
-  void reserve( size_t N_ )                     { CHECKD( N_ > N, "capacity exceeded" ); }
   void push_back( const T& _val )               { CHECKD( _size >= N, "capacity exceeded" ); _arr[ _size++ ] = _val; }
   void pop_back()                               { CHECKD( _size == 0, "calling pop_back on an empty vector" ); _size--; }
-  void pop_front()                              { CHECKD( _size == 0, "calling pop_front on an empty vector" ); _size--; for( int i = 0; i < _size; i++ ) _arr[i] = _arr[i + 1]; }
   void clear()                                  { _size = 0; }
-  reference       at( size_t _i )               { CHECKD( _i >= _size, "Trying to access an out-of-bound-element" ); return _arr[ _i ]; }
-  const_reference at( size_t _i ) const         { CHECKD( _i >= _size, "Trying to access an out-of-bound-element" ); return _arr[ _i ]; }
   reference       operator[]( size_t _i )       { CHECKD( _i >= _size, "Trying to access an out-of-bound-element" ); return _arr[ _i ]; }
   const_reference operator[]( size_t _i ) const { CHECKD( _i >= _size, "Trying to access an out-of-bound-element" ); return _arr[ _i ]; }
   reference       front()                       { CHECKD( _size == 0, "Trying to access the first element of an empty vector" ); return _arr[ 0 ]; }
   const_reference front() const                 { CHECKD( _size == 0, "Trying to access the first element of an empty vector" ); return _arr[ 0 ]; }
   reference       back()                        { CHECKD( _size == 0, "Trying to access the last element of an empty vector" );  return _arr[ _size - 1 ]; }
   const_reference back() const                  { CHECKD( _size == 0, "Trying to access the last element of an empty vector" );  return _arr[ _size - 1 ]; }
-  pointer         data()                        { return _arr; }
-  const_pointer   data() const                  { return _arr; }
   iterator        begin()                       { return _arr; }
   const_iterator  begin() const                 { return _arr; }
-  const_iterator  cbegin() const                { return _arr; }
   iterator        end()                         { return _arr + _size; }
   const_iterator  end() const                   { return _arr + _size; };
-  const_iterator  cend() const                  { return _arr + _size; };
   size_type       size() const                  { return _size; };
-  size_type       byte_size() const             { return _size * sizeof( T ); }
   bool            empty() const                 { return _size == 0; }
 
-  size_type       capacity() const              { return N; }
-  size_type       max_size() const              { return N; }
-  size_type       byte_capacity() const         { return sizeof(_arr); }
+  constexpr size_type capacity() const          { return N; }
 
-  void            erase( const_iterator _pos )  { iterator it   = const_cast<iterator>( _pos ) - 1;
-                                                  iterator last = end() - 1;
-                                                  while( ++it != last ) *it = *( it + 1 );
-                                                  _size--; }
+  void            eraseAt( size_t _pos )        { _size--; memmove(_arr + _pos, _arr + _pos + 1, (_size - _pos) * sizeof(T)); }
 };
 
 #define SIGN(x) ( (x) >= 0 ? 1 : -1 )

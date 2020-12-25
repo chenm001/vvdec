@@ -70,8 +70,8 @@ void DecCu::TaskDeriveCtuMotionInfo( CodingStructure &cs, const UnitArea &ctuAre
 
   if( ctuXPosInCtus == tileXPosInCtus )
   {
-    hist.motionLut.   resize(0);
-    hist.motionLutIbc.resize(0);
+    hist.motionLut.   resize_noinit(0);
+    hist.motionLutIbc.resize_noinit(0);
   }
   
   for( auto &currCU : cs.traverseCUs( ctuArea ) )

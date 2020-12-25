@@ -603,12 +603,11 @@ void PelStorage::createFromBuf( PelUnitBuf buf )
 
   const uint32_t numCh = ::getNumberValidComponents( chromaFormat );
 
-  bufs.resize(numCh);
+  bufs.resize_noinit(numCh);
 
   for( uint32_t i = 0; i < numCh; i++ )
   {
-    PelBuf cPelBuf = buf.get( ComponentID( i ) );
-    bufs[i] = PelBuf( cPelBuf.bufAt( 0, 0 ), cPelBuf.stride, cPelBuf.width, cPelBuf.height );
+    bufs[i] = buf.get( (ComponentID)i );
   }
 }
 

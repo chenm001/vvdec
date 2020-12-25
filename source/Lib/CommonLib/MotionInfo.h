@@ -221,7 +221,7 @@ struct MotionHist
 
     if( pruned || currCnt == lut.capacity() )
     {
-      lut.erase( lut.begin() + sameCandIdx );
+      lut.eraseAt( sameCandIdx );
     }
 
     lut.push_back( mi );
