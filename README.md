@@ -78,6 +78,61 @@ Feel free to contribute. To do so:
 * Apply the desired changes
 * Create a pull-request to the upstream repository
 
+# __Chen's Roadmap__
+
+- [x] Automatic verify framework (_test-harness_)
+
+- [x] Compatible  __209/238__
+
+  Clips | Reason | Support Plan
+  :------|:------:|:------:
+  8b422_G_Sony_3 | Palette | No
+  8b422_H_Sony_3 | Palette | No
+  8b422_I_Sony_3 | Palette | No
+  8b422_J_Sony_3 | Palette | No
+  8b422_K_Sony_3 | Palette | No
+  8b422_L_Sony_3 | Palette | No
+  10b422_G_Sony_3 | Palette | No
+  10b422_H_Sony_3 | Palette | No
+  10b422_I_Sony_3 | Palette | No
+  10b422_J_Sony_3 | Palette | No
+  10b422_K_Sony_3 | Palette | No
+  10b422_L_Sony_3 | Palette | No
+  ACT_A_Kwai_2 | Sub-picture | No
+  CodingToolsSets_E_Tencent_1 | Sub-picture | No
+  FILLER_A_Bytedance_1 | NAL_UNIT_FD | TBD
+  GDR_A_ERICSSON_2 | GDR | TBD
+  GDR_A_NOKIA_1 | GDR | TBD
+  GDR_B_NOKIA_1 | GDR | TBD
+  GDR_C_NOKIA_1  | GDR | TBD
+  LMCS_B_Dolby_2 | Sub-picture | No
+  PALETTE_A_Alibaba_2 | Palette | No
+  PALETTE_B_Alibaba_2 | Palette | No
+  PALETTE_C_Alibaba_2 | Palette | No
+  PALETTE_D_Alibaba_2 | Palette | No
+  PALETTE_E_Alibaba_2 | Palette | No
+  SUBPIC_A_HUAWEI_3 | Sub-picture | No
+  SUBPIC_B_HUAWEI_3 | Sub-picture | No
+  VIRTUAL_A_MediaTek_3 | Virtual | TBD
+  VIRTUAL_B_MediaTek_3 | Virtual | TBD
+
+- [WIP] Cleanup unnecessary C++ feature
+
+- [WIP] Android r22 build
+
+- [ ] Architecture improve (Chroma NV12, memory bandwidth optimize, etc)
+
+- [ ] Partial Linker (Binary Code Protect)
+
+- [ ] AArch64 Assembly
+
+- [ ] Qualcomm HVX DSP
+
+- [ ] Webassembly & js
+
+- [ ] iOS build
+
+
 # License
 
 Please see [LICENSE.txt](./LICENSE.txt) file for the terms of use of the contents of this repository.
