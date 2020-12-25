@@ -122,26 +122,6 @@ struct UnitScale
   constexpr Position scale( const Position &pos  ) const { return { pos.x >> posx, pos.y >> posy }; }
   constexpr Size     scale( const Size     &size ) const { return { size.width >> posx, size.height >> posy }; }
 };
-namespace std
-{
-  template <>
-  struct hash<Position> : public unary_function<Position, uint64_t>
-  {
-    uint64_t operator()(const Position& value) const
-    {
-      return (((uint64_t)value.x << 32) + value.y);
-    }
-  };
-
-  template <>
-  struct hash<Size> : public unary_function<Size, uint64_t>
-  {
-    uint64_t operator()(const Size& value) const
-    {
-      return (((uint64_t)value.width << 32) + value.height);
-    }
-  };
-}
 
 constexpr inline ptrdiff_t rsAddr(const Position &pos, const ptrdiff_t stride )
 {
