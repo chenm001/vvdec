@@ -786,30 +786,17 @@ struct SEIMasteringDisplay
   uint16_t whitePoint[2];
 };
 
-class ChromaCbfs
+struct ChromaCbfs
 {
-public:
-  ChromaCbfs()
-    : Cb( false ), Cr( false )
-  {}
-public:
-  bool sigChroma( ChromaFormat chromaFormat ) const
-  {
-    if( chromaFormat == CHROMA_400 )
-    {
-      return false;
-    }
-    return   ( Cb || Cr );
-  }
-  bool& cbf( ComponentID compID )
-  {
-    bool *cbfs[MAX_NUM_TBLOCKS] = { nullptr, &Cb, &Cr };
-
-    return *cbfs[compID];
-  }
-public:
   bool Cb;
   bool Cr;
+
+  constexpr ChromaCbfs() : Cb( false ), Cr( false )  {}
+
+  bool sigChroma( ChromaFormat chromaFormat ) const
+  {
+    return (chromaFormat == CHROMA_400) ? false : (Cb || Cr);
+  }
 };
 
 struct LoopFilterParam
@@ -901,8 +888,6 @@ public:
   typedef ptrdiff_t difference_type;
   typedef T&        reference;
   typedef T const&  const_reference;
-  typedef T*        pointer;
-  typedef T const*  const_pointer;
   typedef T*        iterator;
   typedef T const*  const_iterator;
 
@@ -975,9 +960,7 @@ struct AlfSliceParam
   short            chromaCoeff        [MAX_NUM_ALF_ALTERNATIVES_CHROMA * MAX_NUM_ALF_CHROMA_COEFF]; // alf_coeff_chroma[i]
   uint8_t          chromaClipp        [MAX_NUM_ALF_ALTERNATIVES_CHROMA * MAX_NUM_ALF_CHROMA_COEFF]; // alf_clipp_chroma[i]
   short            filterCoeffDeltaIdx[MAX_NUM_ALF_CLASSES];                        // filter_coeff_delta[i]
-  bool             filterCoeffFlag    [MAX_NUM_ALF_CLASSES];                        // filter_coefficient_flag[i]
   int              numLumaFilters;                                                  // number_of_filters_minus1 + 1
-  bool             coeffDeltaFlag;                                                  // alf_coefficients_delta_flag
   
   bool             lumaFinalDone   = false;
   bool             chrmFinalDone   = false;
@@ -998,40 +981,18 @@ struct AlfSliceParam
     numLumaFilters = 1;
     numAlternativesChroma = 1;
   }
-
-  const AlfSliceParam& operator=( const AlfSliceParam& src )
-  {
-    std::memcpy( this, &src, sizeof( AlfSliceParam ) );
-    return *this;
-  }
 };
 
 struct CcAlfFilterParam
 {
-  bool    ccAlfFilterEnabled[2];
   bool    ccAlfFilterIdxEnabled[2][MAX_NUM_CC_ALF_FILTERS];
   uint8_t ccAlfFilterCount[2];
   short   ccAlfCoeff[2][MAX_NUM_CC_ALF_FILTERS][MAX_NUM_CC_ALF_CHROMA_COEFF];
   int     newCcAlfFilter[2];
-  int     numberValidComponents;
 
   CcAlfFilterParam()
   {
     memset( this, 0, sizeof( *this ) );
-  }
-
-  void reset()
-  {
-    std::memset( this, 0, sizeof( CcAlfFilterParam ) );
-    ccAlfFilterCount[0] = ccAlfFilterCount[1] = MAX_NUM_CC_ALF_FILTERS;
-    numberValidComponents = 3;
-    newCcAlfFilter[0] = newCcAlfFilter[1] = 0;
-  }
-  
-  const CcAlfFilterParam& operator = ( const CcAlfFilterParam& src )
-  {
-    std::memcpy( this, &src, sizeof( CcAlfFilterParam ) );
-    return *this;
   }
 };
 
