@@ -803,6 +803,7 @@ int VVDecImpl::xAddPicture( Picture* pcPic )
   const uint32_t uiWidth  = areaY.width - confLeft - confRight;
   const uint32_t uiHeight = areaY.height -  confTop  - confBottom;
 
+  const ChromaFormat chromaFormat = pcPic->cs->area.chromaFormat;
   const BitDepths &bitDepths= pcPic->cs->sps->getBitDepths(); // use bit depths of first reconstructed picture.
 
   if ((uiWidth == 0) || (uiHeight == 0))
@@ -826,7 +827,7 @@ int VVDecImpl::xAddPicture( Picture* pcPic )
   Frame cFrame;
   xCreateFrame ( cFrame, cPicBuf, uiWidth, uiHeight, bitDepths );
 
-  const int maxComponent = getNumberValidComponents( cPicBuf.chromaFormat );
+  const int maxComponent = getNumberValidComponents( chromaFormat );
 
   if( m_bCreateNewPicBuf )
   {
@@ -834,8 +835,8 @@ int VVDecImpl::xAddPicture( Picture* pcPic )
     for( uint32_t comp=0; comp < maxComponent; comp++ )
     {
       const ComponentID compID      = ComponentID(comp);
-      const uint32_t    csx         = ::getComponentScaleX(compID, cPicBuf.chromaFormat);
-      const uint32_t    csy         = ::getComponentScaleY(compID, cPicBuf.chromaFormat);
+      const uint32_t    csx         = ::getComponentScaleX(compID, chromaFormat);
+      const uint32_t    csy         = ::getComponentScaleY(compID, chromaFormat);
       const CPelBuf     area        = cPicBuf.get(compID);
       unsigned int uiBytesPerSample = bitDepths.recon[0] > 8 ? 2 : 1;
 
@@ -855,8 +856,8 @@ int VVDecImpl::xAddPicture( Picture* pcPic )
     for( uint32_t comp=0; comp < maxComponent; comp++ )
     {
       const ComponentID compID      = ComponentID(comp);
-      const uint32_t    csx         = ::getComponentScaleX(compID, cPicBuf.chromaFormat);
-      const uint32_t    csy         = ::getComponentScaleY(compID, cPicBuf.chromaFormat);
+      const uint32_t    csx         = ::getComponentScaleX(compID, chromaFormat);
+      const uint32_t    csy         = ::getComponentScaleY(compID, chromaFormat);
       const CPelBuf     area        = cPicBuf.get(compID);
       //unsigned int wordSize         = bitDepths.recon[0] > 8 ? 2 : 1;
       const ptrdiff_t   planeOffset = (confLeft >> csx) + (confTop >> csy) * area.stride;

@@ -575,14 +575,14 @@ void Picture::saveSubPicBorder(int POC, int subPicX0, int subPicY0, int subPicWi
 {
 
   // 1.1 set up margin for back up memory allocation
-  int xMargin = margin >> getComponentScaleX(COMPONENT_Y, cs->area.chromaFormat);
-  int yMargin = margin >> getComponentScaleY(COMPONENT_Y, cs->area.chromaFormat);
+  int xMargin = margin >> getComponentScaleX(COMPONENT_Y, chromaFormat);
+  int yMargin = margin >> getComponentScaleY(COMPONENT_Y, chromaFormat);
 
   // 1.2 measure the size of back up memory
   Area areaAboveBelow(0, 0, subPicWidth + 2 * xMargin, yMargin);
   Area areaLeftRight(0, 0, xMargin, subPicHeight);
-  UnitArea unitAreaAboveBelow(cs->area.chromaFormat, areaAboveBelow);
-  UnitArea unitAreaLeftRight(cs->area.chromaFormat, areaLeftRight);
+  UnitArea unitAreaAboveBelow(chromaFormat, areaAboveBelow);
+  UnitArea unitAreaLeftRight(chromaFormat, areaLeftRight);
 
   // 1.3 create back up memory
   m_bufSubPicAbove.create(unitAreaAboveBelow);
@@ -590,21 +590,21 @@ void Picture::saveSubPicBorder(int POC, int subPicX0, int subPicY0, int subPicWi
   m_bufSubPicLeft.create(unitAreaLeftRight);
   m_bufSubPicRight.create(unitAreaLeftRight);
 
-  for (int comp = 0; comp < getNumberValidComponents(cs->area.chromaFormat); comp++) 
+  for (int comp = 0; comp < getNumberValidComponents(chromaFormat); comp++) 
   {
     ComponentID compID = ComponentID(comp);
 
     // 2.1 measure the margin for each component
-    int xmargin = margin >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int ymargin = margin >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int xmargin = margin >> getComponentScaleX(compID, chromaFormat);
+    int ymargin = margin >> getComponentScaleY(compID, chromaFormat);
 
     // 2.2 calculate the origin of the subpicture
-    int left = subPicX0 >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int top = subPicY0 >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int left = subPicX0 >> getComponentScaleX(compID, chromaFormat);
+    int top = subPicY0 >> getComponentScaleY(compID, chromaFormat);
 
     // 2.3 calculate the width/height of the subPic
-    int width = subPicWidth >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int height = subPicHeight >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int width = subPicWidth >> getComponentScaleX(compID, chromaFormat);
+    int height = subPicHeight >> getComponentScaleY(compID, chromaFormat);
 
 
     // 3.1.1 set reconstructed picture
@@ -650,22 +650,22 @@ void Picture::saveSubPicBorder(int POC, int subPicX0, int subPicY0, int subPicWi
 
 void Picture::extendSubPicBorder(int POC, int subPicX0, int subPicY0, int subPicWidth, int subPicHeight)
 {
-
-  for (int comp = 0; comp < getNumberValidComponents(cs->area.chromaFormat); comp++) 
+  const ChromaFormat chromaFormat = cs->area.chromaFormat;
+  for (int comp = 0; comp < getNumberValidComponents(chromaFormat); comp++) 
   {
     ComponentID compID = ComponentID(comp);
 
     // 2.1 measure the margin for each component
-    int xmargin = margin >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int ymargin = margin >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int xmargin = margin >> getComponentScaleX(compID, chromaFormat);
+    int ymargin = margin >> getComponentScaleY(compID, chromaFormat);
 
     // 2.2 calculate the origin of the Subpicture
-    int left = subPicX0 >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int top = subPicY0 >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int left = subPicX0 >> getComponentScaleX(compID, chromaFormat);
+    int top = subPicY0 >> getComponentScaleY(compID, chromaFormat);
 
     // 2.3 calculate the width/height of the Subpicture
-    int width = subPicWidth >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int height = subPicHeight >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int width = subPicWidth >> getComponentScaleX(compID, chromaFormat);
+    int height = subPicHeight >> getComponentScaleY(compID, chromaFormat);
 
     // 3.1 set reconstructed picture
     PelBuf s = m_bufs[PIC_RECONSTRUCTION].get(compID);
@@ -716,21 +716,22 @@ void Picture::extendSubPicBorder(int POC, int subPicX0, int subPicY0, int subPic
 
 void Picture::restoreSubPicBorder(int POC, int subPicX0, int subPicY0, int subPicWidth, int subPicHeight)
 {
-  for (int comp = 0; comp < getNumberValidComponents(cs->area.chromaFormat); comp++) 
+  const ChromaFormat chromaFormat = cs->area.chromaFormat;
+  for (int comp = 0; comp < getNumberValidComponents(chromaFormat); comp++) 
   {
     ComponentID compID = ComponentID(comp);
 
     // 2.1 measure the margin for each component
-    int xmargin = margin >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int ymargin = margin >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int xmargin = margin >> getComponentScaleX(compID, chromaFormat);
+    int ymargin = margin >> getComponentScaleY(compID, chromaFormat);
 
     // 2.2 calculate the origin of the subpicture
-    int left = subPicX0 >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int top = subPicY0 >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int left = subPicX0 >> getComponentScaleX(compID, chromaFormat);
+    int top = subPicY0 >> getComponentScaleY(compID, chromaFormat);
 
     // 2.3 calculate the width/height of the subpicture
-    int width = subPicWidth >> getComponentScaleX(compID, cs->area.chromaFormat);
-    int height = subPicHeight >> getComponentScaleY(compID, cs->area.chromaFormat);
+    int width = subPicWidth >> getComponentScaleX(compID, chromaFormat);
+    int height = subPicHeight >> getComponentScaleY(compID, chromaFormat);
 
     // 3.1 set reconstructed picture
     PelBuf s = m_bufs[PIC_RECONSTRUCTION].get(compID);
@@ -785,7 +786,8 @@ void Picture::restoreSubPicBorder(int POC, int subPicX0, int subPicY0, int subPi
 
 void Picture::extendPicBorder( bool top, bool bottom, bool leftrightT, bool leftrightB, ChannelType chType )
 {
-  for( int comp = 0; comp < getNumberValidComponents( cs->area.chromaFormat ); comp++ )
+  const ChromaFormat chromaFormat = cs->area.chromaFormat;
+  for( int comp = 0; comp < getNumberValidComponents( chromaFormat ); comp++ )
   {
     ComponentID compID = ComponentID( comp );
 
@@ -794,8 +796,8 @@ void Picture::extendPicBorder( bool top, bool bottom, bool leftrightT, bool left
 
     PelBuf p = m_bufs[PIC_RECONSTRUCTION].get( compID );
 
-    int xmargin = margin >> getComponentScaleX( compID, cs->area.chromaFormat );
-    int ymargin = margin >> getComponentScaleY( compID, cs->area.chromaFormat );
+    int xmargin = margin >> getComponentScaleX( compID, chromaFormat );
+    int ymargin = margin >> getComponentScaleY( compID, chromaFormat );
 
 #if JVET_Q0764_WRAP_AROUND_WITH_RPR
     if( cs->pps->getUseWrapAround() )
@@ -806,9 +808,9 @@ void Picture::extendPicBorder( bool top, bool bottom, bool leftrightT, bool left
       PelBuf prw = m_bufs[PIC_RECON_WRAP].get( compID );
 
 #if JVET_Q0764_WRAP_AROUND_WITH_RPR
-      int xoffset = cs->pps->getWrapAroundOffset() >> getComponentScaleX( compID, cs->area.chromaFormat );
+      int xoffset = cs->pps->getWrapAroundOffset() >> getComponentScaleX( compID, chromaFormat );
 #else
-      int xoffset = cs->sps->getWrapAroundOffset() >> getComponentScaleX( compID, cs->area.chromaFormat );
+      int xoffset = cs->sps->getWrapAroundOffset() >> getComponentScaleX( compID, chromaFormat );
 #endif
       if( leftrightT )
       {
@@ -952,6 +954,7 @@ const CPelBuf Picture::getBuf( const CompArea &blk, const PictureType &type ) co
 
 PelUnitBuf Picture::getBuf( const UnitArea &unit, const PictureType &type )
 {
+  const ChromaFormat chromaFormat = cs->area.chromaFormat;
   if( chromaFormat == CHROMA_400 )
   {
     return PelUnitBuf( chromaFormat, getBuf( unit.Y(), type ) );
@@ -964,6 +967,7 @@ PelUnitBuf Picture::getBuf( const UnitArea &unit, const PictureType &type )
 
 const CPelUnitBuf Picture::getBuf( const UnitArea &unit, const PictureType &type ) const
 {
+  const ChromaFormat chromaFormat = cs->area.chromaFormat;
   if( chromaFormat == CHROMA_400 )
   {
     return CPelUnitBuf( chromaFormat, getBuf( unit.Y(), type ) );
