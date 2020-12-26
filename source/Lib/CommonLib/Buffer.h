@@ -634,7 +634,6 @@ struct UnitBuf
   void fill                 ( const T &val );
   void copyFrom             ( const UnitBuf<const T> &other ) const;
   void reconstruct          ( const UnitBuf<const T> &pred, const UnitBuf<const T> &resi, const ClpRngs& clpRngs );
-  void subtract             ( const UnitBuf<const T> &other );
   void addWeightedAvg       ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRngs& clpRngs, const uint8_t bcwIdx = BCW_DEFAULT, const bool chromaOnly = false, const bool lumaOnly = false);
   void addAvg               ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRngs& clpRngs, const bool chromaOnly = false, const bool lumaOnly = false);
   void extendBorderPel      ( unsigned margin );
@@ -667,19 +666,6 @@ void UnitBuf<T>::copyFrom( const UnitBuf<const T> &other ) const
   for( unsigned i = 0; i < bufs.size(); i++ )
   {
     bufs[i].copyFrom( other.bufs[i] );
-  }
-}
-
-
-
-template<typename T>
-void UnitBuf<T>::subtract( const UnitBuf<const T> &other )
-{
-  CHECK( chromaFormat != other.chromaFormat, "Incompatible formats" );
-
-  for( unsigned i = 0; i < bufs.size(); i++ )
-  {
-    bufs[i].subtract( other.bufs[i] );
   }
 }
 
