@@ -71,20 +71,6 @@ const UnitScale UnitScaleArray[NUM_CHROMA_FORMAT][MAX_NUM_COMPONENT] =
 // coding structure method definitions
 // ---------------------------------------------------------------------------
 
-CodingStructure::CodingStructure(std::shared_ptr<CUCache> cuCache, std::shared_ptr<TUCache> tuCache )
-  : area      ()
-  , picture   ( nullptr )
-  , m_ctuData ( nullptr )
-  , m_ctuDataSize( 0 )
-  , m_dmvrMvCache ( nullptr )
-  , m_dmvrMvCacheSize( 0 )
-  , m_cuCache ( cuCache )
-  , m_tuCache ( tuCache )
-  , m_IBCBufferWidth( 0 )
-{
-  m_dmvrMvCacheOffset = 0;
-}
-
 void CodingStructure::destroy()
 {
   picture   = nullptr;
@@ -270,16 +256,6 @@ cCUTraverser CodingStructure::traverseCUs( const UnitArea& unit ) const
 }
 
 // coding utilities
-
-void CodingStructure::create(const ChromaFormat &_chromaFormat, const Area& _area)
-{
-  createInternals( UnitArea( _chromaFormat, _area ) );
-}
-
-void CodingStructure::create(const UnitArea& _unit)
-{
-  createInternals( _unit );
-}
 
 void CodingStructure::createInternals( const UnitArea& _unit )
 {

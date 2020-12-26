@@ -109,11 +109,23 @@ public:
   CtuData*          m_ctuData;
   size_t            m_ctuDataSize;
 
+  CodingStructure(std::shared_ptr<CUCache> cuCache, std::shared_ptr<TUCache> tuCache )
+    : area      ()
+    , picture   ( nullptr )
+    , m_ctuData ( nullptr )
+    , m_ctuDataSize( 0 )
+    , m_dmvrMvCache ( nullptr )
+    , m_dmvrMvCacheSize( 0 )
+    , m_cuCache ( cuCache )
+    , m_tuCache ( tuCache )
+    , m_IBCBufferWidth( 0 )
+    , m_dmvrMvCacheOffset( 0 )
+  {
+  }
 
-  CodingStructure(std::shared_ptr<CUCache>, std::shared_ptr<TUCache>);
+  void create(const ChromaFormat &_chromaFormat, const Area& _area)     { createInternals( UnitArea( _chromaFormat, _area ) ); }
+  void create(const UnitArea& _unit)                                    { createInternals( _unit );                            }
 
-  void create(const UnitArea &_unit);
-  void create(const ChromaFormat &_chromaFormat, const Area& _area);
   void destroy();
 
   void rebindPicBufs();
