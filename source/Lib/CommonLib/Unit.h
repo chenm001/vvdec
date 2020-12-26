@@ -178,7 +178,7 @@ struct UnitArea
   ChromaFormat chromaFormat;
   UnitBlocksType blocks;
 
-  UnitArea(const ChromaFormat _chromaFormat = NUM_CHROMA_FORMAT) : chromaFormat(_chromaFormat) { }
+  constexpr UnitArea(const ChromaFormat _chromaFormat = NUM_CHROMA_FORMAT) : chromaFormat(_chromaFormat) { }
   UnitArea(const ChromaFormat _chromaFormat, const Area &area);
 
         CompArea& Y()                                  { return blocks[COMPONENT_Y];  }
@@ -209,7 +209,7 @@ struct UnitArea
   PosType   lx() const { return Y().x; }           /*! luma x-pos */
   PosType   ly() const { return Y().y; }           /*! luma y-pos */
 
-  bool valid() const { return chromaFormat != NUM_CHROMA_FORMAT && blocks.size() > 0; }
+  bool valid() const { CHECKD(chromaFormat == NUM_CHROMA_FORMAT, "UnitArea::chromaFormat check failed!"); return blocks.size() > 0; }
 };
 
 inline UnitArea clipArea(const UnitArea &area, const UnitArea &boundingBox)
