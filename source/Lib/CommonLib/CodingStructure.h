@@ -96,7 +96,7 @@ public:
 
   Picture         *picture;
 
-  UnitScale        unitScale[MAX_NUM_COMPONENT];
+  UnitScale        unitScale[MAX_NUM_CHANNEL_TYPE];
   int              chromaQpAdj;
   std::shared_ptr<const VPS> vps;
   std::shared_ptr<const SPS> sps;

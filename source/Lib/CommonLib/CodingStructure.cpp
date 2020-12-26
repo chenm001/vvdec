@@ -59,12 +59,12 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 ThreadSafeCUCache g_globalUnitCache{};
 
-const UnitScale UnitScaleArray[NUM_CHROMA_FORMAT][MAX_NUM_COMPONENT] =
+const UnitScale UnitScaleArray[NUM_CHROMA_FORMAT][MAX_NUM_CHANNEL_TYPE] =
 {
-  { {2,2}, {0,0}, {0,0} },  // 4:0:0
-  { {2,2}, {1,1}, {1,1} },  // 4:2:0
-  { {2,2}, {1,2}, {1,2} },  // 4:2:2
-  { {2,2}, {2,2}, {2,2} }   // 4:4:4
+  { {2,2}, {0,0} },  // 4:0:0
+  { {2,2}, {1,1} },  // 4:2:0
+  { {2,2}, {1,2} },  // 4:2:2
+  { {2,2}, {2,2} }   // 4:4:4
 };
 
 // ---------------------------------------------------------------------------

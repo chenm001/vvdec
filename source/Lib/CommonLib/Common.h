@@ -102,6 +102,7 @@ struct Area : public Position, public Size
             bool contains(const Area &_area)          const { return contains(_area.pos()) && contains(_area.bottomRight()); }
 };
 
+PACKED_START
 struct UnitScale
 {
   enum ScaliningType
@@ -113,15 +114,13 @@ struct UnitScale
 
   constexpr UnitScale()                 : posx( 0), posy( 0) {}
   constexpr UnitScale( int sx, int sy ) : posx(sx), posy(sy) {}
-  int posx;
-  int posy;
+  uint8_t posx;
+  uint8_t posy;
 
   template<typename T> constexpr T scaleHor( const T &in ) const { return in >> posx; }
   template<typename T> constexpr T scaleVer( const T &in ) const { return in >> posy; }
-
-  constexpr Position scale( const Position &pos  ) const { return { pos.x >> posx, pos.y >> posy }; }
-  constexpr Size     scale( const Size     &size ) const { return { size.width >> posx, size.height >> posy }; }
-};
+}
+PACKED_END
 
 constexpr inline ptrdiff_t rsAddr(const Position &pos, const ptrdiff_t stride )
 {
