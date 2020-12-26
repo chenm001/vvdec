@@ -605,13 +605,11 @@ template<typename T>
 struct UnitBuf
 {
   typedef static_vector<AreaBuf<T>,       MAX_NUM_COMPONENT> UnitBufBuffers;
-  typedef static_vector<AreaBuf<const T>, MAX_NUM_COMPONENT> ConstUnitBufBuffers;
 
   ChromaFormat chromaFormat;
   UnitBufBuffers bufs;
 
   UnitBuf() : chromaFormat( NUM_CHROMA_FORMAT ) { }
-  UnitBuf( const ChromaFormat &_chromaFormat, const UnitBufBuffers&  _bufs ) : chromaFormat( _chromaFormat ), bufs( _bufs ) { }
   UnitBuf( const ChromaFormat &_chromaFormat, const AreaBuf<T>  &blkY ) : chromaFormat( _chromaFormat ), bufs{ blkY } { }
   UnitBuf( const ChromaFormat &_chromaFormat, const AreaBuf<T>  &blkY, const AreaBuf<T>  &blkCb, const AreaBuf<T>  &blkCr ) : chromaFormat( _chromaFormat ), bufs{ blkY, blkCb, blkCr } { if( chromaFormat == CHROMA_400 ) bufs.resize( 1 ); }
   UnitBuf( const UnitBuf<typename std::remove_const<T>::type>& other ) : chromaFormat( other.chromaFormat ), bufs{}
@@ -651,9 +649,6 @@ struct UnitBuf
 
 typedef UnitBuf<      Pel>  PelUnitBuf;
 typedef UnitBuf<const Pel> CPelUnitBuf;
-
-typedef UnitBuf<      TCoeff>  CoeffUnitBuf;
-typedef UnitBuf<const TCoeff> CCoeffUnitBuf;
 
 template<typename T>
 void UnitBuf<T>::fill( const T &val )
