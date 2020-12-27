@@ -80,8 +80,6 @@ Feel free to contribute. To do so:
 
 # __Chen's Roadmap__
 
-- [x] Automatic verify framework (_test-harness_)
-
 - [x] Compatible  __209/238__
 
   Clips | Reason | Support Plan
@@ -116,9 +114,11 @@ Feel free to contribute. To do so:
   VIRTUAL_A_MediaTek_3 | Virtual | TBD
   VIRTUAL_B_MediaTek_3 | Virtual | TBD
 
+- [WIP] Automatic verify framework (_test-harness_)
+
 - [WIP] Cleanup unnecessary C++ feature
 
-- [WIP] Android r22 build
+- [x] Android r22 build
 
 - [ ] Architecture improve (Chroma NV12, memory bandwidth optimize, etc)
 
