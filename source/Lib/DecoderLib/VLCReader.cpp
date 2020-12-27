@@ -4540,7 +4540,6 @@ bool HLSyntaxReader::xMoreRbspData()
 
 void HLSyntaxReader::alfFilter( AlfSliceParam& alfSliceParam, const bool isChroma, const int altIdx )
 {
-  const bool isLuma = !isChroma;
   uint32_t code;
 
   // derive maxGolombIdx

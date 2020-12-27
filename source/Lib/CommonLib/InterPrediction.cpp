@@ -1617,7 +1617,6 @@ void InterPrediction::xPad( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicList re
   ptrdiff_t offset;
   int width, height;
   int padsize;
-  Mv cMv;
 
   const int start = forLuma ? 0 : 1;
   const int end   = forLuma ? 1 : MAX_NUM_COMPONENT;

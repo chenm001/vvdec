@@ -116,10 +116,10 @@ public:
     , m_ctuDataSize( 0 )
     , m_dmvrMvCache ( nullptr )
     , m_dmvrMvCacheSize( 0 )
+    , m_dmvrMvCacheOffset( 0 )
     , m_cuCache ( cuCache )
     , m_tuCache ( tuCache )
     , m_IBCBufferWidth( 0 )
-    , m_dmvrMvCacheOffset( 0 )
   {
   }
 

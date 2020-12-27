@@ -106,7 +106,7 @@ inline int64_t abs (int64_t x) { return _abs64(x); };
 #ifdef __GNUC__
 #define PACKED( class_to_pack ) class_to_pack __attribute__((__packed__));
 #define PACKED_START
-#define PACKED_END              __attribute__((__packed__))
+#define PACKED_END              __attribute__((__packed__));
 #else
 #define PACKED( class_to_pack ) __pragma( pack(push, 1) ) class_to_pack ; __pragma( pack(pop) )
 #define PACKED_START            __pragma( pack(push, 1) )

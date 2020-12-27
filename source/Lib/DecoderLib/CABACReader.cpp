@@ -1454,7 +1454,6 @@ void CABACReader::cu_residual( CodingUnit& cu, Partitioner &partitioner, CUCtx& 
   cuCtx.violatesMtsCoeffConstraint                    = false;
   cuCtx.mtsLastScanPos                                = false;
 
-  ChromaCbfs chromaCbfs;
   transform_tree( *cu.cs, cu, partitioner, cuCtx );
 
   residual_lfnst_mode( cu, cuCtx );

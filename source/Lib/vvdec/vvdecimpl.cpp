@@ -174,7 +174,7 @@ int VVDecImpl::uninit()
   m_rcFrameList.clear();
   m_pcFrameNext = m_rcFrameList.end();
 
-#if defined( __linux__ )
+#if defined(__linux__) && !defined (__ANDROID__)
   malloc_trim(0);
 #endif
 

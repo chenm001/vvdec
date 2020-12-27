@@ -771,7 +771,7 @@ void PU::getIBCMergeCandidates(const PredictionUnit &pu, MergeCtx& mrgCtx, Motio
   const Position posRT = pu.Y().topRight();
   const Position posLB = pu.Y().bottomLeft();
 
-  MotionInfo miAbove, miLeft, miAboveLeft, miAboveRight, miBelowLeft;
+  MotionInfo miAbove, miLeft;
 
   //left
   const CodingUnit* cuLeft = cs.getCURestricted(posLB.offset(-1, 0), cu, CH_L, cu.left);
