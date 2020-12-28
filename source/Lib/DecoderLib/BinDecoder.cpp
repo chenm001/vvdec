@@ -54,56 +54,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "CommonLib/dtrace_next.h"
 
-#define CNT_OFFSET 0
-
-
-
-BinDecoderBase::BinDecoderBase()
-  : Ctx         ()
-  , m_Bitstream ( 0 )
-  , m_Range     ( 0 )
-  , m_Value     ( 0 )
-  , m_bitsNeeded( 0 )
-{}
-
-
-void BinDecoderBase::init( InputBitstream* bitstream )
-{
-  m_Bitstream = bitstream;
-}
-
-
-void BinDecoderBase::uninit()
-{
-  m_Bitstream = 0;
-}
-
-
-void BinDecoderBase::start()
-{
-  CHECK( m_Bitstream->getNumBitsUntilByteAligned(), "Bitstream is not byte aligned." );
-  m_Range       = 510;
-  m_Value       = ( m_Bitstream->readByte() << 8 ) + m_Bitstream->readByte();
-  m_bitsNeeded  = -8;
-}
-
-
-void BinDecoderBase::finish()
-{
-  unsigned lastByte;
-  m_Bitstream->peekPreviousByte( lastByte );
-  CHECK( ( ( lastByte << ( 8 + m_bitsNeeded ) ) & 0xff ) != 0x80,
-        "No proper stop/alignment pattern at end of CABAC stream." );
-}
-
-
-void BinDecoderBase::reset( int qp, int initId )
-{
-  Ctx::init( qp, initId );
-  start();
-}
-
-
 unsigned BinDecoderBase::decodeBinEP()
 {
   m_Value            += m_Value;
@@ -275,15 +225,6 @@ unsigned BinDecoderBase::decodeAlignedBinsEP( unsigned numBins )
 #endif
   return bins;
 }
-
-
-
-
-BinDecoder::BinDecoder()
-  : BinDecoderBase()
-  , m_Ctx         ( static_cast<CtxStore&>( *this   ) )
-{}
-
 
 unsigned BinDecoder::decodeBin( unsigned ctxId )
 {
