@@ -865,7 +865,7 @@ def runtest(key, seq, md5, extras):
 
     try:
         logger.settest(seq, command, extras, cmdhash)
-        logger.write('testing [%s] %s' % (key, seq))
+        logger.write('[%s] testing %s' % (key, seq))
         #print 'extras: %s ...' % ' '.join(extras),
         sys.stdout.flush()
 
