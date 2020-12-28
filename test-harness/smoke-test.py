@@ -14,7 +14,7 @@ import utils
 # setup will call sys.exit() if it determines the tests are unable to continue
 utils.setup(sys.argv, 'smoke-tests.txt')
 
-from conf import my_builds, my_sequences, my_vvdec_source
+from conf import my_builds
 from utils import logger
 
 try:

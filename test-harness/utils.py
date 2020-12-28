@@ -26,8 +26,10 @@ rebuild   = False    # delete build folders prior to build
 test_file = None     # filename or full path of file containing test cases
 skip_string = None   # filter tests - all except those matching this string
 only_string = None   # filter tests - only those matching this string
-only_yuv = False     # Verify output with YUV file
+only_yuv = False     # verify output with YUV file
+run_adb = False      # verify through adb interface
 
+android_ndk = None
 logger = None
 buildObj = {}
 
@@ -37,7 +39,8 @@ try:
     from conf import my_machine_name, my_machine_desc
     from conf import my_vvdec_source, my_vvdec_decoder, my_sequences
     from conf import my_pastebin_key, my_tempfolder, my_progress
-    from conf import my_builds, option_strings, version_control
+    from conf import my_builds, my_make_flags, option_strings, version_control
+    from conf import my_adb_cmd, my_adb_sequences, my_adb_decoder, my_adb_tmpfolder
 
     # support ~/repos/vvdec syntax
     my_sequences = os.path.expanduser(my_sequences)
@@ -226,7 +229,7 @@ else:
         else:
             return errors
 
-def gitversion(reporoot, ishg=False):
+def gitversion(reporoot):
     out, err = Popen(['git', 'rev-parse', 'HEAD'], stdout=PIPE, stderr=PIPE, cwd=reporoot).communicate()
     if err:
         raise Exception('Unable to determine source version: ' + err)
@@ -275,7 +278,7 @@ def getcommits():
     l = testrev(open(fname).readlines())
     return l
 
-def cmake(generator, buildfolder, cmakeopts, **opts):
+def cmake(key, generator, buildfolder, cmakeopts, **opts):
     # buildfolder is the relative path to build folder
     logger.settitle('cmake ' + buildfolder)
 
@@ -287,6 +290,9 @@ def cmake(generator, buildfolder, cmakeopts, **opts):
         if 'CFLAGS' in opts:
             cmds.append('-DCMAKE_C_COMPILER_ARG1=' + opts['CFLAGS'])
             cmds.append('-DCMAKE_CXX_COMPILER_ARG1=' + opts['CFLAGS'])
+        if 'ndk' in key:
+            for opt in opts:
+                cmds.append('-D%s=%s' % (opt, opts[opt]))
 
     cmds.extend(cmakeopts)
 
@@ -339,6 +345,25 @@ def get_sdkenv(vcpath, arch):
                 newenv[k.upper()] = v
     return newenv
 
+def gmake(key, buildfolder, generator, **opts):
+    logger.settitle('make ' + buildfolder)
+    if 'MinGW' in generator:
+        cmds = ['mingw32-make']
+    elif 'ndk' in key:
+        cmds = [android_make]
+    else:
+        cmds = ['make']
+
+    if my_make_flags:
+        cmds.extend(my_make_flags)
+
+    origpath = os.environ['PATH']
+    if 'PATH' in opts:
+        os.environ['PATH'] += os.pathsep + opts['PATH']
+    p = Popen(cmds, stdout=PIPE, stderr=PIPE, cwd=buildfolder)
+    errors = async_poll_process(p, False)
+    os.environ['PATH'] = origpath
+    return errors
 
 def msbuild(buildkey, buildfolder, generator, cmakeopts):
     '''Build visual studio solution using specified compiler'''
@@ -426,24 +451,24 @@ def msbuild(buildkey, buildfolder, generator, cmakeopts):
     return err
 
 class Build():
-    def __init__(self, *args):
+    def __init__(self, key, *args):
         self.folder, self.group, self.gen, self.cmakeopts, self.opts = args
         co = self.cmakeopts.split()
 
-        if 'Visual Studio' in self.gen:
+        if 'Visual Studio' in self.gen or 'ndk' in key:
             if 'debug' in co:
                 self.target = 'Debug'
             elif 'reldeb' in co:
                 self.target = 'RelWithDebInfo'
             else:
                 self.target = 'Release'
-            self.exe = os.path.abspath(os.path.join(r'..\bin', self.target + '-static', decoder_binary_name + exe_ext))
+            self.exe = os.path.abspath(os.path.join(r'..\bin', self.target + '-static', decoder_binary_name + ('' if 'ndk' in key else exe_ext)))
         else:
             # TODO: Need fix this path
             self.target = ''
             self.exe = os.path.abspath(os.path.join(decoder_binary_name, self.folder, 'default', decoder_binary_name + exe_ext))
 
-    def cmakeoptions(self, cmakeopts, prof):
+    def cmakeoptions(self, key, cmakeopts, prof):
         for o in self.cmakeopts.split():
             if o in option_strings:
                 for tok in option_strings[o].split():
@@ -451,7 +476,17 @@ class Build():
             else:
                 logger.write('Unknown cmake option', o)
 
-        if 'Makefiles' not in self.gen:
+        if 'ndk' in key:
+            global android_ndk, android_make
+            android_ndk = os.environ['ANDROID_NDK']
+            android_ndk.replace(os.path.sep, '/')
+            android_make = 'make'
+            # TODO: Support Linux
+            if osname == 'Windows':
+                android_make = os.path.join(android_ndk, 'prebuilt/windows-x86_64/bin') + '/make'  + exe_ext
+                cmakeopts.append('-DCMAKE_MAKE_PROGRAM=' + android_make)
+            cmakeopts.append('-DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake' % android_ndk)
+        elif 'Makefiles' not in self.gen:
             pass # our cmake script does not support PGO for MSVC yet
         elif prof is 'generate':
             cmakeopts.append('-DFPROFILE_GENERATE=ON')
@@ -459,9 +494,6 @@ class Build():
         elif prof is 'use':
             cmakeopts.append('-DFPROFILE_GENERATE=OFF')
             cmakeopts.append('-DFPROFILE_USE=ON')
-        elif hg:
-            cmakeopts.append('-DFPROFILE_GENERATE=OFF')
-            cmakeopts.append('-DFPROFILE_USE=OFF')
         #cmakeopts.append('-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=%s' % (self.exe))
         cmakeopts.append('-DBUILD_SHARED_LIBS=OFF')
 
@@ -472,14 +504,14 @@ class Build():
         cmakeopts.append('--no-warn-unused-cli')
 
     def cmake_build(self, key, cmakeopts, buildfolder):
-        cout, cerr = cmake(self.gen, buildfolder, cmakeopts, **self.opts)
+        cout, cerr = cmake(key, self.gen, buildfolder, cmakeopts, **self.opts)
         empty = True
         if cerr:
             prefix = 'cmake errors reported for %s:: ' % key
             errors = cout + cerr
             #_test.failuretype = 'cmake errors'
         elif 'Makefiles' in self.gen:
-            errors = gmake(buildfolder, self.gen, **self.opts)
+            errors = gmake(key, buildfolder, self.gen, **self.opts)
             prefix = 'make warnings or errors reported for %s:: ' % key
             #_test.failuretype = 'make warnings or errors'
         elif 'Visual Studio' in self.gen:
@@ -655,7 +687,7 @@ def setup(argv, preferredlist):
     #if not find_executable(my_vtm_binary):
     #    raise Exception('Unable to find decoder')
 
-    global run_make, rebuild, only_yuv, test_file
+    global run_make, rebuild, only_yuv, run_adb, test_file
     global only_string, skip_string
 
     if my_tempfolder:
@@ -664,7 +696,7 @@ def setup(argv, preferredlist):
     test_file = preferredlist
 
     import getopt
-    longopts = ['builds=', 'help', 'no-make', 'rebuild', 'yuv', 'only=', 'skip=', 'tests=']
+    longopts = ['builds=', 'help', 'no-make', 'rebuild', 'yuv', 'adb', 'only=', 'skip=', 'tests=']
     optlist, args = getopt.getopt(argv[1:], 'hb:t:', longopts)
     for opt, val in optlist:
         # restrict the list of target builds to just those specified by -b
@@ -686,6 +718,8 @@ def setup(argv, preferredlist):
             rebuild = True
         elif opt == '--yuv':
             only_yuv = True
+        elif opt == '--adb':
+            run_adb = True
         elif opt in ('-h', '--help'):
             print sys.argv[0], '[OPTIONS]\n'
             print '\t-h/--help            show this help'
@@ -696,6 +730,7 @@ def setup(argv, preferredlist):
             print '\t   --no-make         do not compile sources'
             print '\t   --rebuild         remove old build folders and rebuild'
             print '\t   --yuv             verify through generate yuv file'
+            print '\t   --adb             verify through adb interface'
             sys.exit(0)
 
     listInRepo = os.path.join(my_vvdec_source, 'test-harness', test_file)
@@ -706,7 +741,7 @@ def setup(argv, preferredlist):
 
     global buildObj
     for key in my_builds:
-        buildObj[key] = Build(*my_builds[key])
+        buildObj[key] = Build(key, *my_builds[key])
 
     global logger, testrev, changers
     logger = Logger(test_file)
@@ -733,7 +768,7 @@ def buildall(prof=None, buildoptions=None):
         global buildObj
         buildObj = {}
         for key in buildoptions:
-            buildObj[key] = Build(*buildoptions[key])
+            buildObj[key] = Build(key, *buildoptions[key])
     for key in buildObj:
         logger.setbuild(key)
         logger.write('Building %s...'% key)
@@ -754,11 +789,18 @@ def buildall(prof=None, buildoptions=None):
         if extra_libs:
             defaultco.append('-DEXTRA_LIB=' + ';'.join(extra_libs))
             if extra_link_flag: defaultco.append(extra_link_flag)
-        build.cmakeoptions(defaultco, prof)
+        build.cmakeoptions(key, defaultco, prof)
         build.cmake_build(key, defaultco, os.path.join(work_folder, 'default'))
         if not os.path.isfile(build.exe):
             logger.write('vvdec executable not found')
             logger.writeerr('vvdec <%s> cli not compiled\n\n' % build.exe)
+        elif run_adb:
+            cmds = my_adb_cmd + ' push ' + build.exe + ' ' + my_adb_tmpfolder
+            p = Popen(cmds, stdout=PIPE, stderr=PIPE, cwd=work_folder)
+            stdout, stderr = p.communicate()
+            cmds = my_adb_cmd + ' shell chmod +x ' + my_adb_decoder
+            p = Popen(cmds, stdout=PIPE, stderr=PIPE, cwd=work_folder)
+            stdout, stderr = p.communicate()
 
 def testcasehash(command):
     m = hashlib.md5()
@@ -799,11 +841,25 @@ def runtest(key, seq, md5, extras):
 
     logger.testcount += 1
     build = buildObj[key]
-    seqfullpath = os.path.join(my_sequences, seq)
-    vvdec = build.exe
+    isNdk = 'ndk' in key;
+
+    vvdec = build.exe if not run_adb else my_adb_decoder
     tmpfolder = tempfile.mkdtemp(prefix='vvdec-tmp')
-    tmpfile = os.path.join(tmpfolder, r'tmp.yuv')
-    command = vvdec + r' -b ' + seqfullpath
+    if not run_adb:
+        if isNdk:
+            return
+        seqfullpath = os.path.join(my_sequences, seq)
+        tmpfile = os.path.join(tmpfolder, r'tmp.yuv')
+    else:
+        seqfullpath = my_adb_sequences + '/' + seq
+        tmpfile = my_adb_tmpfolder + r'/tmp.yuv'
+
+    if run_adb:
+        command_prefix = my_adb_cmd + ' shell '
+    else:
+        command_prefix = ''
+
+    command = command_prefix + vvdec + r' -b ' + seqfullpath
     command += r' -o ' + tmpfile if only_yuv else r' --md5'
     cmdhash = testcasehash(command)
 
@@ -814,8 +870,8 @@ def runtest(key, seq, md5, extras):
         sys.stdout.flush()
 
         logs, errors, summary = '', '', ''
-        if not os.path.isfile(seqfullpath):
-            logger.write('Sequence not found')
+        if not os.path.isfile(seqfullpath) and not isNdk:
+            logger.write('Sequence not found' + seqfullpath)
             errors = 'sequence <%s> not found\n\n' % seqfullpath
         else:
             def prefn():
@@ -829,7 +885,6 @@ def runtest(key, seq, md5, extras):
                 p = Popen(command, cwd=tmpfolder, stdout=PIPE, stderr=PIPE, shell=True)
             else:
                 p = Popen(command, cwd=tmpfolder, stdout=PIPE, stderr=PIPE, preexec_fn=prefn)
-            #print(command)
             stdout, stderr = p.communicate()
             os.environ['PATH'] = origpath
 
@@ -874,5 +929,6 @@ def runtest(key, seq, md5, extras):
         sys.exit(1)
 
     finally:
-        shutil.rmtree(tmpfolder)
+        if not run_adb:
+            shutil.rmtree(tmpfolder)
 

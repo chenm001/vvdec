@@ -6,6 +6,11 @@ my_sequences     = r'F:\git\test_seq'
 my_vvdec_source  = r'R:\vvdec' # location of CMakeLists.txt
 my_vvdec_decoder = r'R:\vvdec\bin\vvdecapp'
 my_progress      = True # do you want to see build / encode status on console?
+my_adb_cmd       = r'R:\platform-tools\adb.exe'
+my_adb_sequences = r'/data/local/tmp/test_seq'
+my_adb_decoder   = r'/data/local/tmp/vvdecapp'
+my_adb_tmpfolder = r'/data/local/tmp'
+my_make_flags    = ''
 # decoder binary name, default vvdecapp
 decoder_binary_name = 'vvdecapp'
 decoder_library_name = 'vvdec'
@@ -58,6 +63,7 @@ my_builds = {
     #           {'PATH' : r'C:\mingw64\bin'}),
     #'gcc' : ('default/', 'gcc', 'Unix Makefiles', 'ffmpeg-static', 
     #           {'LD_LIBRARY_PATH' : r'/home/project/lib', 'PKG_CONFIG_PATH' : r'/home/project/lib/pkgconfig'})
+   'ndk'  : ('ndk/', 'clang', 'Unix Makefiles', 'checked', {'ANDROID_ABI':'arm64-v8a', 'ANDROID_NATIVE_API_LEVEL':'19', 'ANDROID_PLATFORM':'19'}),
 }
 
 # Many builds of vvdec will produce the same outputs given the same input
