@@ -538,7 +538,7 @@ def parsetestfile():
         md5 = v[1].strip()
         cmt = v[2].strip() if len(v) > 2 else ''
 
-        if not os.path.exists(os.path.join(my_sequences, seq)):
+        if not run_adb and not os.path.exists(os.path.join(my_sequences, seq)):
             if seq not in missing:
                 logger.write('Ignoring missing sequence', seq)
                 missing.add(seq)
