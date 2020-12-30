@@ -859,6 +859,10 @@ def runtest(key, seq, md5, extras):
     else:
         command_prefix = ''
 
+    #chmod to avoid premission issue after manual upload binary
+    if run_adb and not run_make:
+        command_prefix += ' chmod +x ' + vvdec + ' && '
+
     command = command_prefix + vvdec + r' -b ' + seqfullpath
     command += r' -o ' + tmpfile if only_yuv else r' --md5'
     cmdhash = testcasehash(command)
