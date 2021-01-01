@@ -836,6 +836,14 @@ enum MsgLevel
 
 #define assert dont_use_assert_use_CHECK_instead
 
+#if !NDEBUG  // for non MSVC compiler, define _DEBUG if in debug mode to have same behavior between MSVC and others in debug
+#ifndef _DEBUG
+#define _DEBUG 1
+#endif
+#endif
+
+// if a check fails with THROW or CHECK, please check if ported correctly from assert in revision 1196)
+#if defined(_DEBUG) && !defined(__ANDROID__)
 class Exception : public std::exception
 {
 public:
@@ -849,19 +857,16 @@ private:
   std::string m_str;
 };
 
-// if a check fails with THROW or CHECK, please check if ported correctly from assert in revision 1196)
 #define THROW(x)            throw( Exception( "\nERROR: In function \"" ) << __FUNCTION__ << "\" in " << __FILE__ << ":" << __LINE__ << ": " << x )
+#define EXIT(x)             throw( Exception( "\n" ) << x << "\n" )
+#else
+#define THROW(x)            { abort(); }
+#define EXIT(x)             { fprintf(stderr, "%s\n", x); abort(); }
+#endif
 //#define THROW(x)            { std::cerr << "\nERROR: In function \"" << __FUNCTION__ << "\" in " << __FILE__ << ":" << __LINE__ << ": " << x << std::endl; abort(); }
 #define CHECK(c,x)          if(c){ THROW(x); }
 #define CHECK_WARN(c,x)     if(c){ std::cerr << "\nWARNING: In function \"" << __FUNCTION__ << "\" in " << __FILE__ << ":" << __LINE__ << ": " << x << std::endl; }
-#define EXIT(x)             throw( Exception( "\n" ) << x << "\n" )
 #define CHECK_NULLPTR(_ptr) CHECK( !( _ptr ), "Accessing an empty pointer!" )
-
-#if !NDEBUG  // for non MSVC compiler, define _DEBUG if in debug mode to have same behavior between MSVC and others in debug
-#ifndef _DEBUG
-#define _DEBUG 1
-#endif
-#endif
 
 #if defined( _DEBUG )
 #define CHECKD(c,x)         if(c){ THROW(x); }

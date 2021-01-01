@@ -247,6 +247,10 @@ if( VVDEC_ENABLE_INSTALL )
   endif()
 endif()
 
+if( ANDROID )
+    set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-unwind-tables -fno-exceptions -fno-asynchronous-unwind-tables" )
+endif()
+
 add_subdirectory( "source/Lib/vvdec" )
 add_subdirectory( "source/App/vvdecapp" )
 

@@ -47,8 +47,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vvdecimpl.h"
 
-#define THROW_EXC(x)            throw( Exception( "\nERROR: In function \"" ) << __FUNCTION__ << "\" in " << __FILE__ << ":" << __LINE__ << ": " << x )
-
 namespace vvdec {
 
 
@@ -58,7 +56,7 @@ VVDec::VVDec()
 {
   m_pcVVDecImpl = new VVDecImpl;
 
-  if( NULL == m_pcVVDecImpl ) {  throw( Exception( "\nERROR: In function \"" ) << __FUNCTION__ << "\" in " << __FILE__ << ":" << __LINE__ << ": cannot init VVDecimpl" ); }
+  if( NULL == m_pcVVDecImpl ) {  THROW( "\nERROR: cannot init VVDecimpl" ); }
 }
 
 /// Destructor

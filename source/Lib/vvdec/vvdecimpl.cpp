@@ -189,7 +189,9 @@ int VVDecImpl::decode( AccessUnit& rcAccessUnit, Frame** ppcFrame )
 
   int iRet= VVDEC_OK;
 
+#if defined(_DEBUG) && !defined(__ANDROID__)
   try
+#endif
   {
     InputNALUnit nalu;
     Picture * pcPic = nullptr;
@@ -349,6 +351,7 @@ int VVDecImpl::decode( AccessUnit& rcAccessUnit, Frame** ppcFrame )
       }
     }
   }
+#if defined(_DEBUG) && !defined(__ANDROID__)
   catch( std::overflow_error& e )
   {
     //assert( 0 );
@@ -365,6 +368,7 @@ int VVDecImpl::decode( AccessUnit& rcAccessUnit, Frame** ppcFrame )
     m_cAdditionalErrorString = css.str();
     return VVDEC_ERR_UNSPECIFIED;
   }
+#endif
 
   return iRet;
 }
@@ -375,7 +379,9 @@ int VVDecImpl::flush( Frame** ppcFrame )
   int iRet= VVDEC_OK;
 
   // Flush decoder
+#if defined(_DEBUG) && !defined(__ANDROID__)
   try
+#endif
   {
     Picture * pcPic = nullptr;
 
@@ -410,6 +416,7 @@ int VVDecImpl::flush( Frame** ppcFrame )
       *ppcFrame = nullptr;
     }
   }
+#if defined(_DEBUG) && !defined(__ANDROID__)
   catch( std::overflow_error& e )
   {
     std::stringstream css;
@@ -424,6 +431,7 @@ int VVDecImpl::flush( Frame** ppcFrame )
     m_cAdditionalErrorString = css.str();
     return VVDEC_ERR_UNSPECIFIED;
   }
+#endif
 
   if( 0 != iRet )
   {
