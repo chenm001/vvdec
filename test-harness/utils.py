@@ -290,8 +290,10 @@ def cmake(key, generator, buildfolder, cmakeopts, **opts):
         if 'CFLAGS' in opts:
             cmds.append('-DCMAKE_C_COMPILER_ARG1=' + opts['CFLAGS'])
             cmds.append('-DCMAKE_CXX_COMPILER_ARG1=' + opts['CFLAGS'])
-        if 'ndk' in key:
-            for opt in opts:
+        for opt in opts:
+            if '-' in opt:
+                cmds.append('%s %s' % (opt, opts[opt]))
+            else:
                 cmds.append('-D%s=%s' % (opt, opts[opt]))
 
     cmds.extend(cmakeopts)
@@ -374,8 +376,10 @@ def msbuild(buildkey, buildfolder, generator, cmakeopts):
     vcpath = ''
     vcbasepath = ''
 
+    vcver = re.findall(r'Visual Studio\s+(\d+)\s+.*', generator)[0]
+
     # Look for Visual Studio install location within the registry
-    if '15' in generator:
+    if vcver >= 15:
         import subprocess
         out = subprocess.check_output([os.path.join(os.environ['ProgramFiles(x86)'], 'Microsoft Visual Studio', 'Installer', 'vswhere.exe'), '-utf8', '-property', 'installationPath']).decode('utf-8')
         vcbasepath = out.rstrip()
@@ -422,6 +426,8 @@ def msbuild(buildkey, buildfolder, generator, cmakeopts):
 
     # use the newest MSBuild installed
     for f in (os.path.join(vcbasepath, r'MSBuild\15.0\Bin\MSBuild.exe'),
+              os.path.join(vcbasepath, r'MSBuild\Current\Bin\amd64\MSBuild.exe'),
+              os.path.join(vcbasepath, r'MSBuild\Current\Bin\MSBuild.exe'),
               os.path.join(os.environ["ProgramFiles(x86)"], r'MSBuild\15.0\Bin\MSBuild.exe'),
               r'C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe',
               r'C:\Windows\Microsoft.NET\Framework\v3.5\MSBuild.exe'):

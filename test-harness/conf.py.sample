@@ -53,17 +53,17 @@ my_builds = {
     #          {}),              # env-vars and other keyword arguments
     #
     #'gcc32' : ('gcc32/', 'gcc32', 'Unix Makefiles', 'static', {'CFLAGS':'-m32'}),
-    #'gcc10' : ('gcc10/', 'gcc10', 'Unix Makefiles', 'main10', {}),
     #'llvm'  : ('llvm/', 'gcc', 'Unix Makefiles', 'checked',
     #           {'CC' : 'clang', 'CXX' : 'clang++'}),
-   'vc15'  : ('vc15/', 'vc', 'Visual Studio 15 2017 Win64', 'checked', {}),
+    #'vc15'  : ('vc15/', 'vc', 'Visual Studio 15 2017 Win64', 'checked', {}),
+    #'vc16'  : ('vc16/', 'vc', 'Visual Studio 16 2019', 'checked', {'-A':'x64'}),
     #'vc15D' : ('vc15D/', 'vc', 'Visual Studio 15 2017 Win64', 'debug crt noasm ppa', {}),
     #'win32' : ('vc15x86/', 'vc', 'Visual Studio 15 2017', 'static ppa', {}),
     #'mingw' : ('mingw/', 'gcc', 'MinGW Makefiles', 'tests',
     #           {'PATH' : r'C:\mingw64\bin'}),
     #'gcc' : ('default/', 'gcc', 'Unix Makefiles', 'ffmpeg-static', 
     #           {'LD_LIBRARY_PATH' : r'/home/project/lib', 'PKG_CONFIG_PATH' : r'/home/project/lib/pkgconfig'})
-   'ndk'  : ('ndk/', 'clang', 'Unix Makefiles', 'checked', {'ANDROID_ABI':'arm64-v8a', 'ANDROID_NATIVE_API_LEVEL':'19', 'ANDROID_PLATFORM':'19'}),
+    #'ndk'  : ('ndk/', 'clang', 'Unix Makefiles', 'checked', {'ANDROID_ABI':'arm64-v8a', 'ANDROID_NATIVE_API_LEVEL':'19', 'ANDROID_PLATFORM':'19'}),
 }
 
 # Many builds of vvdec will produce the same outputs given the same input
@@ -84,5 +84,5 @@ option_strings = {
     'debug'   : '-DCMAKE_BUILD_TYPE=Debug',
     'reldeb'  : '-DCMAKE_BUILD_TYPE=RelWithDebInfo',
     'static'  : '-DENABLE_SHARED=OFF',
-    'noasm'   : '-DENABLE_ASSEMBLY=OFF'
+    'noasm'   : '-DENABLE_ASSEMBLY=OFF',
 }
