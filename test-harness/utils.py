@@ -582,7 +582,13 @@ class Logger():
         b = buildObj[key]
         self.build  = 'cur build: %s group=%s\n' % (key, b.group)
         self.build += 'generator: %s\n' % b.gen
-        self.build += 'options  : %s %s\n' % (b.cmakeopts, str(b.opts))
+        self.build += 'options  : %s (' % b.cmakeopts
+        for opt in b.opts:
+            if '-' in opt:
+                self.build += '%s %s' % (opt, b.opts[opt])
+            else:
+                self.build += '-D%s=%s' % (opt, b.opts[opt])
+        self.build += ')\n'
         self.logfp.write(self.build + '\n')
         self.logfp.flush()
 
