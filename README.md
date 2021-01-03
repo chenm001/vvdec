@@ -86,7 +86,7 @@ Feel free to contribute. To do so:
   :--------------|--------:
   Huawei Enjoy 9 | 11.60
 
-- [x] Compatible  __209/238__
+- [x] Compatible  __218/249__ (Updated @ 01/03/2021)
 
   Clips | Reason | Support Plan
   :------|:------:|:------:
@@ -117,6 +117,7 @@ Feel free to contribute. To do so:
   PALETTE_E_Alibaba_2 | Palette | No
   SUBPIC_A_HUAWEI_3 | Sub-picture | No
   SUBPIC_B_HUAWEI_3 | Sub-picture | No
+  SUBPIC_C_ERICSSON_1 | Sub-picture | No
   VIRTUAL_A_MediaTek_3 | Virtual | TBD
   VIRTUAL_B_MediaTek_3 | Virtual | TBD
 
