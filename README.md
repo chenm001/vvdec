@@ -80,6 +80,12 @@ Feel free to contribute. To do so:
 
 # __Chen's Roadmap__
 
+- [WIP] Performance @ 1080p (Thanks Xiaoquan You to report)
+
+  Phone          | Fps
+  :--------------|--------:
+  Huawei Enjoy 9 | 11.60
+
 - [x] Compatible  __209/238__
 
   Clips | Reason | Support Plan
