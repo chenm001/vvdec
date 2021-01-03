@@ -69,7 +69,7 @@ void applyPROFCore( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gr
   static constexpr int height = 4;
 
   int idx = 0;
-  const int dILimit = 1 << std::max<int>(clpRng.bd + 1, 13);
+  const int dILimit = 1 << std::max<int>(clpRng.m_bd + 1, 13);
 
   for (int h = 0; h < height; h++)
   {
@@ -81,7 +81,7 @@ void applyPROFCore( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gr
       if (!bi)
       {
         dst[w] = (dst[w] + offset) >> shiftNum;
-        dst[w] = ClipPel(dst[w], clpRng.bd);
+        dst[w] = ClipPelMax(dst[w], clpRng.m_max);
       }
       idx++;
     }
@@ -119,16 +119,16 @@ void addBIOAvg4(const Pel* src0, ptrdiff_t src0Stride, const Pel* src1, ptrdiff_
     for (int x = 0; x < width; x += 4)
     {
       b = tmpx * (gradX0[x] - gradX1[x]) + tmpy * (gradY0[x] - gradY1[x]);
-      dst[x] = ClipPel((int16_t)rightShift((src0[x] + src1[x] + b + offset), shift), clpRng.bd);
+      dst[x] = ClipPelMax((int16_t)rightShift((src0[x] + src1[x] + b + offset), shift), clpRng.m_max);
 
       b = tmpx * (gradX0[x + 1] - gradX1[x + 1]) + tmpy * (gradY0[x + 1] - gradY1[x + 1]);
-      dst[x + 1] = ClipPel((int16_t)rightShift((src0[x + 1] + src1[x + 1] + b + offset), shift), clpRng.bd);
+      dst[x + 1] = ClipPelMax((int16_t)rightShift((src0[x + 1] + src1[x + 1] + b + offset), shift), clpRng.m_max);
 
       b = tmpx * (gradX0[x + 2] - gradX1[x + 2]) + tmpy * (gradY0[x + 2] - gradY1[x + 2]);
-      dst[x + 2] = ClipPel((int16_t)rightShift((src0[x + 2] + src1[x + 2] + b + offset), shift), clpRng.bd);
+      dst[x + 2] = ClipPelMax((int16_t)rightShift((src0[x + 2] + src1[x + 2] + b + offset), shift), clpRng.m_max);
 
       b = tmpx * (gradX0[x + 3] - gradX1[x + 3]) + tmpy * (gradY0[x + 3] - gradY1[x + 3]);
-      dst[x + 3] = ClipPel((int16_t)rightShift((src0[x + 3] + src1[x + 3] + b + offset), shift), clpRng.bd);
+      dst[x + 3] = ClipPelMax((int16_t)rightShift((src0[x + 3] + src1[x + 3] + b + offset), shift), clpRng.m_max);
     }
     dst += dstStride;       src0 += src0Stride;     src1 += src1Stride;
     gradX0 += gradStride; gradX1 += gradStride; gradY0 += gradStride; gradY1 += gradStride;
@@ -891,7 +891,7 @@ void InterPrediction::xPredInterBlk( const ComponentID&    compID,
 
   if( bioApplied && compID == COMPONENT_Y )
   {
-    const int   shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.bd ) );
+    const int   shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.m_bd ) );
     const int   xOffset = ( xFrac < 8 ) ? 1 : 0;
     const int   yOffset = ( yFrac < 8 ) ? 1 : 0;
     const Pel*  refPel  = refPtr + ( 1 - yOffset ) * refStride - xOffset;
@@ -1255,7 +1255,7 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
 
         if( enablePROF )
         {
-          const Pel shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.bd ) );
+          const Pel shift   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.m_bd ) );
           const int xOffset = xFrac >> 3;
           const int yOffset = yFrac >> 3;
 
@@ -1280,7 +1280,7 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
             dstPel[blockWidth] = ( refPel[blockWidth] << shift ) - Pel( IF_INTERNAL_OFFS );
           }
 
-          profGradFilter( dst, dstStride, blockWidth, blockHeight, AFFINE_MIN_BLOCK_SIZE, gradX, gradY, clpRng.bd );
+          profGradFilter( dst, dstStride, blockWidth, blockHeight, AFFINE_MIN_BLOCK_SIZE, gradX, gradY, clpRng.m_bd );
           
           Pel *dstY = dstBuf.buf + w + dstBuf.stride * h;
           const Pel offset   = ( 1 << ( shift- 1 ) ) + IF_INTERNAL_OFFS;
@@ -1947,7 +1947,7 @@ void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, co
     PelUnitBuf srcPred1 = isChromaEnabled( pu.chromaFormat ) ? PelUnitBuf( pu.chromaFormat, PelBuf( m_acYuvPred[1][0], subPu.Y() ), PelBuf( m_acYuvPred[1][1], subPu.Cb() ), PelBuf( m_acYuvPred[1][2], subPu.Cr() ) ) : PelUnitBuf( pu.chromaFormat, PelBuf( m_acYuvPred[1][0], subPu.Y() ) );
 
     DistParam cDistParam;
-    m_pcRdCost->setDistParam( cDistParam, nullptr, nullptr, m_biLinearBufStride, m_biLinearBufStride, clpRngs.bd, dx, dy, 1 );
+    m_pcRdCost->setDistParam( cDistParam, nullptr, nullptr, m_biLinearBufStride, m_biLinearBufStride, clpRngs.m_bd, dx, dy, 1 );
     
     PelUnitBuf subPredBuf = pcYuvDst.subBuf( UnitAreaRelative( pu, subPu ) );
 #if JVET_Q0438_MONOCHROME_BUGFIXES

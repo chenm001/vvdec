@@ -321,7 +321,7 @@ const uint8_t* PredictorMIP::getMatrixData(const int modeIdx) const
           tmp2 += input[i + 2] * weight[i + 2];
           tmp3 += input[i + 3] * weight[i + 3];
         }
-        resPtr[posRes++] = ClipPel<int>(((tmp0 + tmp1 + tmp2 + tmp3 + offset) >> MIP_SHIFT_MATRIX) + inputOffset, bitDepth);
+        resPtr[posRes++] = ClipPelBit<int>(((tmp0 + tmp1 + tmp2 + tmp3 + offset) >> MIP_SHIFT_MATRIX) + inputOffset, bitDepth);
 
         weight += inputSize;
       }

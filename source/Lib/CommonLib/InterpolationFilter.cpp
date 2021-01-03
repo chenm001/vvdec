@@ -433,6 +433,7 @@ InterpolationFilter::InterpolationFilter()
 template<bool isFirst, bool isLast>
 void InterpolationFilter::filterCopy( const ClpRng& clpRng, const Pel* src, const ptrdiff_t srcStride, Pel* dst, const ptrdiff_t dstStride, int width, int height, bool biMCForDMVR )
 {
+  const int clpRngDepth = clpRng.m_bd;
   int row, col;
 
   if ( isFirst == isLast )
@@ -450,14 +451,14 @@ void InterpolationFilter::filterCopy( const ClpRng& clpRng, const Pel* src, cons
   }
   else if ( isFirst )
   {
-    const int shift = std::max<int>(2, (IF_INTERNAL_PREC - clpRng.bd));
+    const int shift = std::max<int>(2, (IF_INTERNAL_PREC - clpRngDepth));
 
     if( biMCForDMVR )
     {
       int shift10BitOut, offset;
-      if( ( clpRng.bd - IF_INTERNAL_PREC_BILINEAR ) > 0 )
+      if( ( clpRngDepth - IF_INTERNAL_PREC_BILINEAR ) > 0 )
       {
-        shift10BitOut = ( clpRng.bd - IF_INTERNAL_PREC_BILINEAR );
+        shift10BitOut = ( clpRngDepth - IF_INTERNAL_PREC_BILINEAR );
         offset = ( 1 << ( shift10BitOut - 1 ) );
         for( row = 0; row < height; row++ )
         {
@@ -471,7 +472,7 @@ void InterpolationFilter::filterCopy( const ClpRng& clpRng, const Pel* src, cons
       }
       else
       {
-        shift10BitOut = ( IF_INTERNAL_PREC_BILINEAR - clpRng.bd );
+        shift10BitOut = ( IF_INTERNAL_PREC_BILINEAR - clpRngDepth );
         for( row = 0; row < height; row++ )
         {
           for( col = 0; col < width; col++ )
@@ -524,14 +525,14 @@ void InterpolationFilter::filterCopy( const ClpRng& clpRng, const Pel* src, cons
   }
   else
   {
-    const int shift = std::max<int>(2, (IF_INTERNAL_PREC - clpRng.bd));
+    const int shift = std::max<int>(2, (IF_INTERNAL_PREC - clpRngDepth));
 
     if( biMCForDMVR )
     {
       int shift10BitOut, offset;
-      if( ( clpRng.bd - IF_INTERNAL_PREC_BILINEAR ) > 0 )
+      if( ( clpRngDepth - IF_INTERNAL_PREC_BILINEAR ) > 0 )
       {
-        shift10BitOut = ( clpRng.bd - IF_INTERNAL_PREC_BILINEAR );
+        shift10BitOut = ( clpRngDepth - IF_INTERNAL_PREC_BILINEAR );
         offset = ( 1 << ( shift10BitOut - 1 ) );
         for( row = 0; row < height; row++ )
         {
@@ -546,7 +547,7 @@ void InterpolationFilter::filterCopy( const ClpRng& clpRng, const Pel* src, cons
       }
       else
       {
-        shift10BitOut = ( IF_INTERNAL_PREC_BILINEAR - clpRng.bd );
+        shift10BitOut = ( IF_INTERNAL_PREC_BILINEAR - clpRngDepth );
         for( row = 0; row < height; row++ )
         {
           for( col = 0; col < width; col++ )
@@ -568,7 +569,7 @@ void InterpolationFilter::filterCopy( const ClpRng& clpRng, const Pel* src, cons
           Pel val = src[ col ];
           val = rightShift_round((val + IF_INTERNAL_OFFS), shift);
 
-          dst[col] = ClipPel( val, clpRng.bd );
+          dst[col] = ClipPelMax( val, clpRng.m_max );
         }
 
         INCY( src, srcStride );
@@ -630,7 +631,7 @@ void InterpolationFilter::filter(const ClpRng& clpRng, const Pel* src, const ptr
   src -= ( N/2 - 1 ) * cStride;
 
   int offset;
-  int headRoom = std::max<int>(2, (IF_INTERNAL_PREC - clpRng.bd));
+  int headRoom = std::max<int>(2, (IF_INTERNAL_PREC - clpRng.m_bd));
   int shift    = IF_FILTER_PREC;
   // with the current settings (IF_INTERNAL_PREC = 14 and IF_FILTER_PREC = 6), though headroom can be
   // negative for bit depths greater than 14, shift will remain non-negative for bit depths of 8->20
@@ -652,7 +653,7 @@ void InterpolationFilter::filter(const ClpRng& clpRng, const Pel* src, const ptr
   {
     if( isFirst ) 
     {
-      shift  = IF_FILTER_PREC_BILINEAR - (IF_INTERNAL_PREC_BILINEAR - clpRng.bd);
+      shift  = IF_FILTER_PREC_BILINEAR - (IF_INTERNAL_PREC_BILINEAR - clpRng.m_bd);
       offset = 1 << (shift - 1);
     }
     else 
@@ -688,7 +689,7 @@ void InterpolationFilter::filter(const ClpRng& clpRng, const Pel* src, const ptr
       Pel val = ( sum + offset ) >> shift;
       if ( isLast )
       {
-        val = ClipPel( val, clpRng.bd );
+        val = ClipPelMax( val, clpRng.m_max );
       }
       dst[col] = val;
     }
@@ -803,7 +804,7 @@ void InterpolationFilter::filterXxY_N2( const ClpRng& clpRng, const Pel* src, co
   cV[0] = coeffV[0]; cV[1] = coeffV[1];
 
   int offset1st, offset2nd;
-  int headRoom   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.bd ) );
+  int headRoom   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.m_bd ) );
   int shift1st   = IF_FILTER_PREC, shift2nd = IF_FILTER_PREC;
   // with the current settings (IF_INTERNAL_PREC = 14 and IF_FILTER_PREC = 6), though headroom can be
   // negative for bit depths greater than 14, shift will remain non-negative for bit depths of 8->20
@@ -848,7 +849,7 @@ void InterpolationFilter::filterXxY_N2( const ClpRng& clpRng, const Pel* src, co
         int val = ( dst[row - 1][col] + sum * cV[1] + offset2nd ) >> shift2nd;
         if( isLast )
         {
-          val = ClipPel( val, clpRng.bd );
+          val = ClipPelMax( val, clpRng.m_max );
         }
         _dst[col] = val;
       }
@@ -873,7 +874,7 @@ void InterpolationFilter::filterXxY_N4( const ClpRng& clpRng, const Pel* src, co
   cV[2] = coeffV[2]; cV[3] = coeffV[3];
 
   int offset1st, offset2nd;
-  int headRoom   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.bd ) );
+  int headRoom   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.m_bd ) );
   int shift1st   = IF_FILTER_PREC, shift2nd = IF_FILTER_PREC;
   // with the current settings (IF_INTERNAL_PREC = 14 and IF_FILTER_PREC = 6), though headroom can be
   // negative for bit depths greater than 14, shift will remain non-negative for bit depths of 8->20
@@ -924,7 +925,7 @@ void InterpolationFilter::filterXxY_N4( const ClpRng& clpRng, const Pel* src, co
         int val = ( dst[row - 3][col] + sum * cV[3] + offset2nd ) >> shift2nd;
         if( isLast )
         {
-          val = ClipPel( val, clpRng.bd );
+          val = ClipPelMax( val, clpRng.m_max );
         }
         _dst[col] = val;
       }
@@ -953,7 +954,7 @@ void InterpolationFilter::filterXxY_N8( const ClpRng& clpRng, const Pel* src, co
   cV[6] = coeffV[6]; cV[7] = coeffV[7];
 
   int offset1st, offset2nd;
-  int headRoom   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.bd ) );
+  int headRoom   = std::max<int>( 2, ( IF_INTERNAL_PREC - clpRng.m_bd ) );
   int shift1st   = IF_FILTER_PREC, shift2nd = IF_FILTER_PREC;
   // with the current settings (IF_INTERNAL_PREC = 14 and IF_FILTER_PREC = 6), though headroom can be
   // negative for bit depths greater than 14, shift will remain non-negative for bit depths of 8->20
@@ -1012,7 +1013,7 @@ void InterpolationFilter::filterXxY_N8( const ClpRng& clpRng, const Pel* src, co
         int val = ( dst[row - 7][col] + sum * cV[7] + offset2nd ) >> shift2nd;
         if( isLast )
         {
-          val = ClipPel( val, clpRng.bd );
+          val = ClipPelMax( val, clpRng.m_max );
         }
         _dst[col] = val;
       }
@@ -1282,8 +1283,8 @@ void InterpolationFilter::xWeightedGeoBlk(const PredictionUnit &pu, const uint32
 
   const char    log2WeightBase = 3;
 //  const ClpRng  clipRng = pu.slice->clpRngs().comp[compIdx];
-  const int32_t clipbd = clipRng.bd;
-  const int32_t shiftWeighted = std::max<int>(2, (IF_INTERNAL_PREC - clipbd)) + log2WeightBase;
+  const int clpRngDepth = clipRng.m_bd;
+  const int32_t shiftWeighted = std::max<int>(2, (IF_INTERNAL_PREC - clpRngDepth)) + log2WeightBase;
   const int32_t offsetWeighted = (1 << (shiftWeighted - 1)) + (IF_INTERNAL_OFFS << log2WeightBase);
   const uint32_t scaleX = getComponentScaleX(compIdx, pu.chromaFormat);
   const uint32_t scaleY = getComponentScaleY(compIdx, pu.chromaFormat);
@@ -1314,7 +1315,7 @@ void InterpolationFilter::xWeightedGeoBlk(const PredictionUnit &pu, const uint32
   {
     for( int x = 0; x < width; x++ )
     {
-      *dst++  = ClipPel(rightShift((*weight*(*src0++) + ((8 - *weight) * (*src1++)) + offsetWeighted), shiftWeighted), clipRng.bd);
+      *dst++  = ClipPelMax(rightShift((*weight*(*src0++) + ((8 - *weight) * (*src1++)) + offsetWeighted), shiftWeighted), clipRng.m_max);
       weight += stepX;
     }
     dst    += strideDst;

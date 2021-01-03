@@ -421,11 +421,13 @@ static const int DELTA_QP_ACT[4] =                  { -5, 1, 3, 1 };
 
 struct ClpRng
 {
-  int bd;
+  uint16_t m_bd;
+  uint16_t m_max;
 };
 
 template <typename T> constexpr inline T Clip3  ( const T minVal, const T maxVal, const T a) { return std::min<T>(std::max<T>(minVal, a) , maxVal); }  ///< general min/max clip
-template <typename T> constexpr inline T ClipPel( const T x, const int bitDepth )            { return Clip3( T( 0 ), T( ( 1 << bitDepth ) - 1 ), x ); } ///< clip reconstruction
+template <typename T> constexpr inline T ClipPelBit( const T x, const int bitDepth )         { return Clip3( T( 0 ), T( ( 1 << bitDepth ) - 1 ), x ); } ///< clip reconstruction
+template <typename T> constexpr inline T ClipPelMax( const T x, const int maxVal )           { return Clip3( T( 0 ), T( maxVal ), x ); } ///< clip reconstruction
 
 extern MsgLevel g_verbosity;
 

@@ -397,7 +397,8 @@ void  Slice::setNumEntryPoints( const SPS *sps, const PPS *pps )
 void Slice::setDefaultClpRng( const SPS& sps )
 {
   CHECK( sps.getBitDepth( CH_L ) != sps.getBitDepth( CH_C ), "Luma and chroma bit depths are different!" );
-  m_clpRngs.bd  = sps.getBitDepth(CHANNEL_TYPE_LUMA);
+  m_clpRngs.m_bd  = sps.getBitDepth(CHANNEL_TYPE_LUMA);
+  m_clpRngs.m_max = (1 << m_clpRngs.m_bd) - 1;
 }
 
 

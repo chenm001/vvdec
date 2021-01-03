@@ -1213,7 +1213,7 @@ void AdaptiveLoopFilter::filterBlk( const AlfClassifier*   classifier,
             sum = (sum + (1 << ((shift + 3) - 1))) >> (shift + 3);
           }
           sum += curr;
-          pRec1[jj] = ClipPel( sum, clpRng.bd );
+          pRec1[jj] = ClipPelMax( sum, clpRng.m_max );
 
           pImg0++;
           pImg1++;
@@ -1320,10 +1320,10 @@ void AdaptiveLoopFilter::filterBlkCcAlf(const PelBuf &dstBuf, const CPelUnitBuf 
           sum += filterCoeff[6] * (srcCross[offset3 + jj2    ] - currSrcCross);
 
           sum = (sum + ((1 << 7 ) >> 1)) >> 7; //m_scaleBits = 7
-          const int offset = 1 << clpRngs.bd >> 1;
-          sum = ClipPel(sum + offset, clpRngs.bd) - offset;
+          const int offset = 1 << clpRngs.m_bd >> 1;
+          sum = ClipPelMax(sum + offset, clpRngs.m_max) - offset;
           sum += srcSelf[jj];
-          srcSelf[jj] = ClipPel(sum, clpRngs.bd);
+          srcSelf[jj] = ClipPelMax(sum, clpRngs.m_max);
         }
       }
     }
