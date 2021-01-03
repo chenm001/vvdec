@@ -421,8 +421,6 @@ static const int DELTA_QP_ACT[4] =                  { -5, 1, 3, 1 };
 
 struct ClpRng
 {
-  Pel min() const { return 0; }
-  Pel max() const { return bd == 8 ? (1<<8)-1 : bd == 9 ? (1<<9)-1 : bd == 10 ? (1<<10)-1 : bd == 11 ? (1<<11)-1 : bd == 12 ? (1<<12)-1 : (1<<8)-1;}
   int bd;
 };
 
