@@ -269,10 +269,11 @@ int DecLib::finishPicture( Picture* pcPic, MsgLevel msgl )
   }
 
   //-- For time output for each slice
-  msg( msgl, "POC %4d LId: %2d TId: %1d ( %c-SLICE, QP%3d ) ", pcPic->poc, pcPic->layerId,
+  msg( msgl, "POC %4d LId: %2d TId: %1d ( %c-SLICE, QP%3d%s ) ", pcPic->poc, pcPic->layerId,
          pcSlice->getTLayer(),
          c,
-         pcSlice->getSliceQp() );
+         pcSlice->getSliceQp(),
+         pcPic->longTerm ? " [LT]" : "     " );
   msg( msgl, "[DT %6.3f] ", pcPic->getProcessingTime() );
 
   for (int iRefList = 0; iRefList < 2; iRefList++)
