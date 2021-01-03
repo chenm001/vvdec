@@ -145,12 +145,12 @@ protected:
                                   ptrdiff_t             srcPadStride = 0 );
 
   void (*BiOptFlow)             ( const Pel* srcY0,const Pel* srcY1,const Pel* gradX0,const Pel* gradX1,const Pel* gradY0,const Pel* gradY1,const int width,const int height,Pel* dstY,const ptrdiff_t dstStride,const int shiftNum,const int  offset,const int  limit, const ClpRng& clpRng, const int bitDepth ) = nullptr;
-  void (*BioGradFilter)         (       Pel* pSrc, ptrdiff_t srcStride,  int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY, const int bitDepth ) = nullptr;
+  void (*BioGradFilter)         (       Pel* pSrc, ptrdiff_t srcStride,  int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY ) = nullptr;
 
   void( *PaddBIO )              ( const Pel* refPel, Pel* dstPel, unsigned width, const int shift );
 
   void xWeightedAverage         ( const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const BitDepths& clipBitDepths, const ClpRng& clpRngs, const bool& bioApplied );
-  void( *profGradFilter )       ( Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY, const int bitDepth );
+  void( *profGradFilter )       ( Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY );
   void( *applyPROF[2] )         ( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gradX, const Pel* gradY, const int* dMvX, const int* dMvY, int shiftNum, Pel offset, const ClpRng& clpRng );
   void( *roundIntVector )       ( int* v, int size, unsigned int nShift, const int dmvLimit );
 #if JVET_R0058

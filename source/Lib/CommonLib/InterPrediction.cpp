@@ -214,7 +214,7 @@ void BiOptFlowCore(const Pel* srcY0,const Pel* srcY1,const Pel* gradX0,const Pel
 }
 
 template<bool PAD = true>
-void gradFilterCore(Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY, const int bitDepth)
+void gradFilterCore(Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY)
 {
   Pel* srcTmp   = PAD ? pSrc  + srcStride  + 1 : pSrc;
   Pel* gradXTmp = PAD ? gradX + gradStride + 1 : gradX;
@@ -1280,7 +1280,7 @@ void InterPrediction::xPredAffineBlk( const ComponentID&    compID,
             dstPel[blockWidth] = ( refPel[blockWidth] << shift ) - Pel( IF_INTERNAL_OFFS );
           }
 
-          profGradFilter( dst, dstStride, blockWidth, blockHeight, AFFINE_MIN_BLOCK_SIZE, gradX, gradY, clpRng.m_bd );
+          profGradFilter( dst, dstStride, blockWidth, blockHeight, AFFINE_MIN_BLOCK_SIZE, gradX, gradY );
           
           Pel *dstY = dstBuf.buf + w + dstBuf.stride * h;
           const Pel offset   = ( 1 << ( shift- 1 ) ) + IF_INTERNAL_OFFS;
@@ -1331,7 +1331,7 @@ void InterPrediction::applyBiOptFlow( const PredictionUnit &pu,
     Pel *dstTempPtr = m_filteredBlockTmp[2 + refList][COMPONENT_Y] + stridePredMC;
     Pel *gradY      = ( refList == 0 ) ? m_gradY0 : m_gradY1;
     Pel *gradX      = ( refList == 0 ) ? m_gradX0 : m_gradX1;
-    BioGradFilter( dstTempPtr, stridePredMC, widthG, heightG, width + BIO_ALIGN_SIZE, gradX, gradY, bitDepth );
+    BioGradFilter( dstTempPtr, stridePredMC, widthG, heightG, width + BIO_ALIGN_SIZE, gradX, gradY );
     Pel *padStr = m_filteredBlockTmp[2 + refList][COMPONENT_Y] + 2 * stridePredMC + 1;
     for( int y = 0; y < height; y++ )
     {
