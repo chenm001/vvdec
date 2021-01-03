@@ -433,9 +433,9 @@ struct ClpRngs : ClpRng
 {
 };
 
-template <typename T> constexpr inline T Clip3  ( const T minVal, const T maxVal, const T a) { return std::min<T> (std::max<T> (minVal, a) , maxVal); }  ///< general min/max clip
+template <typename T> constexpr inline T Clip3  ( const T minVal, const T maxVal, const T a) { return std::min<T>(std::max<T>(minVal, a) , maxVal); }  ///< general min/max clip
 template <typename T> constexpr inline T ClipBD ( const T x, const int bitDepth )            { return Clip3( T( 0 ), T( ( 1 << bitDepth ) - 1 ), x ); }
-template <typename T> constexpr inline T ClipPel( const T a, const ClpRng& clpRng )          { return ClipBD( a, clpRng.bd ); }  ///< clip reconstruction
+template <typename T> constexpr inline T ClipPel( const T a, const int clpRng )              { return ClipBD( a, clpRng ); }  ///< clip reconstruction
 
 extern MsgLevel g_verbosity;
 

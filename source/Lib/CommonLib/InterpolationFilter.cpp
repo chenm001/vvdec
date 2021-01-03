@@ -568,7 +568,7 @@ void InterpolationFilter::filterCopy( const ClpRng& clpRng, const Pel* src, cons
           Pel val = src[ col ];
           val = rightShift_round((val + IF_INTERNAL_OFFS), shift);
 
-          dst[col] = ClipPel( val, clpRng );
+          dst[col] = ClipPel( val, clpRng.bd );
         }
 
         INCY( src, srcStride );
@@ -688,7 +688,7 @@ void InterpolationFilter::filter(const ClpRng& clpRng, const Pel* src, const ptr
       Pel val = ( sum + offset ) >> shift;
       if ( isLast )
       {
-        val = ClipPel( val, clpRng );
+        val = ClipPel( val, clpRng.bd );
       }
       dst[col] = val;
     }
@@ -848,7 +848,7 @@ void InterpolationFilter::filterXxY_N2( const ClpRng& clpRng, const Pel* src, co
         int val = ( dst[row - 1][col] + sum * cV[1] + offset2nd ) >> shift2nd;
         if( isLast )
         {
-          val = ClipPel( val, clpRng );
+          val = ClipPel( val, clpRng.bd );
         }
         _dst[col] = val;
       }
@@ -924,7 +924,7 @@ void InterpolationFilter::filterXxY_N4( const ClpRng& clpRng, const Pel* src, co
         int val = ( dst[row - 3][col] + sum * cV[3] + offset2nd ) >> shift2nd;
         if( isLast )
         {
-          val = ClipPel( val, clpRng );
+          val = ClipPel( val, clpRng.bd );
         }
         _dst[col] = val;
       }
@@ -1012,7 +1012,7 @@ void InterpolationFilter::filterXxY_N8( const ClpRng& clpRng, const Pel* src, co
         int val = ( dst[row - 7][col] + sum * cV[7] + offset2nd ) >> shift2nd;
         if( isLast )
         {
-          val = ClipPel( val, clpRng );
+          val = ClipPel( val, clpRng.bd );
         }
         _dst[col] = val;
       }
@@ -1314,7 +1314,7 @@ void InterpolationFilter::xWeightedGeoBlk(const PredictionUnit &pu, const uint32
   {
     for( int x = 0; x < width; x++ )
     {
-      *dst++  = ClipPel(rightShift((*weight*(*src0++) + ((8 - *weight) * (*src1++)) + offsetWeighted), shiftWeighted), clipRng);
+      *dst++  = ClipPel(rightShift((*weight*(*src0++) + ((8 - *weight) * (*src1++)) + offsetWeighted), shiftWeighted), clipRng.bd);
       weight += stepX;
     }
     dst    += strideDst;

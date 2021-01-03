@@ -261,18 +261,18 @@ void xPelFilterLumaCorePel( Pel* piSrc, const ptrdiff_t iOffset, const int tc, c
       delta = Clip3( -tc, tc, delta );
       const int tc2 = tc >> 1;
 
-      piSrc[-iOffset * 1] = ClipPel( m3 + delta, clpRng);
+      piSrc[-iOffset * 1] = ClipPel( m3 + delta, clpRng.bd);
       if( bFilterSecondP )
       {
         const int delta1 = Clip3( -tc2, tc2, ( ( ( ( m1 + m3 + 1 ) >> 1 ) - m2 + delta ) >> 1 ) );
-        piSrc[-iOffset * 2] = ClipPel( m2 + delta1, clpRng);
+        piSrc[-iOffset * 2] = ClipPel( m2 + delta1, clpRng.bd);
       }
 
-      piSrc[0]        = ClipPel( m4 - delta, clpRng);
+      piSrc[0]        = ClipPel( m4 - delta, clpRng.bd);
       if( bFilterSecondQ )
       {
         const int delta2 = Clip3( -tc2, tc2, ( ( ( ( m6 + m4 + 1 ) >> 1 ) - m5 - delta ) >> 1 ) );
-        piSrc[iOffset] = ClipPel( m5 + delta2, clpRng);
+        piSrc[iOffset] = ClipPel( m5 + delta2, clpRng.bd);
       }
     }
   }
@@ -344,8 +344,8 @@ static inline void xPelFilterChroma( Pel* piSrc, const ptrdiff_t iOffset, const 
   {
     delta           = Clip3( -tc, tc, ( ( ( ( m4 - m3 ) << 2 ) + m2 - m5 + 4 ) >> 3 ) );
 
-    piSrc[-iOffset] = ClipPel( m3 + delta, clpRng );
-    piSrc[       0] = ClipPel( m4 - delta, clpRng );
+    piSrc[-iOffset] = ClipPel( m3 + delta, clpRng.bd );
+    piSrc[       0] = ClipPel( m4 - delta, clpRng.bd );
   }
 }
 // ====================================================================================================================

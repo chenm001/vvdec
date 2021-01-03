@@ -120,7 +120,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         edgeType =  signRight + signLeft;
         signLeft  = -signRight;
 
-        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng.bd);
       }
 
       srcLine  += srcStride;
@@ -164,7 +164,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         edgeType = signDown + signUpLine[x];
         signUpLine[x]= -signDown;
 
-        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng.bd);
       }
       srcLine += srcStride;
       resLine += resStride;
@@ -201,7 +201,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
       }
       edgeType  =  sgn(srcLine[x] - srcLineAbove[x- 1]) - signUpLine[x+1];
 
-      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng.bd);
     }
     srcLine  += srcStride;
     resLine  += resStride;
@@ -221,7 +221,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
           continue;
         }
         edgeType =  signDown + signUpLine[x];
-        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng.bd);
 
         signDownLine[x+1] = -signDown;
       }
@@ -246,7 +246,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         continue;
       }
       edgeType =  sgn(srcLine[x] - srcLineBelow[x+ 1]) + signUpLine[x];
-      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>( srcLine[x] + offset[edgeType], clpRng.bd);
     }
   }
   break;
@@ -277,7 +277,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         continue;
       }
       edgeType = sgn(srcLine[x] - srcLineAbove[x+1]) -signUpLine[x-1];
-      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng.bd);
     }
     srcLine += srcStride;
     resLine += resStride;
@@ -296,7 +296,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
           continue;
         }
         edgeType =  signDown + signUpLine[x];
-        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+        resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng.bd);
         signUpLine[x-1] = -signDown;
       }
       signUpLine[endX-1] = (int8_t)sgn(srcLineBelow[endX-1] - srcLine[endX]);
@@ -315,7 +315,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
         continue;
       }
       edgeType = sgn(srcLine[x] - srcLineBelow[x-1]) + signUpLine[x];
-      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng);
+      resLine[x] = ClipPel<int>(srcLine[x] + offset[edgeType], clpRng.bd);
 
     }
   }
@@ -328,7 +328,7 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
     {
       for (x=0; x< width; x++)
       {
-        resLine[x] = ClipPel<int>(srcLine[x] + offset[srcLine[x] >> shiftBits], clpRng );
+        resLine[x] = ClipPel<int>(srcLine[x] + offset[srcLine[x] >> shiftBits], clpRng.bd );
       }
       srcLine += srcStride;
       resLine += resStride;

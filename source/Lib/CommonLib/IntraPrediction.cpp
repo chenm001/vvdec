@@ -253,7 +253,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
         {
           const Pel top = srcBuf.at(x + 1, 0);
           int wL = 32 >> std::min(31, ((x << 1) >> scale));
-          dstBuf.at(x, y) = ClipPel((wL * left + wT * top + (64 - wL - wT) * dstBuf.at(x, y) + 32) >> 6, clpRng);
+          dstBuf.at(x, y) = ClipPel((wL * left + wT * top + (64 - wL - wT) * dstBuf.at(x, y) + 32) >> 6, clpRng.bd);
 
         }
       }
@@ -282,7 +282,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
           const Pel top = srcBuf.at(x + 1, 0);
           int wL = 32 >> std::min(31, ((x << 1) >> scale));
           int wTL = (wL >> 4) + (wT >> 4);
-          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6, clpRng);
+          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6, clpRng.bd);
           }
       }
       else
@@ -292,7 +292,7 @@ void  IntraPredSampleFilterCore(Pel *ptrSrc,const ptrdiff_t  srcStride,PelBuf &p
           const Pel top = srcBuf.at(x + 1, 0);
           int wL = 32 >> std::min(31, ((x << 1) >> scale));
           int wTL = (wL >> 4) + (wT >> 4);
-          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6, clpRng);
+          dstBuf.at(x, y) = ClipPel((wL * left + wT * top - wTL * topLeft + (64 - wL - wT + wTL) * dstBuf.at(x, y) + 32) >> 6, clpRng.bd);
         }
 
       }
@@ -326,7 +326,7 @@ void IntraPredAngleCore(T* pDstBuf,const ptrdiff_t dstStride,T* refMain,int widt
 
         if( useCubicFilter ) // only cubic filter has negative coefficients and requires clipping
         {
-          pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng );
+          pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng.bd );
         }
       }
       deltaPos += intraPredAngle;
@@ -653,7 +653,7 @@ void IntraPredAngleCore(Pel *pDstBuf,const int dstStride,Pel* refMain,int width,
 
       if( useCubicFilter ) // only cubic filter has negative coefficients and requires clipping
       {
-        pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng );
+        pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng.bd );
       }
     }
     deltaPos += intraPredAngle;
@@ -784,7 +784,7 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
         for( int x = 0; x < lev[scale]; x++ )
         {
           int wL = 32 >> std::min( 31, ( ( x << 1 ) >> scale ) );
-          *line++ = ClipPel( ( wL * ( left - topLeft ) + ( refMain[x + 1] << 6 ) + 32 ) >> 6, clpRng );
+          *line++ = ClipPel( ( wL * ( left - topLeft ) + ( refMain[x + 1] << 6 ) + 32 ) >> 6, clpRng.bd );
         }
         memcpy( line, refMain + lev[scale] + 1, ( width - lev[scale] ) * sizeof( Pel ) );
       }
@@ -855,7 +855,7 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
 
               if( useCubicFilter ) // only cubic filter has negative coefficients and requires clipping
               {
-                pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng );
+                pDstBuf[y*dstStride + x] = ClipPel( pDstBuf[y*dstStride + x], clpRng.bd );
               }
             }
             deltaPos += intraPredAngle;

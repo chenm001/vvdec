@@ -160,7 +160,7 @@ void  WeightPrediction::getWpScaling(const Slice                *pcSlice,
 
 static inline Pel weightBidir( int w0, Pel P0, int w1, Pel P1, int round, int shift, int offset, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + w1 * ( P1 + IF_INTERNAL_OFFS ) + round + ( offset << ( shift - 1 ) ) ) >> shift ), clpRng );
+  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + w1 * ( P1 + IF_INTERNAL_OFFS ) + round + ( offset << ( shift - 1 ) ) ) >> shift ), clpRng.bd );
 }
 
 void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
@@ -227,17 +227,17 @@ void WeightPrediction::addWeightBi(const PelUnitBuf           &pcYuvSrc0,
 
 static inline Pel weightUnidir( int w0, Pel P0, int round, int shift, int offset, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset, clpRng );
+  return ClipPel( ( ( w0*( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset, clpRng.bd );
 }
 
 static inline Pel noWeightUnidir( Pel P0, int round, int shift, int offset, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset, clpRng );
+  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ) + offset, clpRng.bd );
 }
 
 static inline Pel noWeightOffsetUnidir( Pel P0, int round, int shift, const ClpRng& clpRng )
 {
-  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ), clpRng );
+  return ClipPel( ( ( ( P0 + IF_INTERNAL_OFFS ) + round ) >> shift ), clpRng.bd );
 }
 
 void  WeightPrediction::addWeightUni(const PelUnitBuf           &pcYuvSrc0,
