@@ -80,7 +80,7 @@ Feel free to contribute. To do so:
 
 # __Chen's Roadmap__
 
-- [WIP] Performance @ 1080p (Thanks Xiaoquan You to report)
+- [ ] Performance @ 1080p (Thanks Xiaoquan You to report)
 
   Phone          | Fps
   :--------------|--------:
@@ -120,9 +120,9 @@ Feel free to contribute. To do so:
   VIRTUAL_A_MediaTek_3 | Virtual | TBD
   VIRTUAL_B_MediaTek_3 | Virtual | TBD
 
-- [WIP] Automatic verify framework (_test-harness_)
+- [x] Automatic verify framework (_test-harness_)
 
-- [WIP] Cleanup unnecessary C++ feature
+- [ ] Cleanup unnecessary C++ feature
 
 - [x] Android r22 build
 
