@@ -64,8 +64,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 //! \ingroup CommonLib
 //! \{
 
-void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDepth,
-                                             const ClpRng&        clpRng,
+void SampleAdaptiveOffset::offsetBlock_core( const ClpRng&        clpRng,
                                              int                  typeIdx,
                                              int*                 offset,
                                              int                  startIdx,
@@ -91,10 +90,10 @@ void SampleAdaptiveOffset::offsetBlock_core( const int            channelBitDept
                                              int                  numHorVirBndry,
                                              int                  numVerVirBndry )
 {
+  const int channelBitDepth = clpRng.m_bd;
   int x,y, startX, startY, endX, endY, edgeType;
   int firstLineStartX, firstLineEndX, lastLineStartX, lastLineEndX;
   int8_t signLeft, signRight, signDown;
-
 
   const Pel* srcLine = srcBlk;
   Pel* resLine = resBlk;
@@ -657,7 +656,7 @@ void SampleAdaptiveOffset::offsetCTU( const UnitArea& area, const CPelUnitBuf& s
         verVirBndryPosComp[i] = (verVirBndryPos[i] >> ::getComponentScaleX(compID, area.chromaFormat)) - compArea.x;
       }
 
-      offsetBlock( cs.sps->getBitDepth(toChannelType(compID)),
+      offsetBlock( //cs.sps->getBitDepth(toChannelType(compID)),
                    cs.getCtuData(cs.ctuRsAddr(area.Y().pos(), CH_L)).cuPtr[0][0]->slice->clpRng(compID),
                    ctbOffset.typeIdc, ctbOffset.offset,ctbOffset.typeAuxInfo
                   , srcBlk, resBlk, srcStride, resStride, compArea.width, compArea.height

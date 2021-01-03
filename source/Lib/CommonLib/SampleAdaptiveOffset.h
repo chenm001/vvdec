@@ -103,8 +103,7 @@ protected:
                                              bool&            isBelowLeftAvail,
                                              bool&            isBelowRightAvail ) const;
 
-  static void offsetBlock_core( const int            channelBitDepth,
-                                const ClpRng&        clpRng,
+  static void offsetBlock_core( const ClpRng&        clpRng,
                                 int                  typeIdx,
                                 int*                 offset,
                                 int                  startIdx,
@@ -130,8 +129,7 @@ protected:
                                 int                  numHorVirBndry,
                                 int                  numVerVirBndry );
 
-  void ( *offsetBlock )( const int            channelBitDepth,
-                         const ClpRng&        clpRng,
+  void ( *offsetBlock )( const ClpRng&        clpRng,
                          int                  typeIdx,
                          int*                 offset,
                          int                  startIdx,
