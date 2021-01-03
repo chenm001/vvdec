@@ -76,7 +76,7 @@ public:
 
   void addWeightBi(             const PelUnitBuf           &pcYuvSrc0,
                                 const PelUnitBuf           &pcYuvSrc1,
-                                const ClpRngs              &clpRngs,
+                                const ClpRng               &clpRngs,
                                 const WPScalingParam *const wp0,
                                 const WPScalingParam *const wp1,
                                       PelUnitBuf           &rpcYuvDst,
@@ -84,7 +84,7 @@ public:
                                 );
 
   void  addWeightUni(           const PelUnitBuf           &pcYuvSrc0,
-                                const ClpRngs              &clpRngs,
+                                const ClpRng               &clpRngs,
                                 const WPScalingParam *const wp0,
                                       PelUnitBuf           &rpcYuvDst
                                 );

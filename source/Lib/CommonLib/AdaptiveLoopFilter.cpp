@@ -476,7 +476,7 @@ bool AdaptiveLoopFilter::getAlfSkipPic( const CodingStructure & cs )
 
   return false;
 }
-void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf & dstBuf, const uint8_t ctuEnableFlag[3], const uint8_t ctuAlternativeData[2], const ClpRngs & clpRngs, const ChannelType chType, CodingStructure & cs, int ctuIdx, Position ctuPos, int tid )
+void AdaptiveLoopFilter::filterCTU( const CPelUnitBuf & srcBuf, const PelUnitBuf & dstBuf, const uint8_t ctuEnableFlag[3], const uint8_t ctuAlternativeData[2], const ClpRng & clpRngs, const ChannelType chType, CodingStructure & cs, int ctuIdx, Position ctuPos, int tid )
 {
   Slice* slice = cs.getCtuData(ctuIdx).cuPtr[0][0]->slice;
   APS** aps = slice->getAlfAPSs();
@@ -1242,7 +1242,7 @@ void AdaptiveLoopFilter::filterBlk( const AlfClassifier*   classifier,
 template<AlfFilterType filtTypeCcAlf>
 void AdaptiveLoopFilter::filterBlkCcAlf(const PelBuf &dstBuf, const CPelUnitBuf &recSrc, const Area &blkDst,
                                         const Area &blkSrc, const ComponentID compId, const int16_t *filterCoeff,
-                                        const ClpRngs &clpRngs, CodingStructure &cs, int vbCTUHeight, int vbPos)
+                                        const ClpRng &clpRngs, CodingStructure &cs, int vbCTUHeight, int vbPos)
 {
   CHECK( 1 << getLog2(vbCTUHeight) != vbCTUHeight, "Not a power of 2");
 

@@ -1370,7 +1370,7 @@ void InterPrediction::applyBiOptFlow( const PredictionUnit &pu,
             );
 }
 
-void InterPrediction::xWeightedAverage(const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const BitDepths& clipBitDepths, const ClpRngs& clpRngs, const bool& bioApplied )
+void InterPrediction::xWeightedAverage(const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const BitDepths& clipBitDepths, const ClpRng& clpRngs, const bool& bioApplied )
 {
   const int iRefIdx0 = pu.refIdx[0];
   const int iRefIdx1 = pu.refIdx[1];
@@ -1778,7 +1778,7 @@ void InterPrediction::xFinalPaddedMCForDMVR(PredictionUnit& pu, PelUnitBuf &pcYu
 
   /*always high precision MVs are used*/
   const int mvShift      = MV_FRACTIONAL_BITS_INTERNAL;
-  const ClpRngs clp      = pu.slice->getClpRngs();
+  const ClpRng clp       = pu.slice->getClpRngs();
   const int numValidComp = getNumberValidComponents( pu.chromaFormat );
 
   for (int k = 0; k < NUM_REF_PIC_LIST_01; k++)
@@ -1856,7 +1856,7 @@ void xDMVRSubPixelErrorSurface( bool notZeroCost, int16_t *totalDeltaMV, int16_t
   }
 }
 
-void InterPrediction::xinitMC( PredictionUnit& pu, const ClpRngs &clpRngs )
+void InterPrediction::xinitMC( PredictionUnit& pu, const ClpRng &clpRngs )
 {
   /*use merge MV as starting MV*/
   Mv mergeMVL0(pu.mv[REF_PIC_LIST_0][0]);
@@ -1909,7 +1909,7 @@ void InterPrediction::xinitMC( PredictionUnit& pu, const ClpRngs &clpRngs )
   }
 }
 
-void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, const ClpRngs &clpRngs, const bool bioApplied )
+void InterPrediction::xProcessDMVR( PredictionUnit& pu, PelUnitBuf &pcYuvDst, const ClpRng &clpRngs, const bool bioApplied )
 {
   /*Always High Precision*/
   static constexpr int mvShift  = MV_FRACTIONAL_BITS_INTERNAL;

@@ -149,7 +149,7 @@ protected:
 
   void( *PaddBIO )              ( const Pel* refPel, Pel* dstPel, unsigned width, const int shift );
 
-  void xWeightedAverage         ( const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const BitDepths& clipBitDepths, const ClpRngs& clpRngs, const bool& bioApplied );
+  void xWeightedAverage         ( const PredictionUnit& pu, const PelUnitBuf& pcYuvSrc0, const PelUnitBuf& pcYuvSrc1, PelUnitBuf& pcYuvDst, const BitDepths& clipBitDepths, const ClpRng& clpRngs, const bool& bioApplied );
   void( *profGradFilter )       ( Pel* pSrc, ptrdiff_t srcStride, int width, int height, ptrdiff_t gradStride, Pel* gradX, Pel* gradY, const int bitDepth );
   void( *applyPROF[2] )         ( Pel* dst, ptrdiff_t dstStride, const Pel* src, const Pel* gradX, const Pel* gradY, const int* dMvX, const int* dMvY, int shiftNum, Pel offset, const ClpRng& clpRng );
   void( *roundIntVector )       ( int* v, int size, unsigned int nShift, const int dmvLimit );
@@ -180,8 +180,8 @@ public:
   void    xPad                       ( PredictionUnit& pu, PelUnitBuf &pcPad, RefPicList refId, bool forLuma );
   void    xFinalPaddedMCForDMVR      ( PredictionUnit& pu, PelUnitBuf &pcYuvSrc0, PelUnitBuf &pcYuvSrc1, PelUnitBuf &pcPad0, PelUnitBuf &pcPad1, const bool bioApplied, const Mv startMV[NUM_REF_PIC_LIST_01] );
   void xBIPMVRefine(DistParam &cDistParam, const Pel *pRefL0, const Pel *pRefL1, uint64_t& minCost, int16_t *deltaMV, uint64_t *pSADsArray);
-  void xinitMC(PredictionUnit& pu, const ClpRngs &clpRngs);
-  void xProcessDMVR(PredictionUnit& pu, PelUnitBuf &pcYuvDst, const ClpRngs &clpRngs, const bool bioApplied );
+  void xinitMC(PredictionUnit& pu, const ClpRng &clpRngs);
+  void xProcessDMVR(PredictionUnit& pu, PelUnitBuf &pcYuvDst, const ClpRng &clpRngs, const bool bioApplied );
   static bool isSubblockVectorSpreadOverLimit( int a, int b, int c, int d, int predType );
 #if JVET_O1170_CHECK_BV_AT_DECODER
   void resetIBCBuffer(const ChromaFormat chromaFormatIDC, const int ctuSize);

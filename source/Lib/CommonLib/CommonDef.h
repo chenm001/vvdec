@@ -419,18 +419,11 @@ static const int DELTA_QP_ACT[4] =                  { -5, 1, 3, 1 };
 // Macro functions
 // ====================================================================================================================
 
-template<typename T>
-struct ClpRngTemplate
+struct ClpRng
 {
-  T min() const { return 0; }
-  T max() const { return bd == 8 ? (1<<8)-1 : bd == 9 ? (1<<9)-1 : bd == 10 ? (1<<10)-1 : bd == 11 ? (1<<11)-1 : bd == 12 ? (1<<12)-1 : (1<<8)-1;}
+  Pel min() const { return 0; }
+  Pel max() const { return bd == 8 ? (1<<8)-1 : bd == 9 ? (1<<9)-1 : bd == 10 ? (1<<10)-1 : bd == 11 ? (1<<11)-1 : bd == 12 ? (1<<12)-1 : (1<<8)-1;}
   int bd;
-};
-
-typedef ClpRngTemplate<Pel> ClpRng;
-
-struct ClpRngs : ClpRng
-{
 };
 
 template <typename T> constexpr inline T Clip3  ( const T minVal, const T maxVal, const T a) { return std::min<T>(std::max<T>(minVal, a) , maxVal); }  ///< general min/max clip

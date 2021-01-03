@@ -633,9 +633,9 @@ struct UnitBuf
 
   void fill                 ( const T &val );
   void copyFrom             ( const UnitBuf<const T> &other ) const;
-  void reconstruct          ( const UnitBuf<const T> &pred, const UnitBuf<const T> &resi, const ClpRngs& clpRngs );
-  void addWeightedAvg       ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRngs& clpRngs, const uint8_t bcwIdx = BCW_DEFAULT, const bool chromaOnly = false, const bool lumaOnly = false);
-  void addAvg               ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRngs& clpRngs, const bool chromaOnly = false, const bool lumaOnly = false);
+  void reconstruct          ( const UnitBuf<const T> &pred, const UnitBuf<const T> &resi, const ClpRng& clpRngs );
+  void addWeightedAvg       ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRng& clpRngs, const uint8_t bcwIdx = BCW_DEFAULT, const bool chromaOnly = false, const bool lumaOnly = false);
+  void addAvg               ( const UnitBuf<      T> &other1, const UnitBuf<      T> &other2, const ClpRng& clpRngs, const bool chromaOnly = false, const bool lumaOnly = false);
   void extendBorderPel      ( unsigned margin );
   void extendBorderPel      ( unsigned margin, bool left, bool right, bool top, bool bottom );
 
@@ -670,7 +670,7 @@ void UnitBuf<T>::copyFrom( const UnitBuf<const T> &other ) const
 }
 
 template<typename T>
-void UnitBuf<T>::reconstruct(const UnitBuf<const T> &pred, const UnitBuf<const T> &resi, const ClpRngs& clpRngs)
+void UnitBuf<T>::reconstruct(const UnitBuf<const T> &pred, const UnitBuf<const T> &resi, const ClpRng& clpRngs)
 {
   CHECK( chromaFormat != pred.chromaFormat, "Incompatible formats" );
   CHECK( chromaFormat != resi.chromaFormat, "Incompatible formats" );
@@ -682,7 +682,7 @@ void UnitBuf<T>::reconstruct(const UnitBuf<const T> &pred, const UnitBuf<const T
 }
 
 template<typename T>
-void UnitBuf<T>::addWeightedAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const ClpRngs& clpRngs, const uint8_t bcwIdx /* = BCW_DEFAULT */, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
+void UnitBuf<T>::addWeightedAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const ClpRng& clpRngs, const uint8_t bcwIdx /* = BCW_DEFAULT */, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
 {
   const size_t istart = chromaOnly ? 1 : 0;
   const size_t iend   = lumaOnly   ? 1 : bufs.size();
@@ -696,7 +696,7 @@ void UnitBuf<T>::addWeightedAvg(const UnitBuf<T> &other1, const UnitBuf<T> &othe
 }
 
 template<typename T>
-void UnitBuf<T>::addAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const ClpRngs& clpRngs, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
+void UnitBuf<T>::addAvg(const UnitBuf<T> &other1, const UnitBuf<T> &other2, const ClpRng& clpRngs, const bool chromaOnly /* = false */, const bool lumaOnly /* = false */)
 {
   const size_t istart = chromaOnly ? 1 : 0;
   const size_t iend   = lumaOnly   ? 1 : bufs.size();
