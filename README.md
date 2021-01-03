@@ -86,7 +86,7 @@ Feel free to contribute. To do so:
   :--------------|--------:
   Huawei Enjoy 9 | 11.60
 
-- [x] Compatible  __218/249__ (Updated @ 01/03/2021)
+- [x] Compatible  __219/249__ (Updated @ 01/03/2021)
 
   Clips | Reason | Support Plan
   :------|:------:|:------:
@@ -104,11 +104,11 @@ Feel free to contribute. To do so:
   10b422_L_Sony_3 | Palette | No
   ACT_A_Kwai_2 | Sub-picture | No
   CodingToolsSets_E_Tencent_1 | Sub-picture | No
-  FILLER_A_Bytedance_1 | NAL_UNIT_FD | TBD
-  GDR_A_ERICSSON_2 | GDR | TBD
-  GDR_A_NOKIA_1 | GDR | TBD
-  GDR_B_NOKIA_1 | GDR | TBD
-  GDR_C_NOKIA_1  | GDR | TBD
+  FILLER_A_Bytedance_1 | NAL_UNIT_FD | No
+  GDR_A_ERICSSON_2 | GDR | No
+  GDR_A_NOKIA_1 | GDR | No
+  GDR_B_NOKIA_1 | GDR | No
+  GDR_C_NOKIA_1  | GDR | No
   LMCS_B_Dolby_2 | Sub-picture | No
   PALETTE_A_Alibaba_2 | Palette | No
   PALETTE_B_Alibaba_2 | Palette | No
@@ -118,8 +118,8 @@ Feel free to contribute. To do so:
   SUBPIC_A_HUAWEI_3 | Sub-picture | No
   SUBPIC_B_HUAWEI_3 | Sub-picture | No
   SUBPIC_C_ERICSSON_1 | Sub-picture | No
-  VIRTUAL_A_MediaTek_3 | Virtual | TBD
-  VIRTUAL_B_MediaTek_3 | Virtual | TBD
+  VIRTUAL_A_MediaTek_3 | Virtual | No
+  VIRTUAL_B_MediaTek_3 | Virtual | No
 
 - [x] Automatic verify framework (_test-harness_)
 
