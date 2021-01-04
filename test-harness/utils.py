@@ -604,6 +604,9 @@ class Logger():
         '''print text to stdout and maybe write to file'''
         print ' '.join(args)
 
+    def write1(self, *args):
+        print ' '.join(args),
+
     def writefp(self, message):
         if os.linesep == '\r\n':
             message = message.replace(os.linesep, '\n')
@@ -881,7 +884,7 @@ def runtest(key, seq, md5, extras):
 
     try:
         logger.settest(seq, command, extras, cmdhash)
-        logger.write('[%s] testing %s' % (key, seq))
+        logger.write1('[%s] testing %s' % (key, seq))
         #print 'extras: %s ...' % ' '.join(extras),
         sys.stdout.flush()
 
@@ -931,8 +934,15 @@ def runtest(key, seq, md5, extras):
                         _hash = _s.strip()
 
                 if _hash.lower() == md5.lower():
-                    logger.writefp('[%d/%d] [%s] %s (%s)' % (logger.testcount, logger.totaltests, key, seq, _hash))
+                    logger.write1(' Passed')
+                    _s = re.search('([0-9]+) frames[a-zA-Z@ ]*([0-9\.]+)[a-zA-Z ]*', stdout)
+                    if _s:
+                        logger.write('   frame %s @ %s fps' % (_s.group(1), _s.group(2)))
+                    else:
+                        logger.write('')
+                    logger.writefp('[%d/%d] [%s] %s (%s) frame %s @ %s fps' % (logger.testcount, logger.totaltests, key, seq, _hash, _s.group(1) if _s else '', _s.group(2) if _s else ''))
                 else:
+                    logger.write(' Failed')
                     logger.writefp('[%d/%d] [%s] %s (%s -> %s)' % (logger.testcount, logger.totaltests, key, seq, md5, _hash))
                     logger.testfail('hash mismatch', 'yuv is mismatched with reference yuv', '')
 
