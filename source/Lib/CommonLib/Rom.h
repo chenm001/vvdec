@@ -139,10 +139,8 @@ extern const     uint8_t  g_lfnstLut[ NUM_INTRA_MODE + NUM_EXT_LUMA_MODE - 1 ];
 // ====================================================================================================================
 // Misc.
 // ====================================================================================================================
-#if !( ENABLE_SIMD_LOG2 && 0 )
-extern int8_t          g_aucLog2            [MAX_CU_SIZE + 1];
-extern int8_t          g_aucNextLog2        [MAX_CU_SIZE + 1];
-extern int8_t          g_aucPrevLog2        [MAX_CU_SIZE + 1];
+#if !( ENABLE_SIMD_LOG2 )
+extern int8_t          g_aucLog2[MAX_CU_SIZE + 1];
 #endif
 
 extern const int       g_ictModes[2][4];

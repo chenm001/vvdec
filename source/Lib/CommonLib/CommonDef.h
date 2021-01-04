@@ -524,6 +524,21 @@ template <typename ValueType> inline ValueType rightShift      (const ValueType 
 template <typename ValueType> inline ValueType leftShift_round (const ValueType value, const int shift) { return (shift >= 0) ? ( value                                  << shift) : ((value + (ValueType(1) << (-shift - 1))) >> -shift); }
 template <typename ValueType> inline ValueType rightShift_round(const ValueType value, const int shift) { return (shift >= 0) ? ((value + (ValueType(1) << (shift - 1))) >> shift) : ( value                                   << -shift); }
 
+#if defined(_MSC_VER)
+static inline int getLog2( unsigned long val )
+{
+    unsigned long idx;
+    _BitScanReverse64(&idx, val);
+    return (int)idx;
+}
+
+#elif defined(__GNUC__) || defined(__clang__)
+static inline int getLog2( unsigned long val )
+{
+    return(sizeof(unsigned long)*8 - 1 - __builtin_clzl(val));
+}
+
+#else
 #include <cmath>
 extern int8_t g_aucLog2[MAX_CU_SIZE + 1];
 static inline int getLog2( long val )
@@ -535,10 +550,11 @@ static inline int getLog2( long val )
   }
   return std::log2(val);
 }
+#endif
 
-static inline int getCeilLog2( int val )
+static inline int getCeilLog2( long val )
 {
-    return getLog2(2 * val - 1);
+    return getLog2(2*val-1);
 }
 
 //CASE-BREAK for breakpoints

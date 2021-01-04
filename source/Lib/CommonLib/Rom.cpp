@@ -200,11 +200,9 @@ const uint32_t g_log2SbbSize[MAX_LOG2_TU_SIZE_PLUS_ONE][MAX_LOG2_TU_SIZE_PLUS_ON
 // initialize ROM variables
 void initROM()
 {
-  int c;
-
 #if RExt__HIGH_BIT_DEPTH_SUPPORT
   {
-    c = 64;
+    int c = 64;
     const double s = sqrt((double)c) * (64 << COM16_C806_TRANS_PREC);
 
 
@@ -243,23 +241,21 @@ void initROM()
   }
   romInitialized++;
 
+#if !defined(_MSC_VER) && !defined(__clang__) && !defined(__GNUC__)
   // g_aucConvertToBit[ x ]: log2(x/4), if x=4 -> 0, x=8 -> 1, x=16 -> 2, ...
   // g_aucLog2[ x ]: log2(x), if x=1 -> 0, x=2 -> 1, x=4 -> 2, x=8 -> 3, x=16 -> 4, ...
   ::memset(g_aucLog2, 0, sizeof(g_aucLog2));
-  c = 0;
+  int c = 0;
   for( int i = 0, n = 0; i <= MAX_CU_SIZE; i++ )
   {
-    g_aucNextLog2[i] = i <= 1 ? 0 : c + 1;
-
     if( i == ( 1 << n ) )
     {
       c = n;
       n++;
     }
-
-    g_aucPrevLog2[i] = c;
-    g_aucLog2    [i] = c;
+    g_aucLog2[i] = c;
   }
+#endif
 
   const SizeIndexInfoLog2 &sizeInfo = g_sizeIdxInfo;
 
@@ -464,10 +460,8 @@ const uint8_t g_chroma422IntraAngleMappingTable[NUM_INTRA_MODE] =
 // Misc.
 // ====================================================================================================================
 const SizeIndexInfoLog2   g_sizeIdxInfo;
-#if !ENABLE_SIMD_LOG2
-int8_t                    g_aucLog2    [MAX_CU_SIZE + 1];
-int8_t                    g_aucNextLog2[MAX_CU_SIZE + 1];
-int8_t                    g_aucPrevLog2[MAX_CU_SIZE + 1];
+#if !defined(_MSC_VER) && !defined(__clang__) && !defined(__GNUC__)
+int8_t                    g_aucLog2[MAX_CU_SIZE + 1];
 #endif
 
 const int                 g_ictModes[2][4] = { { 0, 3, 1, 2 }, { 0, -3, -1, -2 } };
