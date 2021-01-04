@@ -376,7 +376,7 @@ if( VVDEC_ENABLE_BITSTREAM_DOWNLOAD )
     "SMVD_A_HUAWEI_2.zip"
     "SPS_A_Bytedance_1.zip" "SPS_B_Bytedance_1.zip" "SPS_C_Bytedance_1.zip"
     #"SUBPIC_A_HUAWEI_3.zip" "SUBPIC_B_HUAWEI_3.zip" # subpictures currently not supported
-    "SUBPIC_C_ERICSSON_1.zip" # subpictures currently not supported
+    #"SUBPIC_C_ERICSSON_1.zip" # subpictures currently not supported
     "TEMPSCAL_A_Panasonic_4.zip"
     "TEMPSCAL_C_Panasonic_3.zip"
     "TILE_A_Nokia_2.zip" "TILE_B_Nokia_2.zip" "TILE_C_Nokia_2.zip" "TILE_D_Nokia_2.zip" "TILE_E_Nokia_2.zip" "TILE_F_Nokia_2.zip" "TILE_G_Nokia_2.zip"
