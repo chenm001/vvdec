@@ -536,6 +536,11 @@ static inline int getLog2( long val )
   return std::log2(val);
 }
 
+static inline int getCeilLog2( int val )
+{
+    return getLog2(2 * val - 1);
+}
+
 //CASE-BREAK for breakpoints
 #if defined ( _MSC_VER ) && defined ( _DEBUG )
 #define _CASE(_x) if(_x)

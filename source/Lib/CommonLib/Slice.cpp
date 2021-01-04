@@ -1732,7 +1732,7 @@ void PPS::finalizePPSPartitioning( const SPS* pcSPS )
   if( getNoPicPartitionFlag() )
   {
     resetTileSliceInfo();
-    setLog2CtuSize( ( int ) ceil( log2( pcSPS->getCTUSize() ) ) );
+    setLog2CtuSize( getCeilLog2( pcSPS->getCTUSize() ) );
     setNumExpTileColumns( 1 );
     setNumExpTileRows( 1 );
     addTileColumnWidth( getPicWidthInCtu()  );

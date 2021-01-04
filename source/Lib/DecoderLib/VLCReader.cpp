@@ -835,7 +835,7 @@ void HLSyntaxReader::parseAlfAps( APS* aps )
     READ_UVLC( code, "alf_luma_num_filters_signalled_minus1" );             param.numLumaFilters = code + 1;
     if( param.numLumaFilters > 1 )
     {
-      const int length = (int)ceil( log2( param.numLumaFilters ) );
+      const int length = getCeilLog2( param.numLumaFilters );
       for( int i = 0; i < MAX_NUM_ALF_CLASSES; i++ )
       {
         READ_CODE( length, code, "alf_luma_coeff_delta_idx" );              param.filterCoeffDeltaIdx[i] = code;
@@ -1320,7 +1320,7 @@ void HLSyntaxReader::parseSPS( SPS* pcSPS, ParameterSetManager *parameterSetMana
         {
           if( ( picIdx > 0 ) && ( pcSPS->getMaxPicWidthInLumaSamples() > pcSPS->getCTUSize() ) )
           {
-            READ_CODE( (int)ceil( log2( tmpWidthVal ) ), uiCode, "sps_subpic_ctu_top_left_x[i]" );
+            READ_CODE( getCeilLog2( tmpWidthVal ), uiCode, "sps_subpic_ctu_top_left_x[i]" );
             pcSPS->setSubPicCtuTopLeftX( picIdx, uiCode );
           }
           else
@@ -1329,7 +1329,7 @@ void HLSyntaxReader::parseSPS( SPS* pcSPS, ParameterSetManager *parameterSetMana
           }
           if( ( picIdx > 0 ) && ( pcSPS->getMaxPicHeightInLumaSamples() > pcSPS->getCTUSize() ) )
           {
-            READ_CODE( (int)ceil( log2( tmpHeightVal ) ), uiCode, "sps_subpic_ctu_top_left_y[i]" );
+            READ_CODE( getCeilLog2( tmpHeightVal ), uiCode, "sps_subpic_ctu_top_left_y[i]" );
             pcSPS->setSubPicCtuTopLeftY( picIdx, uiCode );
           }
           else
@@ -1338,7 +1338,7 @@ void HLSyntaxReader::parseSPS( SPS* pcSPS, ParameterSetManager *parameterSetMana
           }
           if( picIdx <pcSPS->getNumSubPics() - 1 && pcSPS->getMaxPicWidthInLumaSamples() > pcSPS->getCTUSize() )
           {
-            READ_CODE( (int)ceil( log2( tmpWidthVal ) ), uiCode, "sps_subpic_width_minus1[i]" );
+            READ_CODE( getCeilLog2( tmpWidthVal ), uiCode, "sps_subpic_width_minus1[i]" );
             pcSPS->setSubPicWidth( picIdx, uiCode + 1 );
           }
           else
@@ -1347,7 +1347,7 @@ void HLSyntaxReader::parseSPS( SPS* pcSPS, ParameterSetManager *parameterSetMana
           }
           if( picIdx <pcSPS->getNumSubPics() - 1 && pcSPS->getMaxPicHeightInLumaSamples() > pcSPS->getCTUSize() )
           {
-            READ_CODE( (int)ceil( log2( tmpHeightVal ) ), uiCode, "sps_subpic_height_minus1[i]" );
+            READ_CODE( getCeilLog2( tmpHeightVal ), uiCode, "sps_subpic_height_minus1[i]" );
             pcSPS->setSubPicHeight(picIdx, uiCode + 1);
           }
           else
@@ -3218,7 +3218,7 @@ void HLSyntaxReader::parseSliceHeader( Slice* pcSlice, PicHeader* picHeader, Par
     // slice address is the raster scan tile index of first tile in slice
     if( pps->getNumTiles() > 1 )
     {
-      int bitsSliceAddress = (int)ceil( log2( pps->getNumTiles() ) );
+      int bitsSliceAddress = getCeilLog2( pps->getNumTiles() );
       READ_CODE( bitsSliceAddress, uiCode, "sh_slice_address" );
       sliceAddr = uiCode;
     }
@@ -3236,9 +3236,9 @@ void HLSyntaxReader::parseSliceHeader( Slice* pcSlice, PicHeader* picHeader, Par
 #endif
     {
 #if JVET_Q0044_SLICE_IDX_WITH_SUBPICS
-      int bitsSliceAddress = (int)ceil( log2( currSubPic.getNumSlicesInSubPic() ) );
+      int bitsSliceAddress = getCeilLog2( currSubPic.getNumSlicesInSubPic() );
 #else
-      int bitsSliceAddress = (int)ceil( log2( pps->getNumSlicesInPic() ) );  // change to NumSlicesInSubPic when available
+      int bitsSliceAddress = getCeilLog2( pps->getNumSlicesInPic() );  // change to NumSlicesInSubPic when available
 #endif
       READ_CODE( bitsSliceAddress, uiCode, "slice_address" );
       sliceAddr = uiCode;
@@ -3874,7 +3874,7 @@ void HLSyntaxReader::parsePicOrSliceHeaderRPL( HeaderT* header, const SPS* sps, 
       }
       else if( sps->getNumRPL( listIdx ) > 1 )
       {
-        int numBits = (int)ceil( log2( sps->getNumRPL( listIdx ) ) );
+        int numBits = getCeilLog2( sps->getNumRPL( listIdx ) );
         READ_CODE( numBits, uiCode, "ref_pic_list_idx[ listIdx ]" );
         header->setRPLIdx( listIdx, uiCode );
         header->setRPL( listIdx, sps->getRPLList( listIdx )[uiCode] );
