@@ -888,6 +888,7 @@ def runtest(key, seq, md5, extras):
         #print 'extras: %s ...' % ' '.join(extras),
         sys.stdout.flush()
 
+        frames, fps = 0, 0
         logs, errors, summary = '', '', ''
         if not os.path.isfile(seqfullpath) and not isNdk:
             logger.write('Sequence not found' + seqfullpath)
@@ -937,7 +938,9 @@ def runtest(key, seq, md5, extras):
                     logger.write1(' Passed')
                     _s = re.search('([0-9]+) frames[a-zA-Z@ ]*([0-9\.]+)[a-zA-Z ]*', stdout)
                     if _s:
-                        logger.write('   frame %s @ %s fps' % (_s.group(1), _s.group(2)))
+                        frames = int(_s.group(1))
+                        fps = float(_s.group(2))
+                        logger.write('   frame %d @ %f fps' % (frames, fps))
                     else:
                         logger.write('')
                     logger.writefp('[%d/%d] [%s] %s (%s) frame %s @ %s fps' % (logger.testcount, logger.totaltests, key, seq, _hash, _s.group(1) if _s else '', _s.group(2) if _s else ''))
@@ -949,6 +952,7 @@ def runtest(key, seq, md5, extras):
         #logger.write('')
         if errors:
             logger.writeerr(errors)
+        return (frames, fps)
 
     except ImportError, e:
         print e

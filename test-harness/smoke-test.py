@@ -37,10 +37,15 @@ try:
     tests = utils.parsetestfile()
     logger.settestcount(len(my_builds.keys()) * len(tests))
 
+    total_frames = 0
+    total_time = 0
     for key in my_builds:
         #logger.setbuild(key)
         for (seq, md5, cmt) in tests:
-            utils.runtest(key, seq, md5, extras)
+            frames, fps = utils.runtest(key, seq, md5, extras)
+            total_frames += frames;
+            total_time += float(frames) / (fps + 0.00001);
+        print 'Total %d frames, Average %f fps' % (total_frames, float(total_frames) / (total_time + 0.00001))
 
         # here it applies specific patch and shares libraries
 
