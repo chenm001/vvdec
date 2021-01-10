@@ -28,6 +28,7 @@ skip_string = None   # filter tests - all except those matching this string
 only_string = None   # filter tests - only those matching this string
 only_yuv = False     # verify output with YUV file
 run_adb = False      # verify through adb interface
+run_bench = False    # Benchmark mode
 
 android_ndk = None
 logger = None
@@ -702,7 +703,7 @@ def setup(argv, preferredlist):
     #if not find_executable(my_vtm_binary):
     #    raise Exception('Unable to find decoder')
 
-    global run_make, rebuild, only_yuv, run_adb, test_file
+    global run_make, rebuild, only_yuv, run_adb, run_bench, test_file
     global only_string, skip_string
 
     if my_tempfolder:
@@ -711,7 +712,7 @@ def setup(argv, preferredlist):
     test_file = preferredlist
 
     import getopt
-    longopts = ['builds=', 'help', 'no-make', 'rebuild', 'yuv', 'adb', 'only=', 'skip=', 'tests=']
+    longopts = ['builds=', 'help', 'no-make', 'rebuild', 'yuv', 'adb', 'bench', 'only=', 'skip=', 'tests=']
     optlist, args = getopt.getopt(argv[1:], 'hb:t:', longopts)
     for opt, val in optlist:
         # restrict the list of target builds to just those specified by -b
@@ -735,6 +736,8 @@ def setup(argv, preferredlist):
             only_yuv = True
         elif opt == '--adb':
             run_adb = True
+        elif opt == '--bench':
+            run_bench = True;
         elif opt in ('-h', '--help'):
             print sys.argv[0], '[OPTIONS]\n'
             print '\t-h/--help            show this help'
@@ -747,6 +750,10 @@ def setup(argv, preferredlist):
             print '\t   --yuv             verify through generate yuv file'
             print '\t   --adb             verify through adb interface'
             sys.exit(0)
+
+    if run_bench and only_yuv:
+        print '--bench mode conflict with --yuv'
+        sys.exit(0)
 
     listInRepo = os.path.join(my_vvdec_source, 'test-harness', test_file)
     if os.sep not in test_file and os.path.exists(listInRepo):
@@ -879,7 +886,8 @@ def runtest(key, seq, md5, extras):
         command_prefix += ' chmod +x ' + vvdec + ' && '
 
     command = command_prefix + vvdec + r' -b ' + seqfullpath
-    command += r' -o ' + tmpfile if only_yuv else r' --md5'
+    if not run_bench:
+        command += r' -o ' + tmpfile if only_yuv else r' --md5'
     cmdhash = testcasehash(command)
 
     try:
@@ -929,12 +937,13 @@ def runtest(key, seq, md5, extras):
                     _hash = hashbitstream(tmpfile)
                 else:
                     _hash = ''
-                    posHash = stdout.rfind('YUV_MD5')
-                    _s = re.search('YUV_MD5=([0-9a-f]+)', stdout[posHash:]).group(1)
-                    if _s:
-                        _hash = _s.strip()
+                    if not run_bench:
+                        posHash = stdout.rfind('YUV_MD5')
+                        _s = re.search('YUV_MD5=([0-9a-f]+)', stdout[posHash:]).group(1)
+                        if _s:
+                            _hash = _s.strip()
 
-                if _hash.lower() == md5.lower():
+                if _hash.lower() == md5.lower() or run_bench:
                     logger.write1(' Passed')
                     _s = re.search('([0-9]+) frames[a-zA-Z@ ]*([0-9\.]+)[a-zA-Z ]*', stdout)
                     if _s:
