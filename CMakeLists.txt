@@ -249,6 +249,7 @@ endif()
 
 if( ANDROID )
     set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-unwind-tables -fno-exceptions -fno-asynchronous-unwind-tables" )
+    STRING(REGEX REPLACE "-fuse-ld=gold" "" CMAKE_CXX_LINK_OPTIONS_IPO ${CMAKE_CXX_LINK_OPTIONS_IPO})
 endif()
 
 add_subdirectory( "source/Lib/vvdec" )
