@@ -248,8 +248,12 @@ if( VVDEC_ENABLE_INSTALL )
 endif()
 
 if( ANDROID )
-    set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-unwind-tables -fno-exceptions -fno-asynchronous-unwind-tables" )
-    STRING(REGEX REPLACE "-fuse-ld=gold" "" CMAKE_CXX_LINK_OPTIONS_IPO ${CMAKE_CXX_LINK_OPTIONS_IPO})
+  set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-unwind-tables -fno-exceptions -fno-asynchronous-unwind-tables" )
+  STRING(REGEX REPLACE "-fuse-ld=gold" "" CMAKE_CXX_LINK_OPTIONS_IPO ${CMAKE_CXX_LINK_OPTIONS_IPO})
+
+  # the clang compiler does not support '-mtune='
+  STRING(REGEX REPLACE "-mtune=[^ ]*" "" CMAKE_C_FLAGS   ${CMAKE_C_FLAGS})
+  STRING(REGEX REPLACE "-mtune=[^ ]*" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
 add_subdirectory( "source/Lib/vvdec" )
