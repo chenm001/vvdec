@@ -865,7 +865,7 @@ private:
 #endif
 //#define THROW(x)            { std::cerr << "\nERROR: In function \"" << __FUNCTION__ << "\" in " << __FILE__ << ":" << __LINE__ << ": " << x << std::endl; abort(); }
 #define CHECK(c,x)          if(c){ THROW(x); }
-#define CHECK_WARN(c,x)     if(c){ std::cerr << "\nWARNING: In function \"" << __FUNCTION__ << "\" in " << __FILE__ << ":" << __LINE__ << ": " << x << std::endl; }
+#define CHECK_WARN(c,x)     if(c){ fprintf(stderr, "\nWARNING: In function \"%s\" in %s:%d: %s\n", __FUNCTION__, __FILE__, __LINE__, x); }
 #define CHECK_NULLPTR(_ptr) CHECK( !( _ptr ), "Accessing an empty pointer!" )
 
 #if defined( _DEBUG )
