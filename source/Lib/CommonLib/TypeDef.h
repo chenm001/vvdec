@@ -228,16 +228,15 @@ THE POSSIBILITY OF SUCH DAMAGE.
 typedef       int             Pel;               ///< pixel type
 typedef       int64_t         TCoeff;            ///< transform coefficient
 typedef       int             TMatrixCoeff;      ///< transform matrix coefficient
-typedef       int16_t         TFilterCoeff;      ///< filter coefficient
 typedef       int64_t         Intermediate_Int;  ///< used as intermediate value in calculations
 #else
 typedef       int16_t         Pel;               ///< pixel type
 typedef       int             TCoeff;            ///< transform coefficient
 typedef       int16_t         TCoeffSig;
 typedef       int16_t         TMatrixCoeff;      ///< transform matrix coefficient
-typedef       int16_t         TFilterCoeff;      ///< filter coefficient
 typedef       int             Intermediate_Int;  ///< used as intermediate value in calculations
 #endif
+typedef       int16_t         TFilterCoeff;      ///< filter coefficient
 
 typedef       uint64_t        Distortion;        ///< distortion measurement
 
