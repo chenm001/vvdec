@@ -1017,6 +1017,17 @@ static void move_to_end( typename TList::const_iterator it, TList& list )
   CHECKD( &list.back() != oldAddr, "moving failed" );
 }
 
+#if ENABLE_AARCH64
+  #if defined(_MSC_VER)
+    #define SIMDE_ENABLE_NATIVE_ALIASES
+    #define SIMDE_X86_SSE2_NATIVE
+    #pragma include_alias(<arm_neon.h>, <neon.h>)
+  #endif
+
+  #include <arm_neon.h>
+
+#endif
+
 //! \}
 
 #endif
