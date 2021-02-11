@@ -247,6 +247,12 @@ if( VVDEC_ENABLE_INSTALL )
   endif()
 endif()
 
+option(ENABLE_AARCH64 "Compile executable to generate aarch64 assembly" OFF)
+if( ENABLE_AARCH64 )
+  set( VVDEC_ENABLE_SIMDE                     OFF CACHE BOOL   "Enable simde aarch64 simulate builds" )
+  set( VVDEC_ENABLE_SIMDE_PATH                ""  CACHE PATH   "Path to simde aarch64 header files" )
+endif()
+
 if( ANDROID )
   set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-unwind-tables -fno-exceptions -fno-asynchronous-unwind-tables" )
   STRING(REGEX REPLACE "-fuse-ld=gold" "" CMAKE_CXX_LINK_OPTIONS_IPO ${CMAKE_CXX_LINK_OPTIONS_IPO})
@@ -254,6 +260,15 @@ if( ANDROID )
   # the clang compiler does not support '-mtune='
   STRING(REGEX REPLACE "-mtune=[^ ]*" "" CMAKE_C_FLAGS   ${CMAKE_C_FLAGS})
   STRING(REGEX REPLACE "-mtune=[^ ]*" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+endif()
+
+if( ENABLE_AARCH64 )
+  add_definitions( -DENABLE_AARCH64=1 )
+
+  # simde header files path
+  if( VVDEC_ENABLE_SIMDE AND MSVC )
+    include_directories( ${VVDEC_ENABLE_SIMDE_PATH}/arm )
+  endif()
 endif()
 
 add_subdirectory( "source/Lib/vvdec" )
