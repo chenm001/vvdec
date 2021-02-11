@@ -1022,6 +1022,9 @@ static void move_to_end( typename TList::const_iterator it, TList& list )
     #define SIMDE_ENABLE_NATIVE_ALIASES
     #define SIMDE_X86_SSE2_NATIVE
     #pragma include_alias(<arm_neon.h>, <neon.h>)
+
+    // Simulate instructions that simde not provided
+    #define vmlaq_laneq_s32(d, n, m, idx)   vmlaq_s32(d, n, vdupq_n_s32(vgetq_lane_s32(m, idx)))
   #endif
 
   #include <arm_neon.h>
