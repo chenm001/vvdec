@@ -22,14 +22,14 @@ jobs:
     - run: git fetch --prune --unshallow
     - name: Build Linux / mac
       run: |
-        mkdir build
+        mkdir -p build
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release
         make -j$(nproc)
       if: matrix.os != 'windows-2019'
     - name: Build Windows
       run: |
-        mkdir build
+        mkdir -p build
         cd build
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cmake .. -DCMAKE_BUILD_TYPE=Release
