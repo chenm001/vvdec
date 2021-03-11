@@ -82,9 +82,11 @@ Feel free to contribute. To do so:
 
 - [ ] Performance @ 1080p (Thanks Xiaoquan You to report)
 
-  Phone          | Fps
-  :--------------|--------:
-  Huawei Enjoy 9 | 11.60
+  Phone           | Fps      | Comment
+  :--------------:|:--------:|:--------:
+  Huawei Enjoy 9  | Total 22164 frames, Average 31.563160 fps | ASM @ 03/11/2021 
+  Huawei Enjoy 9  | Total 22164 frames, Average 21.299028 fps | ASM @ 01/16/2021 
+  Huawei Enjoy 9  | Total 22164 frames, Average 11.609076 fps | C @ 12/10/2020 
 
 - [x] Compatible  __219/249__ (Updated @ 01/03/2021)
 
