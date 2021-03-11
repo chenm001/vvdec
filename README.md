@@ -129,11 +129,11 @@ Feel free to contribute. To do so:
 
 - [x] Android r22 build
 
+- [x] AArch64 Assembly
+
 - [ ] Architecture improve (Chroma NV12, memory bandwidth optimize, etc)
 
 - [ ] Partial Linker (Binary Code Protect)
-
-- [ ] AArch64 Assembly
 
 - [ ] Qualcomm HVX DSP
 
