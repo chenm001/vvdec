@@ -1,5 +1,7 @@
 # Fraunhofer Versatile Video Decoder (VVdeC)
 
+[![build](https://github.com/chenm001/vvdec-priv/actions/workflows/Build.yml/badge.svg?branch=WIP)](https://github.com/chenm001/vvdec-priv/actions) 
+
 Versatile Video Coding (VVC) is the most recent international video coding standard, developed by the Joint Video Experts Team (JVET) of the ITU-T Video Coding Experts Group (VCEG) and the ISO/IEC Moving Picture Experts Group (MPEG). VVC is the successor of the High Efficiency Video Coding (HEVC) standard and will be released by ITU-T as H.266 and by ISO/IEC as MPEG-I Part 3 (ISO/IEC 23090-3). The new standard targets a 50% bit-rate reduction over HEVC at the same visual quality. In addition, VVC proves to be truly versatile by including tools for efficient coding of video content in emerging applications, e.g. high dynamic range (HDR), adaptive streaming, computer generated content as well as immersive applications like 360 degree video and augmented reality (AR).
 
 The Fraunhofer Versatile Video Decoder (VVdeC) is a fast VVC x86 software decoder implementation. The decoder supports most standard features available in the Main10 profile, with support for some high-level features still pending.
@@ -69,6 +71,10 @@ To generate a solution for the default builder on your system simply call:
 To run the simple conformance test suite (if the bitstreams are downloaded and available) call:
 
     make test
+    
+The above call only tests the sequences that are know to work. To run a test over all conformance sequences with supported profile call:
+
+    make test-all
 
 # Contributing
 
@@ -80,15 +86,16 @@ Feel free to contribute. To do so:
 
 # __Chen's Roadmap__
 
-- [ ] Performance @ 1080p (Thanks Xiaoquan You to report)
+- [ ] Performance (Thanks Xiaoquan You to report)
 
   Phone           | Fps      | Comment
   :--------------:|:--------:|:--------:
-  Huawei Enjoy 9  | Total 22164 frames, Average 31.563160 fps | ASM @ 03/11/2021 
-  Huawei Enjoy 9  | Total 22164 frames, Average 21.299028 fps | ASM @ 01/16/2021 
-  Huawei Enjoy 9  | Total 22164 frames, Average 11.609076 fps | C @ 12/10/2020 
+  Huawei Enjoy 9  | Total 23355 frames, Average 31.482866 fps | ASM @ 227 @ 03/21/2021 
+  Huawei Enjoy 9  | Total 22164 frames, Average 31.563160 fps | ASM @ 219 @ 03/11/2021 
+  Huawei Enjoy 9  | Total 22164 frames, Average 21.299028 fps | ASM @ 219 @ 01/16/2021 
+  Huawei Enjoy 9  | Total 22164 frames, Average 11.609076 fps | C   @ 219 @ 12/10/2020 
 
-- [x] Compatible  __219/249__ (Updated @ 01/03/2021)
+- [x] Compatible  __227/249__ (Updated @ 01/03/2021)
 
   Clips | Reason | Support Plan
   :------|:------:|:------:
@@ -148,6 +155,6 @@ Please see [LICENSE.txt](./LICENSE.txt) file for the terms of use of the content
 
 For more information, please contact: vvc@hhi.fraunhofer.de
 
-**Copyright (c) 2018-2020 Fraunhofer-Gesellschaft zur Förderung der angewandten Forschung e.V.**
+**Copyright (c) 2018-2021 Fraunhofer-Gesellschaft zur Förderung der angewandten Forschung e.V.**
 
 **All rights reserved.**
