@@ -148,6 +148,8 @@ Feel free to contribute. To do so:
 
 - [ ] iOS build
 
+# Note
+### Huawei Enjoy 9 processor is Kirin 960 that released at 2016, based on Cortex A73@2.4GHz + A53@1.8GHz
 
 # License
 
