@@ -47,6 +47,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CommonLib/CommonDef.h"
 #include "CommonLib/InterPrediction.h"
 #include "CommonLib/InterpolationFilter.h"
+#include "CommonLib/TrQuant_EMT.h"
 
 using namespace vvdec;
 
@@ -167,6 +168,23 @@ private:
   bool m_signed;
 };
 
+template<typename T>
+class TrafoGenerator
+{
+public:
+  explicit TrafoGenerator( unsigned bits ) : m_bits( bits )
+  {
+  }
+
+  T operator()() const
+  {
+    return ( rand() & ( ( 1 << m_bits ) - 1 ) ) - ( 1 << m_bits >> 1 );
+  }
+
+private:
+  unsigned m_bits;
+};
+
 class DimensionGenerator
 {
 public:
@@ -187,6 +205,90 @@ public:
     return values[rand() % values.size()];
   }
 };
+
+#if ENABLE_SIMD_TCOEFF_OPS
+template<typename G, typename T>
+static bool check_one_fastInvCore( TCoeffOps* ref, TCoeffOps* opt, unsigned idx, unsigned trSize, unsigned lines,
+                                   unsigned reducedLines, unsigned rows, G input_generator, T trafo_generator )
+{
+  CHECK( lines == 0, "Lines must be non-zero." );
+  CHECK( reducedLines > lines, "ReducedLines must be less than or equal to lines." );
+  CHECK( rows == 0, "Rows must be non-zero." );
+  CHECK( rows > trSize, "Rows must not be larger than transformation size." );
+
+  std::ostringstream sstm;
+  sstm << "fastInvCore trSize=" << trSize << " lines=" << lines << " reducedLines=" << reducedLines << " rows=" << rows;
+
+  TMatrixCoeff* it = ( TMatrixCoeff* )xMalloc( TMatrixCoeff, trSize * trSize );
+  TCoeff* src = ( TCoeff* )xMalloc( TCoeff, trSize * lines );
+  TCoeff* dst_ref = ( TCoeff* )xMalloc( TCoeff, trSize * lines );
+  TCoeff* dst_opt = ( TCoeff* )xMalloc( TCoeff, trSize * lines );
+
+  // First `rows` of coefficients are non-zero, remainder are zero.
+  std::generate_n( it, rows * trSize, trafo_generator );
+  std::fill_n( it + rows * trSize, (trSize - rows) * trSize, 0 );
+
+  std::generate_n( src, trSize * lines, input_generator );
+  memset( dst_ref, 0, trSize * lines * sizeof( TCoeff ) );
+  memset( dst_opt, 0, trSize * lines * sizeof( TCoeff ) );
+
+  ref->fastInvCore[idx]( it, src, dst_ref, lines, reducedLines, rows );
+  opt->fastInvCore[idx]( it, src, dst_opt, lines, reducedLines, rows );
+
+  const bool passed = compare_values_2d( sstm.str(), dst_ref, dst_opt, trSize, lines );
+
+  xFree( it );
+  xFree( src );
+  xFree( dst_ref );
+  xFree( dst_opt );
+
+  return passed;
+}
+
+static bool check_fastInvCore( TCoeffOps* ref, TCoeffOps* opt, unsigned num_cases, unsigned idx, unsigned trSize )
+{
+  printf( "Testing TCoeffOps::fastInvCore trSize=%d\n", trSize );
+
+  InputGenerator<TCoeff> g{ 16 };
+  TrafoGenerator<TMatrixCoeff> t{ 8 };
+  DimensionGenerator rng;
+
+  for( unsigned i = 0; i < num_cases; ++i )
+  {
+    unsigned lines = 1 << rng.get( 1, 6 );
+    unsigned reducedLines = lines == 2 ? lines : std::min( 32u, rng.get( 4, lines, 4 ) );
+    // In real decoding rows may be either a multiple of four, or exactly one.
+    unsigned rows = std::max(1u, rng.get( 0, trSize, 4 ));
+    if( !check_one_fastInvCore( ref, opt, idx, trSize, lines, reducedLines, rows, g, t ) )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+static bool test_TCoeffOps()
+{
+  TCoeffOps ref;
+  TCoeffOps opt;
+
+#if defined( TARGET_SIMD_X86 )
+  opt.initTCoeffOpsX86();
+#endif
+
+  unsigned num_cases = NUM_CASES;
+  bool passed = true;
+
+  passed = check_fastInvCore( &ref, &opt, num_cases, 0, 4 ) && passed;
+  passed = check_fastInvCore( &ref, &opt, num_cases, 1, 8 ) && passed;
+  passed = check_fastInvCore( &ref, &opt, num_cases, 2, 16 ) && passed;
+  passed = check_fastInvCore( &ref, &opt, num_cases, 3, 32 ) && passed;
+  passed = check_fastInvCore( &ref, &opt, num_cases, 4, 64 ) && passed;
+
+  return passed;
+}
+#endif // ENABLE_SIMD_TCOEFF_OPS
 
 #if ENABLE_SIMD_OPT_ALF
 template<typename G>
@@ -1520,6 +1622,9 @@ static const UnitTestEntry test_suites[] = {
 #endif
 #if ENABLE_SIMD_OPT_DIST
     { "RdCost", test_RdCost },
+#endif
+#if ENABLE_SIMD_TCOEFF_OPS
+    { "TCoeffOps", test_TCoeffOps },
 #endif
 };
 
