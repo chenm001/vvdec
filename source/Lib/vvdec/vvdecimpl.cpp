@@ -895,8 +895,9 @@ void VVDecImpl::xAddGrain( vvdecFrame* frame )
     grainTaskData[i].startLine      = i * LINES_PER_TASK;
     grainTaskData[i].filmGrainSynth = m_filmGrainSynth.get();
 
-    static auto grainTask = []( int, GrainTaskData* data )
+    static auto grainTask = []( int, void* param )
     {
+      GrainTaskData* data  = static_cast<GrainTaskData*>( param );
       auto* frame = data->frame;
       for( unsigned y = data->startLine; y < std::min( data->startLine + LINES_PER_TASK, frame->planes[0].height ); ++y )
       {
@@ -915,7 +916,7 @@ void VVDecImpl::xAddGrain( vvdecFrame* frame )
       }
       return true;
     };
-    m_cDecLib->getThreadPool().addBarrierTask<GrainTaskData>( grainTask, &( grainTaskData[i] ), &grainTaskCounter );
+    m_cDecLib->getThreadPool().addBarrierTask( grainTask, &( grainTaskData[i] ), &grainTaskCounter );
   }
   grainTaskCounter.wait();
 
