@@ -709,7 +709,8 @@ static bool check_filterCopy( InterpolationFilter* ref, InterpolationFilter* opt
 {
   DimensionGenerator dim;
 
-  static constexpr size_t buf_size = MAX_CU_SIZE * MAX_CU_SIZE;
+  // Scale buffer size to allow for width=(MAX_CU_SIZE + 4) if biMCForDMVR.
+  static constexpr size_t buf_size = MAX_CU_SIZE * (MAX_CU_SIZE + 4);
 
   std::vector<Pel> src( buf_size );
   std::vector<Pel> dst_ref( buf_size );
@@ -730,10 +731,13 @@ static bool check_filterCopy( InterpolationFilter* ref, InterpolationFilter* opt
 
     for( unsigned n = 0; n < num_cases; n++ )
     {
-      const unsigned height    = dim.get( 1, MAX_CU_SIZE );
-      const unsigned width     = dim.get( 1, MAX_CU_SIZE );
-      const unsigned srcStride = dim.get( width, MAX_CU_SIZE );
-      const unsigned dstStride = dim.get( width, MAX_CU_SIZE );
+      // In biMCForDMVR cases, width must be a multiple of eight, plus four.
+      const unsigned height = dim.get( 1, MAX_CU_SIZE );
+      const unsigned width  = biMCForDMVR ? dim.get( 0, MAX_CU_SIZE, 8 ) + 4 : dim.get( 1, MAX_CU_SIZE );
+
+      // Extend stride maximum to ensure stride >= width if biMCForDMVR.
+      const unsigned srcStride = dim.get( width, MAX_CU_SIZE + 4 );
+      const unsigned dstStride = dim.get( width, MAX_CU_SIZE + 4 );
 
       // Fill input buffers with unsigned data.
       std::generate( src.begin(), src.end(), inp_gen );
