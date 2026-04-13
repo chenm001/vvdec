@@ -416,14 +416,13 @@ public:
   ThreadPool( int numThreads = 1, const char *threadPoolName = nullptr );
   ~ThreadPool();
 
-  template<class TParam>
   bool addBarrierTask( TP_TASK_NAME_ARG( std::string&& taskName )
-                       bool       ( *func )( int, TParam* ),
-                       TParam*       param,
-                       WaitCounter*  counter                      = nullptr,
-                       Barrier*      done                         = nullptr,
-                       CBarrierVec&& barriers                     = {},
-                       bool       ( *readyCheck )( int, TParam* ) = nullptr )
+                       bool       ( *func )( int, void* ),
+                       void*         param,
+                       WaitCounter*  counter                    = nullptr,
+                       Barrier*      done                       = nullptr,
+                       CBarrierVec&& barriers                   = {},
+                       bool       ( *readyCheck )( int, void* ) = nullptr )
   {
     if( m_threads.empty() )
     {

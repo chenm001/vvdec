@@ -196,7 +196,7 @@ private:
   void createSubPicRefBufs( Picture* pic, const Picture* currPic );
 
   template<bool checkReadyState=false>
-  static bool ctuTask( int tid, CtuTaskParam* param );
+  static bool ctuTask( int tid, void* task_param );
 };
 
 }

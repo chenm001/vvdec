@@ -977,11 +977,12 @@ bool DecLibParser::xDecodeSliceMain( InputNALUnit& nalu )
 
   ITT_TASKEND( itt_domain_oth, itt_handle_start );
 
-  static const auto parseTask = []( int threadId, Slice* slice )
+  static const auto parseTask = []( int threadId, void* param )
   {
-    auto& decLib    = slice->parseTaskParams.decLibParser;
-    auto& bitstream = slice->parseTaskParams.bitstream;
-    auto* pic       = slice->getPic();
+    Slice* slice     = static_cast<Slice*>( param );
+    auto&  decLib    = slice->parseTaskParams.decLibParser;
+    auto&  bitstream = slice->parseTaskParams.bitstream;
+    auto*  pic       = slice->getPic();
 
     try
     {
@@ -1022,14 +1023,14 @@ bool DecLibParser::xDecodeSliceMain( InputNALUnit& nalu )
   {
     if( m_uiSliceSegmentIdx > 0 )
     {
-      m_threadPool->addBarrierTask<Slice>( TP_TASK_NAME_ARG( "POC:" + std::to_string( m_pcParsePic->poc ) + " parseTask" )
-                                           parseTask, pcSlice, &m_pcParsePic->m_divTasksCounter, &pcSlice->parseDone,
-                                           CBarrierVec{ &m_pcParsePic->slices[m_uiSliceSegmentIdx - 1]->parseDone } );
+      m_threadPool->addBarrierTask( TP_TASK_NAME_ARG( "POC:" + std::to_string( m_pcParsePic->poc ) + " parseTask" )
+                                    parseTask, pcSlice, &m_pcParsePic->m_divTasksCounter, &pcSlice->parseDone,
+                                    CBarrierVec{ &m_pcParsePic->slices[m_uiSliceSegmentIdx - 1]->parseDone } );
     }
     else
     {
-      m_threadPool->addBarrierTask<Slice>( TP_TASK_NAME_ARG( "POC:" + std::to_string( m_pcParsePic->poc ) + " parseTask" )
-                                           parseTask, pcSlice,  &m_pcParsePic->m_divTasksCounter, &pcSlice->parseDone );
+      m_threadPool->addBarrierTask( TP_TASK_NAME_ARG( "POC:" + std::to_string( m_pcParsePic->poc ) + " parseTask" )
+                                    parseTask, pcSlice,  &m_pcParsePic->m_divTasksCounter, &pcSlice->parseDone );
     }
   }
   else
