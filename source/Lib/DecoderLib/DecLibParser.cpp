@@ -926,13 +926,7 @@ bool DecLibParser::xDecodeSliceMain( InputNALUnit& nalu )
   }
 
   //---------------
-  NalUnitInfo naluInfo;
-  naluInfo.m_nalUnitType = nalu.m_nalUnitType;
-  naluInfo.m_nuhLayerId = nalu.m_nuhLayerId;
-  naluInfo.m_firstCTUinSlice = pcSlice->getFirstCtuRsAddrInSlice();
-  naluInfo.m_POC = pcSlice->getPOC();
   xCheckMixedNalUnit( pcSlice, nalu );
-  m_nalUnitInfo[naluInfo.m_nuhLayerId].push_back( naluInfo );
 
   if( m_bFirstSliceInPicture )
   {
@@ -1665,13 +1659,16 @@ void DecLibParser::xCheckMixedNalUnit( Slice* pcSlice, const InputNALUnit& nalu 
     CHECK( pcSlice->getNalUnitType() == NAL_UNIT_CODED_SLICE_GDR, "picture with mixed NAL unit type cannot have GDR slice");
 
     //Check that if current slice is IRAP type, the other type of NAL can only be TRAIL_NUT
-    if( pcSlice->getNalUnitType() == NAL_UNIT_CODED_SLICE_IDR_W_RADL || pcSlice->getNalUnitType() == NAL_UNIT_CODED_SLICE_IDR_N_LP || pcSlice->getNalUnitType() == NAL_UNIT_CODED_SLICE_CRA )
+    if( pcSlice->getNalUnitType() == NAL_UNIT_CODED_SLICE_IDR_W_RADL
+        || pcSlice->getNalUnitType() == NAL_UNIT_CODED_SLICE_IDR_N_LP
+        || pcSlice->getNalUnitType() == NAL_UNIT_CODED_SLICE_CRA )
     {
       for( int i = 0; i < m_uiSliceSegmentIdx; i++ )
       {
-        Slice* PreSlice = m_pcParsePic->slices[i];
-        CHECK( (pcSlice->getNalUnitType() != PreSlice->getNalUnitType()) && (PreSlice->getNalUnitType() != NAL_UNIT_CODED_SLICE_TRAIL),
-                           "In a mixed NAL unt type picture, an IRAP slice can be mixed with Trail slice(s) only");
+        Slice* preSlice = m_pcParsePic->slices[i];
+        CHECK( pcSlice->getNalUnitType() != preSlice->getNalUnitType()
+                 && preSlice->getNalUnitType() != NAL_UNIT_CODED_SLICE_TRAIL,
+               "In a mixed NAL unt type picture, an IRAP slice can be mixed with Trail slice(s) only" );
       }
     }
 
@@ -1690,95 +1687,19 @@ void DecLibParser::xCheckMixedNalUnit( Slice* pcSlice, const InputNALUnit& nalu 
       }
       CHECK( !hasDiffTypes, "VCL NAL units of the picture shall have two or more different nal_unit_type values");
     }
-
-    const unsigned  ctuRsAddr = pcSlice->getCtuAddrInSlice(0);
-    const unsigned  ctuXPosInCtus = ctuRsAddr % pcSlice->getPPS()->getPicWidthInCtu();
-    const unsigned  ctuYPosInCtus = ctuRsAddr / pcSlice->getPPS()->getPicWidthInCtu();
-    const unsigned  maxCUSize = pcSlice->getSPS()->getMaxCUWidth();
-    Position pos(ctuXPosInCtus*maxCUSize, ctuYPosInCtus*maxCUSize);
-    const SubPic &curSubPic = pcSlice->getPPS()->getSubPicFromPos(pos);
-
-    // check subpicture constraints
-    if ((pcSlice->getNalUnitType() >= NAL_UNIT_CODED_SLICE_IDR_W_RADL) && (pcSlice->getNalUnitType() <= NAL_UNIT_CODED_SLICE_CRA))
-    {
-      CHECK(curSubPic.getTreatedAsPicFlag() != true,
-                         "a slice of IDR_W_RADL to CRA_NUT shall have its subpic's sub_pic_treated_as_pic_flag equal to 1");
-    }
-    else
-    {
-      // check reference list constraint
-      if (!m_nalUnitInfo[nalu.m_nuhLayerId].empty())
-      {
-        //find out the closest IRAP nal unit that are in the same layer and in the corresponding subpicture
-        NalUnitInfo *latestIRAPNalUnit = nullptr;
-        int size = (int)m_nalUnitInfo[nalu.m_nuhLayerId].size();
-        int naluIdx;
-        for (naluIdx = size - 1; naluIdx >= 0; naluIdx--)
-        {
-          NalUnitInfo *iterNalu = &m_nalUnitInfo[nalu.m_nuhLayerId][naluIdx];
-          bool isIRAPSlice = iterNalu->m_nalUnitType >= NAL_UNIT_CODED_SLICE_IDR_W_RADL && iterNalu->m_nalUnitType <= NAL_UNIT_CODED_SLICE_CRA;
-          if (isIRAPSlice)
-          {
-            latestIRAPNalUnit = iterNalu;
-            break;
-          }
-        }
-        if (latestIRAPNalUnit != nullptr && ((latestIRAPNalUnit->m_nalUnitType >= NAL_UNIT_CODED_SLICE_IDR_W_RADL && latestIRAPNalUnit->m_nalUnitType <= NAL_UNIT_CODED_SLICE_IDR_N_LP)
-            || (latestIRAPNalUnit->m_nalUnitType == NAL_UNIT_CODED_SLICE_CRA && pcSlice->getPOC() > latestIRAPNalUnit->m_POC)))
-        {
-          // clear the nalu unit before the latest IRAP slice
-          m_nalUnitInfo[nalu.m_nuhLayerId].erase(m_nalUnitInfo[nalu.m_nuhLayerId].begin(), m_nalUnitInfo[nalu.m_nuhLayerId].begin() + naluIdx);
-
-          const unsigned  ctuRsAddrIRAP = latestIRAPNalUnit->m_firstCTUinSlice;
-          const unsigned  ctuXPosInCtusIRAP = ctuRsAddrIRAP % pcSlice->getPPS()->getPicWidthInCtu();
-          const unsigned  ctuYPosInCtusIRAP = ctuRsAddrIRAP / pcSlice->getPPS()->getPicWidthInCtu();
-          Position posIRAP(ctuXPosInCtusIRAP*maxCUSize, ctuYPosInCtusIRAP*maxCUSize);
-          bool isInCorrespondingSubpic = curSubPic.isContainingPos(posIRAP);
-          if (isInCorrespondingSubpic)
-          {
-            // check RefPicList[0]
-            for (int refIdx = 0; refIdx < pcSlice->getNumRefIdx(REF_PIC_LIST_0); refIdx++)
-            {
-              int POC = pcSlice->getRefPOC(REF_PIC_LIST_0, refIdx);
-              bool notInPOCAfterIRAP = true;
-              // check all ref pics of the current slice are from poc after the IRAP slice
-              for (auto iterNalu : m_nalUnitInfo[nalu.m_nuhLayerId])
-              {
-                if (POC == iterNalu.m_POC)
-                  notInPOCAfterIRAP = false;
-              }
-              CHECK(notInPOCAfterIRAP, "all reference pictures of a slice after the IRAP picture are from pictures after the IRAP");
-            }
-            // check RefPicList[1]
-            for (int refIdx = 0; refIdx < pcSlice->getNumRefIdx(REF_PIC_LIST_1); refIdx++)
-            {
-              int POC = pcSlice->getRefPOC(REF_PIC_LIST_1, refIdx);
-              bool notInPOCAfterIRAP = true;
-              // check all ref pics of the current slice are from poc after the IRAP slice
-              for (auto iterNalu : m_nalUnitInfo[nalu.m_nuhLayerId])
-              {
-                if (POC == iterNalu.m_POC)
-                  notInPOCAfterIRAP = false;
-              }
-              CHECK(notInPOCAfterIRAP, "all reference pictures of a slice after the IRAP picture are from pictures after the IRAP");
-            }
-          }
-        }
-      }
-    }
   }
-  else // all slices shall have the same nal unit type
+  else   // all slices shall have the same nal unit type
   {
     bool sameNalUnitType = true;
     for( int i = 0; i < m_uiSliceSegmentIdx; i++ )
     {
-      Slice *PreSlice = m_pcParsePic->slices[i];
+      Slice* PreSlice = m_pcParsePic->slices[i];
       if( PreSlice->getNalUnitType() != pcSlice->getNalUnitType() )
       {
         sameNalUnitType = false;
       }
     }
-    CHECK(!sameNalUnitType, "mixed_nalu_types_in_pic_flag is zero, but have different nal unit types");
+    CHECK( !sameNalUnitType, "mixed_nalu_types_in_pic_flag is zero, but have different nal unit types" );
   }
 }
 
