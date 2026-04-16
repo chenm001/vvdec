@@ -96,15 +96,6 @@ private:
 
   DCI*     m_dci                  = nullptr;
 
-  struct AccessUnitPicInfo
-  {
-    NalUnitType m_nalUnitType; ///< nal_unit_type
-    uint32_t    m_temporalId;  ///< temporal_id
-    uint32_t    m_nuhLayerId;  ///< nuh_layer_id
-    int         m_POC;
-  };
-  std::vector<AccessUnitPicInfo> m_accessUnitPicInfo;
-
   struct NalUnitInfo
   {
     NalUnitType m_nalUnitType; ///< nal_unit_type

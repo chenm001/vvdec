@@ -455,29 +455,7 @@ bool DecLibParser::xDecodeSliceHead( InputNALUnit& nalu )
                                                            "when sps_video_parameter_set_id is equal to 0" );
   }
 
-  if( vps != nullptr && ( vps->getIndependentLayerFlag( nalu.m_nuhLayerId ) == 0 ) )
-  {
-    bool pocIsSet = false;
-    for( auto auNALit = m_accessUnitPicInfo.begin(); auNALit != m_accessUnitPicInfo.end(); auNALit++ )
-    {
-      for( int iRefIdx = 0; iRefIdx < m_apcSlicePilot->getNumRefIdx( REF_PIC_LIST_0 ) && !pocIsSet; iRefIdx++ )
-      {
-        if( m_apcSlicePilot->getRefPic( REF_PIC_LIST_0, iRefIdx ) && m_apcSlicePilot->getRefPic( REF_PIC_LIST_0, iRefIdx )->getPOC() == ( *auNALit ).m_POC )
-        {
-          m_apcSlicePilot->setPOC( m_apcSlicePilot->getRefPic( REF_PIC_LIST_0, iRefIdx )->getPOC() );
-          pocIsSet = true;
-        }
-      }
-      for( int iRefIdx = 0; iRefIdx < m_apcSlicePilot->getNumRefIdx( REF_PIC_LIST_1 ) && !pocIsSet; iRefIdx++ )
-      {
-        if( m_apcSlicePilot->getRefPic( REF_PIC_LIST_1, iRefIdx ) && m_apcSlicePilot->getRefPic( REF_PIC_LIST_1, iRefIdx )->getPOC() == ( *auNALit ).m_POC )
-        {
-          m_apcSlicePilot->setPOC( m_apcSlicePilot->getRefPic( REF_PIC_LIST_1, iRefIdx )->getPOC() );
-          pocIsSet = true;
-        }
-      }
-    }
-  }
+  CHECK( vps && !vps->getIndependentLayerFlag( nalu.m_nuhLayerId ), "Decoding of dependent layers not implemented. Dependent layer POC derivation was here." );
 
   // update independent slice index
   m_apcSlicePilot->setIndependentSliceIdx( m_uiSliceSegmentIdx );
@@ -592,13 +570,6 @@ bool DecLibParser::xDecodeSliceHead( InputNALUnit& nalu )
     xUpdatePreviousTid0POC ( m_apcSlicePilot );
     m_lastPOCNoOutputPriorPics = m_apcSlicePilot->getPOC();
   }
-
-  AccessUnitPicInfo picInfo;
-  picInfo.m_nalUnitType = nalu.m_nalUnitType;
-  picInfo.m_nuhLayerId  = nalu.m_nuhLayerId;
-  picInfo.m_temporalId  = nalu.m_temporalId;
-  picInfo.m_POC         = m_apcSlicePilot->getPOC();
-  m_accessUnitPicInfo.push_back( picInfo );
 
   // Skip pictures due to random access
   if( isRandomAccessSkipPicture() )
