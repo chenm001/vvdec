@@ -6,10 +6,15 @@ cmake_minimum_required( VERSION 3.12.0 FATAL_ERROR )
 # Use latest policy
 cmake_policy( VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} )
 
+# set default CMAKE_BUILD_TYPE to Release if not set. This must happen before project() to work on windows
+if( NOT CMAKE_BUILD_TYPE )
+  set( CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE )
+endif()
+
 # project name
 project( vvdec VERSION 3.2.0 )
 # set alternative version numbering for release candidates
-set( PROJECT_VERSION_RC dev )
+set( PROJECT_VERSION_RC rc1 )
 if( PROJECT_VERSION_RC )
     set( PROJECT_VERSION "${PROJECT_VERSION}-${PROJECT_VERSION_RC}" )
 endif()
@@ -314,11 +319,6 @@ endif()
 #else()
     set( VVDEC_ENABLE_ITT OFF CACHE BOOL "Enable Intel Runtime Support for Profiling" )
 #endif()
-
-# set default CMAKE_BUILD_TYPE to Release if not set
-if( NOT CMAKE_BUILD_TYPE )
-  set( CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE )
-endif()
 
 # set c++14
 set( CMAKE_CXX_STANDARD 14 )
