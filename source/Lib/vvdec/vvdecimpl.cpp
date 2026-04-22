@@ -84,20 +84,25 @@ int VVDecImpl::init( const vvdecParams& params, vvdecCreateBufferCallback create
   try
   {
 #if defined(TARGET_SIMD_X86) && ENABLE_SIMD_OPT
+#  if defined( VVDEC_ARCH_X86 )
     switch( params.simd )
     {
     case VVDEC_SIMD_SCALAR: read_x86_extension_flags( x86_simd::SCALAR ); break;
-#  if defined( VVDEC_ARCH_X86 )
     case VVDEC_SIMD_SSE41 : read_x86_extension_flags( x86_simd::SSE41  ); break;
     case VVDEC_SIMD_SSE42 : read_x86_extension_flags( x86_simd::SSE42  ); break;
     case VVDEC_SIMD_AVX   : read_x86_extension_flags( x86_simd::AVX    ); break;
     case VVDEC_SIMD_AVX2  : read_x86_extension_flags( x86_simd::AVX2   ); break;
-#  elif defined( VVDEC_ARCH_ARM ) || defined( VVDEC_ARCH_WASM ) || defined( VVDEC_ARCH_LOONGARCH )
-    case VVDEC_SIMD_MAX   : read_x86_extension_flags( SIMD_EVERYWHERE_EXTENSION_LEVEL ); break;
-#  endif
     case VVDEC_SIMD_DEFAULT:
     default:                read_x86_extension_flags( x86_simd::UNDEFINED ); break;
     }
+#  else    // !VVDEC_ARCH_X86
+    // all other architectures, that use simd-everywhere
+    switch( params.simd )
+    {
+    case VVDEC_SIMD_SCALAR: read_x86_extension_flags( x86_simd::SCALAR );    break;
+    default:                read_x86_extension_flags( x86_simd::UNDEFINED ); break;
+    }
+#  endif   // !VVDEC_ARCH_X86
 #endif   // TARGET_SIMD_X86
 
 #if defined(TARGET_SIMD_ARM) && ENABLE_SIMD_OPT
@@ -109,6 +114,7 @@ int VVDecImpl::init( const vvdecParams& params, vvdecCreateBufferCallback create
     case VVDEC_SIMD_SVE:      read_arm_extension_flags( arm_simd::SVE );       break;
     case VVDEC_SIMD_SVE2:     read_arm_extension_flags( arm_simd::SVE2 );      break;
     case VVDEC_SIMD_DEFAULT:
+    case VVDEC_SIMD_LEGACY:
     default:                  read_arm_extension_flags( arm_simd::UNDEFINED ); break;
     }
 #endif   // TARGET_SIMD_ARM

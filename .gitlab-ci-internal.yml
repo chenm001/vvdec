@@ -177,6 +177,21 @@ build_gcc14_ubuntu2404:
     CC: gcc-14
     CXX: g++-14
 
+build_gcc15_ubuntu2604:
+  extends: .build_only_template
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_full:latest
+  variables:
+    CC: gcc-15
+    CXX: g++-15
+
+
+build_gcc16_ubuntu2604:
+  extends: .build_only_template
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_full:latest
+  variables:
+    CC: gcc-16
+    CXX: g++-16
+
 build_clang7_ubuntu2004:
   extends: .build_only_template_full
   image: $CI_REGISTRY/pub/dockerimages/ubuntu_2004_full:latest
@@ -275,21 +290,35 @@ build_clang20_ubuntu2404:
     CC: clang-20
     CXX: clang++-20
 
-build_mingw_ubuntu2404:
+build_clang21_ubuntu2604:
   extends: .build_only_template_full
-  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2404_full:latest
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_full:latest
+  variables:
+    CC: clang-21
+    CXX: clang++-21
+
+build_clang22_ubuntu2604:
+  extends: .build_only_template_full
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_full:latest
+  variables:
+    CC: clang-22
+    CXX: clang++-22
+
+build_mingw_ubuntu2604:
+  extends: .build_only_template_full
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_full:latest
   variables:
     toolchainfile: cmake/toolchains/x86_64-w64-mingw32-gcc-posix-ubuntu.cmake
 
-build_aarch64_gcc_ubuntu2404:
+build_aarch64_gcc_ubuntu2604:
   extends: .build_only_template
-  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2404_full:latest
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_full:latest
   variables:
     toolchainfile: cmake/toolchains/aarch64-linux-gnu-gcc-ubuntu.cmake
 
-build_armv7_gcc_ubuntu2404:
+build_armv7_gcc_ubuntu2604:
   extends: .build_only_template
-  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2404_full:latest
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_full:latest
   variables:
     toolchainfile: cmake/toolchains/arm-linux-gnueabihf-gcc-ubuntu.cmake
 
@@ -336,6 +365,10 @@ test_ubuntu2204:
 test_ubuntu2404:
   extends: .build_test_template
   image: $CI_REGISTRY/pub/dockerimages/ubuntu_2404_dev:latest
+
+test_ubuntu2604:
+  extends: .build_test_template
+  image: $CI_REGISTRY/pub/dockerimages/ubuntu_2604_dev:latest
 
 test_vs2017:
   extends: .build_test_msvc_template

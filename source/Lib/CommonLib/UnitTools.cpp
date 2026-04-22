@@ -2927,6 +2927,10 @@ bool PU::getInterMergeSubPuMvpCand(const CodingUnit &cu, AffineMergeCtx& mrgCtx,
   {
     return false;
   }
+  else if( cu.mergeIdx() > 0 )
+  {
+    return true;
+  }
 
   if( true )
   {

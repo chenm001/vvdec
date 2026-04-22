@@ -805,7 +805,7 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
     }
 
     pDsty=pDstBuf;
-    for (int y = 0, deltaPos = intraPredAngle * (1 + multiRefIdx); y<height; y++, deltaPos += intraPredAngle, pDsty += dstStride)
+    for (int y = 0; y<height; y++, pDsty += dstStride)
     {
       int angularScale = 0;
       if( intraPredAngle < 0 )
@@ -816,11 +816,11 @@ void IntraPrediction::xPredIntraAng( const CPelBuf &pSrc, PelBuf &pDst, const Ch
       {
         const int sideSize = predMode >= DIA_IDX ? pDst.height : pDst.width;
         const int maxScale = 2;
-        
+
         angularScale = std::min(maxScale, getLog2(sideSize) - (getLog2(3 * invAngle - 2) - 8));
         doPDPC &= angularScale >= 0;
       }
-        
+
       if( doPDPC )
       {
         int invAngleSum = 256;
