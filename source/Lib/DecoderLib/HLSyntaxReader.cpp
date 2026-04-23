@@ -1127,7 +1127,7 @@ void HLSyntaxReader::parseVUI( VUI* pcVUI, unsigned vuiPayloadSize )
       X_READ_CODE_NO_RANGE( vui_sar_height, 16 );
       pcVUI->setSarHeight( vui_sar_height );
     }
-    else if ((size_t)pcVUI->getAspectRatioIdc() <= sizeof(SARFixedRatios) / sizeof(SARFixedRatios[0]))
+    else if (pcVUI->getAspectRatioIdc() > 0 && (size_t)pcVUI->getAspectRatioIdc() <= sizeof(SARFixedRatios) / sizeof(SARFixedRatios[0]))
     {
       pcVUI->setSarWidth( SARFixedRatios[pcVUI->getAspectRatioIdc() - 1][0] );
       pcVUI->setSarHeight( SARFixedRatios[pcVUI->getAspectRatioIdc() - 1][1] );
@@ -1658,7 +1658,7 @@ void HLSyntaxReader::parseSPS( SPS* sps, const ParameterSetManager* parameterSet
         CHECK( sps->getSubPicCtuTopLeftY( picIdx ) * CtbSizeY >= sps->getMaxPicHeightInLumaSamples() - conf.getWindowBottomOffset() * SubHeightC,
                "The value of ( sps_subpic_ctu_top_left_y[ i ] * CtbSizeY )"
                " shall  be less than ( sps_pic_height_max_in_luma_samples - sps_conf_win_bottom_offset * SubHeightC )." );
-        CHECK( ( sps->getSubPicCtuTopLeftX( picIdx ) + sps->getSubPicHeight( picIdx ) ) * CtbSizeY <= conf.getWindowTopOffset() * SubHeightC,
+        CHECK( ( sps->getSubPicCtuTopLeftY( picIdx ) + sps->getSubPicHeight( picIdx ) ) * CtbSizeY <= conf.getWindowTopOffset() * SubHeightC,
                "The value of ( ( sps_subpic_ctu_top_left_y[ i ] + sps_subpic_height_minus1[ i ] + 1 ) * CtbSizeY )"
                " shall be greater than ( sps_conf_win_top_offset * SubHeightC )." );
 
