@@ -54,6 +54,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "Picture.h"
 #include "Slice.h"
 
+#include <memory>
+
 #if ENABLE_SIMD_OPT_BUFFER && defined( TARGET_SIMD_X86 )
 #include "CommonDefX86.h"
 #include <simde/x86/sse.h>
@@ -258,10 +260,10 @@ void sampleRateConvCore( const std::pair<int, int> scalingRatio, const std::pair
   const int filterLength = useLumaFilter ? NTAPS_LUMA : NTAPS_CHROMA;
   const int log2Norm     = 12;
 
-  int* buf = new int[orgHeight * scaledWidth];
-  int maxVal = (1 << bitDepth) - 1;
-
   CHECK( bitDepth > 17, "Overflow may happen!" );
+
+  const int maxVal = (1 << bitDepth) - 1;
+  std::unique_ptr<int[]> buf( new int[orgHeight * scaledWidth] );
 
   for( int i = 0; i < scaledWidth; i++ )
   {
@@ -269,7 +271,7 @@ void sampleRateConvCore( const std::pair<int, int> scalingRatio, const std::pair
     int refPos = (((i << compScale.first) - afterScaleLeftOffset) * scalingRatio.first + addX) >> posShiftX;
     int integer = refPos >> numFracShift;
     int frac = refPos & numFracPositions;
-    int* tmp = buf + i;
+    int* tmp = buf.get() + i;
 
     for( int j = 0; j < orgHeight; j++ )
     {
@@ -300,7 +302,7 @@ void sampleRateConvCore( const std::pair<int, int> scalingRatio, const std::pair
     for( int i = 0; i < scaledWidth; i++ )
     {
       int sum = 0;
-      int* tmp = buf + i;
+      int* tmp = buf.get() + i;
       const TFilterCoeff* f = filterVer + frac * filterLength;
 
       for( int k = 0; k < filterLength; k++ )
@@ -314,8 +316,6 @@ void sampleRateConvCore( const std::pair<int, int> scalingRatio, const std::pair
 
     dst += scaledStride;
   }
-
-  delete[] buf;
 }
 
 void rspFwdCore( Pel* ptr, ptrdiff_t ptrStride, int width, int height, const int bd, const Pel OrgCW, const Pel* LmcsPivot, const Pel* ScaleCoeff, const Pel* InputPivot )
