@@ -1171,9 +1171,9 @@ void LoopFilter::xGetBoundaryStrengthSingle( LoopFilterParam& lfp, const CodingU
     tmpBs += BsSet( cbfSum & 1, COMPONENT_Y );
     if( !( MODE_INTRA != cuP.predMode() && MODE_INTRA != cuQ.predMode() && cuPcIsIntra ) )
     {
-      bool jointChr = tuQ.jointCbCr || tuP.jointCbCr;
+      int jointChr = ( tuQ.jointCbCr || tuP.jointCbCr ) ? 1 : 0;
       cbfSum >>= 1;
-      tmpBs += BsSet( (cbfSum & 1) | jointChr , COMPONENT_Cb );
+      tmpBs += BsSet( (cbfSum & 1) | jointChr, COMPONENT_Cb );
       cbfSum >>= 1;
       tmpBs += BsSet( (cbfSum & 1) | jointChr, COMPONENT_Cr );
     }
