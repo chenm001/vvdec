@@ -610,13 +610,16 @@ void DecLibRecon::decompressPicture( Picture* pcPic )
 #endif
       if( line < heightInCtus && col < numTasksPerLine )
       {
-        CBarrierVec ctuBarriesrs = picBarriers;
-        const int   ctuStart     = col * numColPerTask;
-        const int   ctuEnd       = std::min( ctuStart + numColPerTask, widthInCtus );
+        CBarrierVec ctuBarriers = picBarriers;
+        const int   ctuStart    = col * numColPerTask;
+        const int   ctuEnd      = std::min( ctuStart + numColPerTask, widthInCtus );
 
 #if RECO_WHILE_PARSE
-        // wait for the last CTU in the current line to be parsed
-        ctuBarriesrs.push_back( &pcPic->ctuParsedBarrier[( line + 1 ) * widthInCtus - 1] );
+        if( pcPic->parseDone.isBlocked() )
+        {
+          // wait for the last CTU in the current line to be parsed
+          ctuBarriers.push_back( &pcPic->ctuParsedBarrier[( line + 1 ) * widthInCtus - 1] );
+        }
 
 #endif
         CtuTaskParam* param    = &tasksCtu[line * numTasksPerLine + col];
@@ -632,7 +635,7 @@ void DecLibRecon::decompressPicture( Picture* pcPic )
                                             param,
                                             &pcPic->m_ctuTaskCounter,
                                             nullptr,
-                                            std::move( ctuBarriesrs ),
+                                            std::move( ctuBarriers ),
                                             ctuTask<true> );
       }
     }
