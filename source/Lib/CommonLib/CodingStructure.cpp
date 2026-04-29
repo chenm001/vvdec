@@ -540,14 +540,14 @@ const CodingUnit* CodingStructure::getCURestricted( const Position &pos, const P
 void CodingStructure::initVIbcBuf( int numCtuLines, ChromaFormat chromaFormatIDC, int ctuSize )
 {
   m_virtualIBCbuf.resize( numCtuLines );
-  for( auto &buf: m_virtualIBCbuf )
-
-  if (buf.bufs.empty())
+  for( auto& buf: m_virtualIBCbuf )
   {
-    m_IBCBufferWidth = g_IBCBufferSize / ctuSize;
-    buf.create(UnitArea(chromaFormatIDC, Area(0, 0, m_IBCBufferWidth, ctuSize)));
+    if( buf.bufs.empty() )
+    {
+      m_IBCBufferWidth = g_IBCBufferSize / ctuSize;
+      buf.create( UnitArea( chromaFormatIDC, Area( 0, 0, m_IBCBufferWidth, ctuSize ) ) );
+    }
   }
-
 }
 
 void CodingStructure::fillIBCbuffer( CodingUnit &cu, int lineIdx )
