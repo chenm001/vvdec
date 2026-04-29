@@ -47,6 +47,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "CommonLib/CommonDef.h"
 #include "CommonLib/InterPrediction.h"
 #include "CommonLib/InterpolationFilter.h"
+#include "CommonLib/LoopFilter.h"
 #include "CommonLib/TrQuant_EMT.h"
 
 using namespace vvdec;
@@ -196,6 +197,11 @@ public:
     unsigned ret = rand() % ( max - min + 1 ) + min;
     ret -= ret % mod;
     return ret;
+  }
+
+  bool getBool() const
+  {
+    return get( 0, 1 ) != 0;
   }
 
   template<typename T>
@@ -559,6 +565,93 @@ static bool test_AdaptiveLoopFilter()
   return passed;
 }
 #endif // ENABLE_SIMD_OPT_ALF
+
+#if ENABLE_SIMD_DBLF
+template<typename G>
+static bool check_one_xPelFilterLuma( LoopFilter* ref, LoopFilter* opt, ptrdiff_t stride, bool isVertical,
+                                      bool isStrong, int bitDepth, int tc, bool bFilterSecondP, bool bFilterSecondQ,
+                                      G input_generator, std::ostringstream& sstm_test )
+{
+  static constexpr unsigned buf_size = MAX_CU_SIZE * MAX_CU_SIZE;
+  std::vector<Pel> src_ref( buf_size );
+  std::generate( src_ref.begin(), src_ref.end(), input_generator );
+  std::vector<Pel> src_opt = src_ref;
+
+  const ClpRng clpRng{ bitDepth };
+
+  // From xEdgeFilterLuma: weak-filter delta cutoff is derived as 10 * tc.
+  const int iThrCut = tc * 10;
+
+  // Adjust src pointers to allow indexing up to (-4 * offset) within xPelFilterLuma.
+  Pel* ptr_ref = src_ref.data() + 4 * stride;
+  Pel* ptr_opt = src_opt.data() + 4 * stride;
+
+  const ptrdiff_t step   = isVertical ? stride : 1;
+  const ptrdiff_t offset = isVertical ? 1 : stride;
+
+  ref->xPelFilterLuma( ptr_ref, step, offset, tc, isStrong, iThrCut, bFilterSecondP, bFilterSecondQ, clpRng );
+  opt->xPelFilterLuma( ptr_opt, step, offset, tc, isStrong, iThrCut, bFilterSecondP, bFilterSecondQ, clpRng );
+
+  std::ostringstream sstm_subtest;
+  sstm_subtest << sstm_test.str() << ( isVertical ? " step=" : " offset=" ) << stride << " tc=" << tc
+               << " secondP=" << bFilterSecondP << " secondQ=" << bFilterSecondQ;
+  return compare_values_1d( sstm_subtest.str(), src_ref.data(), src_opt.data(), buf_size );
+}
+
+static bool check_xPelFilterLuma( LoopFilter* ref, LoopFilter* opt, unsigned num_cases, bool isVertical, bool isStrong,
+                                  int bitDepth )
+{
+  DimensionGenerator rng;
+  InputGenerator<Pel> inp_gen{ ( unsigned )bitDepth, /*is_signed=*/false };
+  bool passed = true;
+
+  std::ostringstream sstm_test;
+  sstm_test << "LoopFilter::pelFilterLuma" << ( isStrong ? "Strong" : "Weak" ) << ( isVertical ? "Ver" : "Hor" )
+            << " bd=" << bitDepth;
+  std::cout << "Testing " << sstm_test.str() << std::endl;
+
+  for( unsigned n = 0; n < num_cases; n++ )
+  {
+    const ptrdiff_t stride = ( ptrdiff_t )rng.get( 8, MAX_CU_SIZE );
+
+    // sm_tcTable[MAX_QP + DEFAULT_INTRA_TC_OFFSET] is 395; xEdgeFilterLuma scales it by bit depth.
+    static constexpr int maxTc10Bit = 395;
+    const int maxTc = bitDepth < 10 ? ( ( maxTc10Bit + ( 1 << ( 9 - bitDepth ) ) ) >> ( 10 - bitDepth ) )
+                                    : ( maxTc10Bit << ( bitDepth - 10 ) );
+    const int iTc = ( int )rng.get( 0, maxTc );
+
+    const bool bFilterSecondP = rng.getBool();
+    const bool bFilterSecondQ = rng.getBool();
+
+    passed = check_one_xPelFilterLuma( ref, opt, stride, isVertical, isStrong, bitDepth, iTc, bFilterSecondP,
+                                       bFilterSecondQ, inp_gen, sstm_test ) && passed;
+  }
+
+  return passed;
+}
+
+static bool test_LoopFilter()
+{
+  LoopFilter ref{ /*enableOpt=*/false };
+  LoopFilter opt{ /*enableOpt=*/true };
+
+  unsigned num_cases = NUM_CASES;
+  bool passed = true;
+
+  for( int bitDepth : { 8, 10 } )
+  {
+    for( bool isVertical : { false, true } )
+    {
+      for( bool isStrong : { false, true } )
+      {
+        passed = check_xPelFilterLuma( &ref, &opt, num_cases, isVertical, isStrong, bitDepth ) && passed;
+      }
+    }
+  }
+
+  return passed;
+}
+#endif // ENABLE_SIMD_DBLF
 
 #if ENABLE_SIMD_OPT_MCIF
 template<int N, bool isVertical, bool isFirst, bool isLast>
@@ -1616,6 +1709,9 @@ static const UnitTestEntry test_suites[] = {
 #endif
 #if ENABLE_SIMD_OPT_INTER
     { "InterPrediction", test_InterPrediction },
+#endif
+#if ENABLE_SIMD_DBLF
+    { "LoopFilter", test_LoopFilter },
 #endif
 #if ENABLE_SIMD_OPT_BUFFER
     { "PelBufferOps", test_PelBufferOps },

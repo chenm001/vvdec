@@ -100,7 +100,6 @@ private:
   static const uint16_t sm_tcTable  [MAX_QP + 3];
   static const uint8_t  sm_betaTable[MAX_QP + 1];
 
-  void( *xPelFilterLuma  )( Pel* piSrc, const ptrdiff_t step, const ptrdiff_t offset, const int tc, const bool sw, const int iThrCut, const bool bFilterSecondP, const bool bFilterSecondQ, const ClpRng& clpRng );
   void( *xFilteringPandQ )( Pel* src, ptrdiff_t step, const ptrdiff_t offset, int numberPSide, int numberQSide, int tc );
 
 #if defined(TARGET_SIMD_X86)  && ENABLE_SIMD_DBLF
@@ -112,7 +111,9 @@ private:
 
 public:
 
-  LoopFilter();
+  void( *xPelFilterLuma  )( Pel* piSrc, const ptrdiff_t step, const ptrdiff_t offset, const int tc, const bool sw, const int iThrCut, const bool bFilterSecondP, const bool bFilterSecondQ, const ClpRng& clpRng );
+
+  LoopFilter( bool enableOpt = true );
   ~LoopFilter();
 
   /// picture-level deblocking filter
