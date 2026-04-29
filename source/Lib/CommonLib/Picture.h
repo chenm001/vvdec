@@ -199,7 +199,7 @@ public:
   std::atomic_bool stillReferenced         { false };        // set as long as there is a picture in progress, that references this one. ('referenced' might be unset during parsing)
   bool             isReferencePic          = false;          // mainly for setting vvdecPicAttributes::isRefPic for the library output frame
   bool             wasLost                 = false;
-  bool             error                   = false;
+  std::atomic_bool error                   { false };
   bool             exceptionThrownOut      = false;
   bool             topField                = false;
   bool             fieldPic                = false;
