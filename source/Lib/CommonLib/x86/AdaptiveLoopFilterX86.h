@@ -728,8 +728,9 @@ static void simdFilter5x5Blk( const AlfClassifier*,
         process2coeffs(0, pImg3 + 0, pImg4 + 0, pImg1 + 1, pImg2 - 1);
         process2coeffs(1, pImg1 + 0, pImg2 + 0, pImg1 - 1, pImg2 + 1);
         process2coeffs(2, pImg0 + 2, pImg0 - 2, pImg0 + 1, pImg0 - 1);
-        bool isNearVBabove = yVb < vbPos && (yVb >= vbPos - 1);
-        bool isNearVBbelow = yVb >= vbPos && (yVb <= vbPos);
+
+        const bool isNearVBabove = yVb == vbPos - 1;
+        const bool isNearVBbelow = yVb == vbPos;
         if (!(isNearVBabove || isNearVBbelow))
         {
           accumA = _mm_srai_epi32(accumA, SHIFT);
@@ -919,8 +920,8 @@ void simdFilter5x5Blk<AVX2>( const AlfClassifier*,
         process2coeffs(1, pImg1 + 0, pImg2 + 0, pImg1 - 1, pImg2 + 1);
         process2coeffs(2, pImg0 + 2, pImg0 - 2, pImg0 + 1, pImg0 - 1);
 
-        bool isNearVBabove = yVb < vbPos && (yVb >= vbPos - 1);
-        bool isNearVBbelow = yVb >= vbPos && (yVb <= vbPos);
+        const bool isNearVBabove = yVb == vbPos - 1;
+        const bool isNearVBbelow = yVb == vbPos;
         if (!(isNearVBabove || isNearVBbelow))
         {
           accumA = _mm256_srai_epi32(accumA, SHIFT);
@@ -1176,8 +1177,8 @@ static void simdFilter7x7Blk( const AlfClassifier*   classifier,
         process2coeffs(4, pImg1 - 2, pImg2 + 2, pImg0 + 3, pImg0 - 3);
         process2coeffs(5, pImg0 + 2, pImg0 - 2, pImg0 + 1, pImg0 - 1);
 
-        bool isNearVBabove = yVb < vbPos && (yVb >= vbPos - 1);
-        bool isNearVBbelow = yVb >= vbPos && (yVb <= vbPos);
+        const bool isNearVBabove = yVb == vbPos - 1;
+        const bool isNearVBbelow = yVb == vbPos;
         if (!(isNearVBabove || isNearVBbelow))
         {
           accumA = _mm_srai_epi32(accumA, SHIFT);
@@ -1436,8 +1437,8 @@ void simdFilter7x7Blk<AVX2>( const AlfClassifier* classifier,
         process2coeffs(4, pImg1 - 2, pImg2 + 2, pImg0 + 3, pImg0 - 3);
         process2coeffs(5, pImg0 + 2, pImg0 - 2, pImg0 + 1, pImg0 - 1);
 
-        bool isNearVBabove = yVb < vbPos && (yVb >= vbPos - 1);
-        bool isNearVBbelow = yVb >= vbPos && (yVb <= vbPos);
+        const bool isNearVBabove = yVb == vbPos - 1;
+        const bool isNearVBbelow = yVb == vbPos;
         if (!(isNearVBabove || isNearVBbelow))
         {
           accumA = _mm256_srai_epi32(accumA, SHIFT);

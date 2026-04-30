@@ -1253,44 +1253,47 @@ void AdaptiveLoopFilter::filterBlk( const AlfClassifier* classifier,
 
         pRec1 = pRec0 + j + ii * dstStride;
 
-        if ((startHeight + i + ii) % vbCTUHeight < vbPos && ((startHeight + i + ii) % vbCTUHeight >= vbPos - (bChroma ? 2 : 4))) //above
-        {
-          pImg1 = ((startHeight + i + ii) % vbCTUHeight == vbPos - 1) ? pImg0 : pImg1;
-          pImg3 = ((startHeight + i + ii) % vbCTUHeight >= vbPos - 2) ? pImg1 : pImg3;
-          pImg5 = ((startHeight + i + ii) % vbCTUHeight >= vbPos - 3) ? pImg3 : pImg5;
+        const int yVb = (startHeight + i + ii) & (vbCTUHeight - 1);
+        const bool isNearVBabove = yVb == vbPos - 1;
+        const bool isNearVBbelow = yVb == vbPos;
 
-          pImg2 = ((startHeight + i + ii) % vbCTUHeight == vbPos - 1) ? pImg0 : pImg2;
-          pImg4 = ((startHeight + i + ii) % vbCTUHeight >= vbPos - 2) ? pImg2 : pImg4;
-          pImg6 = ((startHeight + i + ii) % vbCTUHeight >= vbPos - 3) ? pImg4 : pImg6;
-        }
-        else if ((startHeight + i + ii) % vbCTUHeight >= vbPos && ((startHeight + i + ii) % vbCTUHeight <= vbPos + (bChroma ? 1 : 3))) //bottom
+        if (yVb < vbPos && (yVb >= vbPos - (bChroma ? 2 : 4))) //above
         {
-          pImg2 = ((startHeight + i + ii) % vbCTUHeight == vbPos    ) ? pImg0 : pImg2;
-          pImg4 = ((startHeight + i + ii) % vbCTUHeight <= vbPos + 1) ? pImg2 : pImg4;
-          pImg6 = ((startHeight + i + ii) % vbCTUHeight <= vbPos + 2) ? pImg4 : pImg6;
+          pImg1 = (yVb == vbPos - 1) ? pImg0 : pImg1;
+          pImg3 = (yVb >= vbPos - 2) ? pImg1 : pImg3;
+          pImg5 = (yVb >= vbPos - 3) ? pImg3 : pImg5;
 
-          pImg1 = ((startHeight + i + ii) % vbCTUHeight == vbPos    ) ? pImg0 : pImg1;
-          pImg3 = ((startHeight + i + ii) % vbCTUHeight <= vbPos + 1) ? pImg1 : pImg3;
-          pImg5 = ((startHeight + i + ii) % vbCTUHeight <= vbPos + 2) ? pImg3 : pImg5;
+          pImg2 = (yVb == vbPos - 1) ? pImg0 : pImg2;
+          pImg4 = (yVb >= vbPos - 2) ? pImg2 : pImg4;
+          pImg6 = (yVb >= vbPos - 3) ? pImg4 : pImg6;
         }
-        bool isNearVBabove = (startHeight + i + ii) % vbCTUHeight < vbPos && ((startHeight + i + ii) % vbCTUHeight >= vbPos - 1);
-        bool isNearVBbelow = (startHeight + i + ii) % vbCTUHeight >= vbPos && ((startHeight + i + ii) % vbCTUHeight <= vbPos);
+        else if (yVb >= vbPos && (yVb <= vbPos + (bChroma ? 1 : 3))) //bottom
+        {
+          pImg2 = (yVb == vbPos    ) ? pImg0 : pImg2;
+          pImg4 = (yVb <= vbPos + 1) ? pImg2 : pImg4;
+          pImg6 = (yVb <= vbPos + 2) ? pImg4 : pImg6;
+
+          pImg1 = (yVb == vbPos    ) ? pImg0 : pImg1;
+          pImg3 = (yVb <= vbPos + 1) ? pImg1 : pImg3;
+          pImg5 = (yVb <= vbPos + 2) ? pImg3 : pImg5;
+        }
+
         for( int jj = 0; jj < clsSizeX; jj++ )
         {
           int sum = 0;
           const Pel curr = pImg0[+0];
           if( filtType == ALF_FILTER_7 )
           {
-            sum += filterCoeff[0] * ( clipALF(filterClipp[0], curr, pImg5[+0], pImg6[+0]) );
-            sum += filterCoeff[1] * ( clipALF(filterClipp[1], curr, pImg3[+1], pImg4[-1]) );
-            sum += filterCoeff[2] * ( clipALF(filterClipp[2], curr, pImg3[+0], pImg4[+0]) );
-            sum += filterCoeff[3] * ( clipALF(filterClipp[3], curr, pImg3[-1], pImg4[+1]) );
-            sum += filterCoeff[4] * ( clipALF(filterClipp[4], curr, pImg1[+2], pImg2[-2]) );
-            sum += filterCoeff[5] * ( clipALF(filterClipp[5], curr, pImg1[+1], pImg2[-1]) );
-            sum += filterCoeff[6] * ( clipALF(filterClipp[6], curr, pImg1[+0], pImg2[+0]) );
-            sum += filterCoeff[7] * ( clipALF(filterClipp[7], curr, pImg1[-1], pImg2[+1]) );
-            sum += filterCoeff[8] * ( clipALF(filterClipp[8], curr, pImg1[-2], pImg2[+2]) );
-            sum += filterCoeff[9] * ( clipALF(filterClipp[9], curr, pImg0[+3], pImg0[-3]) );
+            sum += filterCoeff[ 0] * ( clipALF(filterClipp[ 0], curr, pImg5[+0], pImg6[+0]) );
+            sum += filterCoeff[ 1] * ( clipALF(filterClipp[ 1], curr, pImg3[+1], pImg4[-1]) );
+            sum += filterCoeff[ 2] * ( clipALF(filterClipp[ 2], curr, pImg3[+0], pImg4[+0]) );
+            sum += filterCoeff[ 3] * ( clipALF(filterClipp[ 3], curr, pImg3[-1], pImg4[+1]) );
+            sum += filterCoeff[ 4] * ( clipALF(filterClipp[ 4], curr, pImg1[+2], pImg2[-2]) );
+            sum += filterCoeff[ 5] * ( clipALF(filterClipp[ 5], curr, pImg1[+1], pImg2[-1]) );
+            sum += filterCoeff[ 6] * ( clipALF(filterClipp[ 6], curr, pImg1[+0], pImg2[+0]) );
+            sum += filterCoeff[ 7] * ( clipALF(filterClipp[ 7], curr, pImg1[-1], pImg2[+1]) );
+            sum += filterCoeff[ 8] * ( clipALF(filterClipp[ 8], curr, pImg1[-2], pImg2[+2]) );
+            sum += filterCoeff[ 9] * ( clipALF(filterClipp[ 9], curr, pImg0[+3], pImg0[-3]) );
             sum += filterCoeff[10] * ( clipALF(filterClipp[10], curr, pImg0[+2], pImg0[-2]) );
             sum += filterCoeff[11] * ( clipALF(filterClipp[11], curr, pImg0[+1], pImg0[-1]) );
           }
