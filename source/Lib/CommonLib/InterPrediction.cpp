@@ -2007,27 +2007,30 @@ void InterPrediction::xIntraBlockCopy( CodingUnit &cu, PelUnitBuf &predBuf, cons
   refx &= ((m_IBCBufferWidth >> shiftSampleHor) - 1);
   refy &= ((1 << ctuSizeVerLog2) - 1);
 
-  int lineIdx = cu.lumaPos().y / cu.slice->getSPS()->getMaxCUHeight();
-  
-  if (refx + predBuf.bufs[compID].width <= (m_IBCBufferWidth >> shiftSampleHor))
+  const int lineIdx = cu.lumaPos().y / cu.slice->getSPS()->getMaxCUHeight();
+
+  CHECK( refy + predBuf.bufs[compID].height > ( 1 << ctuSizeVerLog2 ), "IBC access out of bounds." );
+  if (refx + (int)predBuf.bufs[compID].width <= (m_IBCBufferWidth >> shiftSampleHor))
   {
-    const CompArea srcArea = CompArea(compID, Position(refx, refy), Size(predBuf.bufs[compID].width, predBuf.bufs[compID].height));
+    const CompArea srcArea = CompArea( compID, Position( refx, refy ), Size( predBuf.bufs[compID] ) );
     const CPelBuf refBuf = cu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   //m_IBCBuffer.getBuf(srcArea);
-    predBuf.bufs[compID].copyFrom(refBuf);
+    predBuf.bufs[compID].copyFrom( refBuf );
   }
   else
-  {//wrap around
-    int width = (m_IBCBufferWidth >> shiftSampleHor) - refx;
-    CompArea srcArea = CompArea(compID, Position(refx, refy), Size(width, predBuf.bufs[compID].height));
-    CPelBuf srcBuf = cu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   //m_IBCBuffer.getBuf(srcArea);
-    PelBuf dstBuf = PelBuf(predBuf.bufs[compID].bufAt(Position(0, 0)), predBuf.bufs[compID].stride, Size(width, predBuf.bufs[compID].height));
-    dstBuf.copyFrom(srcBuf);
+  {   // wrap around
+    CHECK( (int) predBuf.bufs[compID].width > ( m_IBCBufferWidth >> shiftSampleHor ), "IBC access out of bounds." );
 
-    width = refx + predBuf.bufs[compID].width - (m_IBCBufferWidth >> shiftSampleHor);
-    srcArea = CompArea(compID, Position(0, refy), Size(width, predBuf.bufs[compID].height));
-    srcBuf = cu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   //m_IBCBuffer.getBuf(srcArea);
-    dstBuf = PelBuf(predBuf.bufs[compID].bufAt(Position((m_IBCBufferWidth >> shiftSampleHor) - refx, 0)), predBuf.bufs[compID].stride, Size(width, predBuf.bufs[compID].height));
-    dstBuf.copyFrom(srcBuf);
+    const int width   = ( m_IBCBufferWidth >> shiftSampleHor ) - refx;
+    CompArea  srcArea = CompArea( compID, Position( refx, refy ), Size( width, predBuf.bufs[compID].height ) );
+    CPelBuf   srcBuf  = cu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   // m_IBCBuffer.getBuf(srcArea);
+    PelBuf    dstBuf  = predBuf.bufs[compID].subBuf( 0, 0, width, predBuf.bufs[compID].height );
+    dstBuf.copyFrom( srcBuf );
+
+    const int remWidth = predBuf.bufs[compID].width - width;
+    srcArea            = CompArea( compID, Position( 0, refy ), Size( remWidth, predBuf.bufs[compID].height ) );
+    srcBuf             = cu.cs->m_virtualIBCbuf[lineIdx].getBuf( srcArea );   // m_IBCBuffer.getBuf(srcArea);
+    dstBuf             = predBuf.bufs[compID].subBuf( width, 0, remWidth, predBuf.bufs[compID].height );
+    dstBuf.copyFrom( srcBuf );
   }
 }
 

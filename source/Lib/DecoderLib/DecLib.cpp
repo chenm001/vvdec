@@ -332,7 +332,7 @@ int DecLib::finishPicture( Picture* pcPic, MsgLevel msgl )
 #endif
 
   Slice*  pcSlice = pcPic->slices[0];
-  if( pcPic->wasLost || pcPic->error || pcPic->reconDone.hasException() )
+  if( pcPic->wasLost || pcPic->error || pcPic->reconDone.hasException() || pcPic->parseDone.hasException() )
   {
     msg( msgl, "POC %4d LId: %2d TId: %1d %s\n", pcPic->poc, pcPic->layerId, pcSlice->getTLayer(), pcPic->wasLost ? "LOST" : "ERROR" );
     pcPic->progress = Picture::finished;
